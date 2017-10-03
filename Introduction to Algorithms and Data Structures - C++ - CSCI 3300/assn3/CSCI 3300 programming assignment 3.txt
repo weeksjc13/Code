@@ -1,0 +1,817 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 3
+
+*Assigned:* 	Tuesday, September 23
+*First version due:* 	Wednesday, October 15, 11:59pm
+*Second version due:* 	Tuesday, November 4, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Background <#background>
+ 2. Functional requirements <#functionalrequirements>
+ 3. Nonfunctional requirements <#nonfunctionalrequirements>
+ 4. Template <#template>
+ 5. Sets <#sets>
+ 6. Puzzles <#puzzles>
+ 7. Getting a section of a puzzle <#sections>
+ 8. Reading and writing puzzles <#read>
+ 9. Building and running your program <#build>
+10. Tactics <#tactics>
+11. The puzzle solver <#solver>
+12. A refinement plan <#development>
+13. Debug prints <#debug>
+14. Regression tests <#testing>
+15. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Background
+
+A Sudoku puzzle is a 9x9 grid. Some of the cells have digits in them and
+some are empty. The grid naturally breaks into rows and columns, but it
+is also broken into nine 3x3 squares. For example, see here
+<http://www.websudoku.com/> for sample puzzles. The goal is to fill in a
+digit into each of the empty cells, with the following requirements.
+
+ 1. Each digit must be from 1 to 9.
+ 2. Each row, column and square has all of the digits from 1 to 9 in it,
+    each exactly once.
+
+------------------------------------------------------------------------
+
+
+    Functional Requirements
+
+Write a C++ program that reads a Sudoku puzzle and prints a solution to
+that puzzle. The puzzle is presented as 9 lines, with 9 nonblank
+characters per line. A digit represents an initially occupied cell and a
+dash represents an empty cell. There can be empty lines, which are
+skipped, and there can be spaces in a line, which are also skipped. The
+input might be as follows. **
+
+*1-- 489 --6
+73- --- -4-
+--- --1 295
+
+--7 12- 6--
+5-- 7-3 --8
+--6 -95 7--
+
+914 6-- ---
+-2- --- -37
+8-- 512 --4
+*
+
+You cannot assume that there are spaces or empty lines. So the input
+might also be as follows. *
+
+1--489--6
+73-----4-
+-----1295
+--712-6--
+5--7-3--8
+--6-957--
+9146-----
+-2-----37
+8--512--4
+
+*
+
+The output should consist of the original puzzle followed by the the
+solved puzzle, in a similar style. Write the output with spaces and line
+breaks the way it was shown in the first input example, regardless of
+the original form of the input. For example, the output might be as
+follows. **
+
+*The original puzzle:
+
+1-- 489 --6
+73- --- -4-
+--- --1 295
+
+--7 12- 6--
+5-- 7-3 --8
+--6 -95 7--
+
+914 6-- ---
+-2- --- -37
+8-- 512 --4
+
+Solution:
+
+152 489 376         
+739 256 841
+468 371 295
+
+387 124 659
+591 763 428
+246 895 713
+
+914 637 582
+625 948 137
+873 512 964    
+
+The puzzle was solved.
+*
+
+------------------------------------------------------------------------
+
+
+    Nonfunctional Requirements
+
+The program is required to be written in accordance with the design
+issues and algorithmic issues discussed below.
+
+The program is required to follow the coding standards
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/index.html> for
+this course, which include the following.
+
+  * The program must use the correct file format
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>
+    and file name
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>.
+    See the template below.
+  * Every function is required to have a clear, concise and precise
+    contract
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#contract>
+    telling what the function accomplishes and returns and how each of
+    its parameters influences what it accomplishes and what it returns.
+    The contract must /not/ be concerned with how the function works.
+  * Each function can have at most one loop
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#functionloop>
+    in its body, with the only exception being the use of two nested
+    for-loops to go through the cells of a 2-dimensional array.
+  * The main function cannot contain a loop.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#main>
+
+  * A function body must not change the value of a call-by-value
+    parameter.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#value>
+
+  * Do not write functions that do not perform their whole jobs.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#crippled>
+
+  * Use margin comments
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#margin>
+    sparingly.
+  * Avoid code duplication
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#dup>.
+
+  * End the last line
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#eol>.
+
+  * Do not use global or static variables
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/variable.html#global>.
+
+  * Every body of an if-statement, loop, etc. must be a compound
+    statement.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/component.html#compound>
+
+  * Do not use redundant tests
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/conditional.html#redundant>
+    in if-statements.
+  * If code is only performed at the end of the last iteration of a
+    loop, then it should be written after the loop
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/loop.html#loop-end>.
+
+
+------------------------------------------------------------------------
+
+
+    Template
+
+Get the template
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/sudoku.cpp>
+for this assignment. It has the things discussed below already installed
+in it.
+
+------------------------------------------------------------------------
+
+
+    Sets
+
+You will want to store a set of possible values for each cell. You can
+use the following implementation of sets. Get both files.
+
+  * intset.h
+    <http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/intset.h>
+  * intset.cpp
+    <http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/intset.cpp>
+
+To use sets, include intset.h in your program, as follows. (/Only/ use
+the features mentioned here. Do not use features that are not documented
+here that you find by reading intset.h or intset.cpp.)
+
+  #include "intset.h"
+
+(Notice the quotes instead of <...>. The quotes tell the compiler to
+look for intset.h in the directory that this file is in, while <...>
+tells the compiler to look in the standard library directory.)
+
+You can use the following capabilities.
+
+SetOfSmallInts
+
+    SetOfSmallInts is a type. Use it like any other type. A value of
+    type SetOfSmallInts is a subset of {1,2,3,4,5,6,7,8,9}. (It does not
+    need to be a proper subset, so it can be set {1,2,3,4,5,6,7,8,9}.)
+    When you create a variable of type SetOfSmallInts, it is
+    automatically initialized to hold an empty set. 
+
+emptySet
+
+    emptySet is an empty set. For example,
+
+      SetOfSmallInts s;
+      s = emptySet;
+
+    creates a variable /s/, and explicitly initializes it to hold an
+    empty set. (The initialization is redundant, since /s/ is
+    initialized to an empty set automatically when it is created.) 
+
+isEmpty(/s/)
+
+    isEmpty(/s/) returns true if /s/ is an empty set, and false otherwise. 
+
+rangeSet(/x/, /y/)
+
+    rangeSet(/x/, /y/) is a set {/x/, /x/+1, ..., /y/} holding all
+    integers that are greater than or equal to /x/ and less than or
+    equal to /y/. For example, rangeSet(2,6) is set {2,3,4,5,6}. Notice
+    that rangeSet(3,2) is {}, since there are no integers that are
+    greater than or equal to 3 and less than or equal to 2. For example,
+
+      SetOfSmallInts s;
+      s = rangeSet(1, 9);
+
+    makes set /s/ = {1,2,3,4,5,6,7,8,9}. 
+
+singletonSet(/x/)
+
+    singletonSet(/x/) returns a set that contains only /x/. For example,
+
+      SetOfSmallInts t;
+      t = singletonSet(1);
+
+    makes t hold set {1}. 
+
+isSingleton(/s/)
+
+    isSingleton(/s/) returns true if set /s/ holds exactly one number,
+    and false otherwise. 
+
+smallest(/s/)
+
+    smallest(/s/) returns the smallest member of /s/, or 0 if /s/ is an
+    empty set. For example,
+
+      SetOfSmallInts s = rangeSet(3,6);
+      int n = smallest(s);
+
+    makes n = 3. 
+
+member(/x/, /s/)
+
+    member(/x/, /s/) returns true (1) if /x/ is a member of set /s/, and
+    false (0) otherwise. For example, if /s/ is set {2,4}, then
+    member(2, /s/) is true, but member(5, /s/) is false. 
+
+setUnion(/s/, /t/)
+
+    setUnion(/s/,/t/) returns the union of sets /s/ and /t/. For example,
+
+      SetOfSmallInts s, t, u;
+      s = singletonSet(2);
+      t = singletonSet(6);
+      u = setUnion(s,t);
+
+    makes /u/ hold set {2,6}. 
+
+setIntersection(/s/, /t/)
+
+    setIntersection(/s/, /t/) returns the intersection of sets /s/ and
+    /t/ (the set of all numbers that are in both /s/ and /t/). For example,
+
+      SetOfSmallInts s,t,u;
+      s = rangeSet(1,5);
+      t = rangeSet(3,7);
+      u = setIntersection(s,t);
+
+    makes /u/ = {3,4,5}. 
+
+setDifference(/s/, /t/)
+
+    setDifference(/s/,/t/) returns the set of all numbers that are in
+    /s/ but not in /t/. For example,
+
+      SetOfSmallInts s,t,u;
+      s = rangeSet(1,5);
+      t = rangeSet(3,7);
+      u = setDifference(s,t);
+
+    makes /u/ = {1,2}. 
+
+insert(/x/, /s/)
+
+    insert(/x/, /s/) returns the set that you get by adding /x/ to set
+    /s/. It does not change /s/. If /x/ is already in /s/, insert(/x/,
+    /s/) returns /s/. For example,
+
+      SetOfSmallInts u,v;
+      u = singletonSet(3);
+      v = insert(5, u);
+
+    makes /u/ = {3} and /v/ = {3,5}. Notice that creating /v/ does not
+    change /u/. 
+
+remove(/x/, /s/)
+
+    remove(/x/, /s/) returns the set that you get by removing /x/ from
+    set /s/. It does not change /s/. If /x/ is not in /s/ then
+    remove(/x/, /s/) returns /s/. 
+
+size(/s/)
+
+    size(/s/) returns the number of members that set /s/ has. For
+    example, size(rangeSet(2,5)) = 4. 
+
+------------------------------------------------------------------------
+
+
+    Puzzles
+
+A puzzle is a 9x9 array of sets. If you include definition
+
+  typedef SetOfSmallInts Puzzle[9][9];
+
+then you can use Puzzle as a type, indicating a 9x9 array of sets. If
+/p/ has type Puzzle, then /p/[/i/][/j/] is the set stored at row /i/,
+column /j/ of /p/. The rows and columns are numbered from 0 to 8, not
+from 1 to 9. So the upper left corner of puzzle /p/ is /p/[0][0] and the
+lower right corner is /p/[8][8].
+
+To get you going, here is a function that copies a puzzle. This has
+already been installed in the template. Look at it to see how it works.
+
+//==============================================================
+//                      copyPuzzle
+//==============================================================
+// Copy puzzle p into q.  For example, if p is a puzzle, then
+//    Puzzle q;
+//    copyPuzzle(q, p);
+// stores a copy of puzzle p into q.
+//==============================================================
+
+void copyPuzzle(Puzzle q, Puzzle p)
+{
+  int i, j;
+  for(i = 0; i < 9; i++) 
+  {
+    for(j = 0; j < 9; j++) 
+    {
+      q[i][j] = p[i][j];
+    }
+  }
+}
+
+------------------------------------------------------------------------
+
+
+    Getting a Section of a Puzzle
+
+You will find it useful to be able to extract a row, column or square of
+a puzzle as an array of 9 sets. But you need to be able to change those
+sets, not just to look at them. So what you really want is a pointer
+back into the original array, so that any changes you make affect the
+original array. The template contains type definition
+
+  typedef SetOfSmallInts* PuzzleSection[9];
+
+and three functions for extracting sections from puzzles.
+
+getRow(/s/, /p/, /i/)
+
+    Store row /i/ of puzzle /p/ into section /s/. 
+
+getColumn(/s/, /p/, /i/)
+
+    Store column /i/ of puzzle /p/ into section /s/. 
+
+getSquare(/s/, /p/, /i/)
+
+    Store square /i/ of puzzle /p/ into section /s/. 
+
+Suppose that /p/ has type Puzzle.
+
+  PuzzleSection Sec;
+  getSquare(Sec, p, 0);
+
+makes Sec hold the square in the upper-left corner of puzzle /p/ (square
+0). Then *(Sec[0]) is equivalent to p[0][0], the upper left corner of
+that square. Statement
+
+  *(Sec[4]) = setDifference(*(Sec[4]), s);
+
+has the same effect as
+
+  p[1][1] = setDifference(p[1][1], s);
+
+since the set at index 4 in Sec is the middle one in the square.
+
+------------------------------------------------------------------------
+
+
+    Reading and Writing Puzzles
+
+Start by writing three functions, one to read a puzzle and two to write
+a puzzle. Use the following headings.
+
+void readPuzzle(Puzzle p)
+
+    Read a puzzle from the standard input in the form shown above. Store
+    it into p. Be sure to skip over white space when getting the next
+    character.
+
+void printPuzzle(Puzzle p)
+
+    Print puzzle p on the standard output in a form suitable for the
+    final output. If a set is a singleton set, write the only member of
+    that set. If it is an empty set, write 0. Otherwise, write '-'. You
+    should be able to use this to show both the original puzzle and the
+    solved puzzle.
+
+void showPuzzle(Puzzle p)
+
+    Print puzzle p on the standard output, but in a form suitable for
+    debugging. For each set, print all of the members of the set. Make
+    the output look nice. Keep the columns aligned. For example, a
+    puzzle might look as follows when printed using showPuzzle. **
+
+    *1         5         25        4         8         9         3         7         6                    
+    7         3         259       2         5         6         18        4         1                    
+    46        46        8         3         7         1         2         9         5                    
+    34        489       7         1         2         4         6         5         39                   
+    5         49        129       7         46        3         149       12        8                    
+    234       48        6         8         9         5         7         12        123                  
+    9         1         4         6         37        78        58        258       2                    
+    6         2         5         89        4         48        158       3         7                    
+    8         7         3         5         1         2         9         6         4                    
+    *
+
+    You can see that the first square contains *
+
+     {1}   {5}   {2,5}
+     {7}   {3}   {2,5,9}
+     {4,6} {4,6} {8}
+
+    * Design showPuzzle so that, if it encounters an empty set, it shows
+    an asterisk rather than showing nothing at all.
+
+Also write a main program that reads a puzzle and prints it back out
+using both printPuzzle and showPuzzle. Make sure that all three of these
+functions appear to be working before moving on. *Resist the temptation
+to move on to the rest before you are ready.* Here are some puzzles for
+testing your program.
+
+  * puzzle1.txt
+    <http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle1.txt>
+  * puzzle2.txt
+    <http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle2.txt>
+  * puzzle3.txt
+    <http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle3.txt>
+
+------------------------------------------------------------------------
+
+
+    Building and Running Your Program
+
+To build your program, copy file Makefile
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/Makefile> to
+the directory containing your program. It contains a few targets to
+make. For example, command
+
+make sudoku
+
+compiles and links the program. Command
+
+make run1
+
+compiles and runs the program on puzzle1.txt. Command
+
+make test
+
+runs the program on puzzle1.txt, puzzle2.txt and puzzle3.txt.
+
+------------------------------------------------------------------------
+
+
+    Tactics
+
+There are a few tactics that people (and computers) use to solve Sudoku
+puzzles.
+
+ 1.
+
+    A simple and obvious tactic (*/tactic 1/*) is to locate singleton
+    sets, which are cells whose values are known. If /K/ occurs in a
+    singleton set, then /K/ cannot occur in any other set in the same
+    row, column or square. So remove it from them all.
+
+    A simple way to run this tactic is to do a loop from 0 to 8. At
+    value /j/ (0 to 8) run tactic 1 on row /j/, column /j/ and square
+    /j/. Do each of those by extracting a section of the puzzle and
+    running tactic 1 on the section. You will need a function that
+    performs tactic 1 on a given puzzle section.
+
+    To run tactic 1 on a section, look at each set in the section. If
+    set number /i/ is {/K/}, then go through all indices, skipping index
+    /i/, removing /K/ from the set.
+
+    You will need to know whether doing tactic 1 has made any change to
+    the puzzle. Make your tactic 1 function return a boolean result;
+    true if a change was made, false if not.
+
+    *Note.* Make your function keep going even after it has made a
+    change. It should do tactic 1 on every row, column and square even
+    if it makes a change processing the first row, for example.
+
+ 2.
+
+    Another tactic (*/tactic 2/*) works as follows. Suppose that you
+    look at all of the sets in a given row, and only one of those sets
+    contains 2. Then, clearly, that cell must hold 2, since a 2 must go
+    somewhere. So you change it to {2}, a singleton set.
+
+    Write a function that performs tactic 2 on every row, column and
+    square in the puzzle. You will need a helper function that performs
+    tactic 2 on a given puzzle section.
+
+    As for tactic 1, make your function return true if it makes a change
+    and false if not. Also, make it keep going over every row, column
+    and square. It should not return immediately after the first change.
+
+ 3.
+
+    Many puzzles can be solved using only tactic 1, and some can be
+    solved using only tactic 2. But some, such as puzzle 3, are more
+    stubborn. There is a tactic (tactic 3) that is guaranteed to finish
+    the job, for every puzzle. But it is expensive to use, so you prefer
+    to use it only after tactics 1 and 2 have nothing more to contribute
+    to the solution.
+
+    Tactic 3 works as follows. Suppose that, after running tactics 1 and
+    2 until they no longer help, there are still nonsingleton sets, but
+    no empty sets. Then find one of the nonsingleton sets and try each
+    member of it as a possible value. You will find yourself working on
+    a copy of the puzzle with some speculative information installed.
+
+    Of course, some of your choices will not work. So you have to
+    consider the possibility that a puzzle is not solvable, even if the
+    original puzzle that you started with is solvable. You will want
+    your puzzle solver (below) and your tactic 3 function to return a
+    result indicating one of three possible outcomes: (1) the puzzle is
+    solved, (2) the puzzle is unsolvable, or (3) the puzzle is neither
+    solved nor unsolvable, but we have run out of ideas. (The third
+    option will only be used before installing tactic 3). For the
+    result, we create a new type, SolutionStatus, as follows.
+
+      enum SolutionStatus {solved, unsolvable, working};
+
+    You will need a function that performs tactic 3 on a puzzle. You
+    will also need some helper functions. Here are some suggestions.
+
+     1.
+
+        *Tactic3(/p/)* finds a nonsingleton set (say, at row /i/, column
+        /j/). It performs speculate(/p/, /i/, /j/) to try each
+        possibility for /p/[/i/][/j/]. If speculate returns solved,
+        tactic3 returns solved. If speculate returns unsolvable, tactic3
+        returns unsolvable.
+
+     2.
+
+        *Speculate(/p/, /i/, /j/)* tries each value for the set at row
+        /i/, column /j/ of puzzle /p/. For each one, it makes a copy /c/
+        of puzzle /p/, installs the chosen value for row /i/, column /j/
+        in the copy, then runs the solver on the copy. If the solver is
+        successful, then speculate copies /c/ back into /p/ and returns
+        solved. If the solver says the puzzle is unsolvable, speculate
+        tries the next speculated value. If none of the values leads to
+        a success, speculate returns unsolvable.
+
+------------------------------------------------------------------------
+
+
+    The Puzzle Solver
+
+You will need a function, the solver, that does the entire job of
+solving a puzzle.
+
+The solver should return one of solved, unsolvable or working. It is
+easy to check which is the case. If all of the sets are singleton, the
+puzzle is solved. If there is an empty set in the puzzle, the puzzle is
+unsolvable. If neither of those is the case, then we are still working
+on the puzzle. To return /solved/, the solver says
+
+  return solved;
+
+You will need functions to test the status. Write a function that takes
+a puzzle and returns true if all of the sets are singleton. Write
+another function that takes a puzzle and returns true if there is an
+empty set in the puzzle.
+
+Test your program with just tactic 1. After that is working (as well as
+it can, since tactic 3 is not yet available), write tactic 2 and modify
+the solver so that it only tries tactic 2 repeatedly, and does not use
+tactic 1.
+
+------------------------------------------------------------------------
+
+
+    A Refinement Plan
+
+ 1.
+
+    Initially, just make your program (1) read the puzzle, (2) show the
+    puzzle (using showPuzzle), and (3) print the puzzle (using
+    printPuzzle). Make sure that it works before moving on.
+
+ 2.
+
+    Now write tactic 1. Include debug prints (see below). Make the
+    solver run tactic 1 repeatedly on the puzzle until either the puzzle
+    is solved or tactic 1 fails to make any more progress. Make main run
+    the solver and report the result in a sensible way. (If the puzzle
+    is solvable, main should show the solved puzzle. If the puzzle is
+    unsolvable, main should say so, and /not/ show the unsolved puzzle.
+    If the program has run out of ideas, main should say so.) Use your
+    debug prints to see what is happening. Make sure that tactic 1 is
+    working sensibly.
+
+ 3.
+
+    Now write tactic 2, including debug prints. Modify the solver so
+    that it only runs tactic 2 repeatedly. (Do not continue to run
+    tactic 1, since its action will make tactic 2 difficult to test.)
+    Use your debug prints, and make sure that tactic 2 is working sensibly.
+
+ 4.
+
+    Now write tactic 3. Modify the solver so that it alternates between
+    tactics 1 and 2 until neither of them makes any more progress. Then
+    test the puzzle status. If the puzzle has been solved, return
+    solved. If the puzzle is unsolvable, return unsolvable. If the
+    puzzle is neither solved nor obviously unsolvable, make the solver
+    run tactic 3 (once) on the puzzle and return the result that tactic
+    3 returns.
+
+------------------------------------------------------------------------
+
+
+    Debug Prints
+
+Professional software designers write their programs for testing, right
+from the start. They do everything they can to make them work, but then
+presume that there will be problems. (There usually are.) The idea is
+not to wait until problems show up to think about testing. Think about
+it from the beginning.
+
+One way to think about testing from the start is to build in tracing
+capabilities. If you write
+
+  #ifdef DEBUG
+    if(tracing > 0) 
+    {
+      printf("tactic 1: here is the initial puzzle\n");
+      showPuzzle(p);
+    }
+  #endif
+
+inside tactic 1, then you make tactic 1 show what it is doing. Of
+course, you do not always want it to do that. So you have two switches
+to turn it on or off.
+
+ 1.
+
+    If you have written
+
+      #define DEBUG
+
+    then the part between #ifdef DEBUG and #endif will be compiled into
+    the program. But if you do not write that, or write
+
+      //#define DEBUG
+
+    then the compiler will ignore the part between #ifdef DEBUG and
+    #endif, and it will be as if that part were not part of the program
+    at all.
+
+ 2.
+
+    Variable *tracing* has type int. If it is positive, then the trace
+    will be shown (assuming it has not been skipped over by the
+    compiler.). If tracing is 0, nothing is shown.
+
+Using this idea, add debug prints to tactic 1 and tactic 2. Show the
+puzzle at the beginning and at the end of performing the tactic. But
+make sure that it can be turned off.
+
+Never print raw information, such as numbers or just a puzzle without
+saying indicating the context. Always say which function is showing it,
+and what it represents. See tracing
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Debug/trace.html>.
+
+Also add tracing to tactic 3. Show that tactic 3 is starting, and show
+the puzzle. Say which position is being speculated on and, for each
+speculation, show the value that is being tried. After trying each
+speculated value, indicate whether the value worked or not, and show the
+resulting puzzle. If tactic 3 runs out of values to try, say so. Make
+sure that someone reading the trace is informed about what is going on.
+
+*Your trace prints should not just say "I am here". Every one must show *
+
+  * *The name of the function that is doing the trace.
+  * Relevant information about where the function is (at the beginning,
+    about to return, etc.)
+  * Useful information about the function's parameters or result.
+    *
+
+*
+
+When you turn in your program, do not remove the debug prints. The point
+is to leave them in the program so that they can be turned on when they
+are needed. But ensure that debug prints are turned off in the version
+that you submit.
+
+------------------------------------------------------------------------
+
+
+    Regression Tests
+
+Software needs to be tested extensively. Any time you make a
+modification, you really should go back and redo all of your tests to
+make sure that you have not inadvertantly ruined something that used to
+work. But you do not want to do that by hand; that is far too much work.
+So you put together a suite of tests, called regression tests, that run
+automatically. You generally leave tests in the suite, even after they
+work, unless they are testing something that the software no longer
+supports.
+
+The Makefile that I supplied contains a target called *test* so that
+command *make test* runs ./sudoku on each of puzzle1.txt, puzzle2.txt
+and puzzle3.txt. That is a small regression test.
+
+(Regression tests are normally done with debugging turned off. You only
+turn debugging on when a test does not work and you want to find out why
+not. Ideally, each test checks its own work and you only get output
+shown if the test is incorrect. *Yours won't do that.* But if you did
+want to automate checking, you would run another program that captures
+the standard output from sudoku and checks it. For example, command **
+
+*  ./sudoku <puzzle1.txt | checkpuzzle puzzle1.ans
+*
+
+sends the standard output of the sudoku program to the standard input of
+the checkpuzzle program. That is, checkpuzzle sees in its standard input
+just what sudoku writes to its standard output. You would write
+checkpuzzle to read the information, possibly along with a prewritten
+answer file (puzzle1.ans) and to check whether the two are identical.)
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+You must submit your program using the following method. Email
+submissions will not be accepted. An excuse that you do not know how to
+use Linux will not be accepted.
+
+To turn in version (a), log into one of the Linux machines, change your
+directory to the one that holds your programs, and do the following
+command. **
+
+*  ~abrahamsonk/3300/bin/submit 3a sudoku.cpp
+*
+
+To turn in version (b), do the following. *
+
+  ~abrahamsonk/3300/bin/submit 3b sudoku.cpp
+
+* After submitting, you should receive confirmation that the submission
+was successful. If you do not receive confirmation, assume that the
+submission did not work.
+
+ 
+
+ 
+
+ 
+
+*

@@ -1,0 +1,931 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>CSCI 3300 programming assignment 3</title>
+  <link rel="stylesheet" href="CSCI%203300%20programming%20assignment%203_files/3300.css" type="text/css">
+</head>
+
+<body>
+<h1>
+  Computer Science 3300<br>
+  Fall 2014<br>
+  Section 001<br>
+  Programming Assignment 3
+</h1>
+
+<a name="deadlines"></a>
+<p></p><div align="center"><table>
+  <tbody><tr>
+    <td><b>Assigned:</b></td>
+    <td>Tuesday, September 23</td>
+  </tr>
+  <tr>
+    <td><b>First version due:</b></td>
+    <td>Wednesday, October 15, 11:59pm</td>
+  </tr>
+  <tr>
+    <td><b>Second version due:</b></td>
+    <td>Tuesday, November 4, 11:59pm</td>
+  </tr>
+</tbody></table>
+</div><p></p>
+
+<hr>
+<h3>Table of contents</h3>
+
+<p></p><ol>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#functionalrequirements">Functional requirements</a></li>
+  <li><a href="#nonfunctionalrequirements">Nonfunctional requirements</a></li>
+  <li><a href="#template">Template</a></li>
+  <li><a href="#sets">Sets</a></li>
+  <li><a href="#puzzles">Puzzles</a></li>
+  <li><a href="#sections">Getting a section of a puzzle</a></li>
+  <li><a href="#read">Reading and writing puzzles</a></li>
+  <li><a href="#build">Building and running your program</a></li>
+  <li><a href="#tactics">Tactics</a></li>
+  <li><a href="#solver">The puzzle solver</a></li>
+  <li><a href="#development">A refinement plan</a></li>
+  <li><a href="#debug">Debug prints</a></li>
+  <li><a href="#testing">Regression tests</a></li>
+  <li><a href="#submit">Submitting your work</a></li>
+</ol><p></p>
+
+
+<hr>
+<a name="background"></a>
+<h2>Background</h2>
+
+<p>A Sudoku puzzle is a 9x9 grid.  Some of the cells have digits in them
+and some are empty.  The grid naturally breaks into rows and columns, but it
+is also broken into nine 3x3 squares.  For example, see
+<a href="http://www.websudoku.com/">here</a> for sample puzzles.
+The goal is to fill in a digit into each of the empty
+cells, with the following requirements.
+</p>
+
+<p></p><ol>
+  <li>Each digit must be from 1 to 9.</li>
+  <li>Each row, column and square has all of the digits from 1 to 9 in it, 
+  each exactly once.</li>
+</ol><p></p>
+
+
+<hr>
+<a name="functionalrequirements"></a>
+<h2>Functional Requirements</h2>
+
+<p>Write a C++ program that reads a Sudoku puzzle and prints a solution to
+that puzzle.  The puzzle is presented as 9 lines, with 9 nonblank characters
+per line.  A digit represents an initially occupied cell and a dash represents
+an empty cell.  There can be empty lines, which are skipped, and there can
+be spaces in a line, which are also skipped.
+The input might be as follows.
+<b></b></p><pre><b>1-- 489 --6
+73- --- -4-
+--- --1 295
+
+--7 12- 6--
+5-- 7-3 --8
+--6 -95 7--
+
+914 6-- ---
+-2- --- -37
+8-- 512 --4
+</b></pre>
+You cannot assume that there are spaces or empty lines.  So the input might
+also be as follows.
+<b><pre>1--489--6
+73-----4-
+-----1295
+--712-6--
+5--7-3--8
+--6-957--
+9146-----
+-2-----37
+8--512--4
+</pre></b>
+<p></p>
+
+<p>The output should consist of the original puzzle followed by the
+the solved puzzle, in a similar style.
+Write the output with spaces and line breaks the way it was shown in the
+first input example, regardless of the original form of the input.  For example,
+the output might be as follows.
+<b></b></p><pre><b>The original puzzle:
+
+1-- 489 --6
+73- --- -4-
+--- --1 295
+
+--7 12- 6--
+5-- 7-3 --8
+--6 -95 7--
+
+914 6-- ---
+-2- --- -37
+8-- 512 --4
+
+Solution:
+
+152 489 376         
+739 256 841
+468 371 295
+
+387 124 659
+591 763 428
+246 895 713
+
+914 637 582
+625 948 137
+873 512 964    
+
+The puzzle was solved.
+</b></pre>
+
+
+<hr>
+<a name="nonfunctionalrequirements"></a>
+<h2>Nonfunctional Requirements</h2>
+
+<p>The program is required to be written in accordance with the
+design issues and algorithmic issues discussed below.
+</p>
+
+<p>The program is required to follow the 
+<a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/index.html">coding standards</a>
+for this course, which include the following.
+</p><ul>
+  <li>
+    The program must use the correct
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html">file format</a> and
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html">file name</a>.
+    See the template below.
+  </li>
+  <li>
+    Every function is required to have a 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#contract">clear, concise and
+    precise contract</a> telling what the function accomplishes and returns
+    and how each of its parameters influences what it accomplishes and what
+    it returns.  The contract must <i>not</i> be concerned with how the
+    function works.
+  </li>
+  <li>
+    Each function can have <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#functionloop">at most one loop</a>
+    in its body, with the only exception being the use of two nested for-loops
+    to go through the cells of a 2-dimensional array.
+  </li>
+  <li>
+    The main function 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#main">cannot contain a loop.</a>
+  </li>
+  <li>
+    A function body must 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#value">not change the value of a call-by-value
+    parameter.</a>
+  </li>
+  <li>
+    Do not write functions that 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#crippled">do not perform their whole jobs.</a>
+  </li>
+  <li>
+    Use <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#margin">margin comments</a>
+    sparingly.
+  </li>
+  <li>
+    Avoid <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#dup">code duplication</a>.
+  </li>
+  <li>
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#eol">End the last line</a>.
+  </li>
+  <li>
+    Do not use <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/variable.html#global">global
+    or static variables</a>.
+  </li>
+  <li>
+    Every body of an if-statement, loop, etc. must be a
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/component.html#compound">compound statement.</a>
+  </li>
+  <li>
+    Do not use 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/conditional.html#redundant">redundant tests</a>
+    in if-statements.
+  </li>
+  <li>
+    If code is only performed at the end of the last iteration of a loop,
+    then it should be written 
+    <a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/loop.html#loop-end">after the loop</a>.
+  </li>
+</ul>
+<p></p>
+
+
+<hr>
+<a name="template"></a>
+<h2>Template</h2>
+
+<p>Get the <a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/sudoku.cpp">template</a> for this assignment.
+It has the things discussed below already installed in it.
+</p>
+
+
+<hr>
+<a name="sets"></a>
+<h2>Sets</h2>
+
+<p>You will want to store a set of possible values for each cell.  You can use
+the following implementation of sets.  Get both files.
+</p>
+
+<p></p><ul>
+  <li><a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/intset.h" type="text/plain">intset.h</a></li>
+  <li><a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/intset.cpp" type="text/plain">intset.cpp</a></li>
+</ul><p></p>
+
+<p>To use sets, include intset.h in your program, as follows.
+(<i>Only</i> use the features mentioned here.  Do not use
+features that are not documented here that you find by reading
+intset.h or intset.cpp.)
+</p><pre class="ccode">  #include "intset.h"
+</pre>
+(Notice the quotes instead of &lt;...&gt;.  The quotes tell the compiler
+to look for intset.h in the directory that this file is in, while
+&lt;...&gt; tells the compiler to look in the standard library directory.)
+<p></p>
+
+<p>You can use the following capabilities.
+</p>
+
+<p></p><dl>
+  <dt><p>SetOfSmallInts</p></dt>
+  <dd>SetOfSmallInts is a type.  Use it like any other type.  A value of type
+  SetOfSmallInts is a subset of {1,2,3,4,5,6,7,8,9}.  (It does not need to
+  be a proper subset, so it can be set {1,2,3,4,5,6,7,8,9}.)
+  When you create a variable of type SetOfSmallInts, it is automatically
+  initialized to hold an empty set.
+  </dd>
+
+  <dt><p>emptySet</p></dt>
+  <dd>emptySet is an empty set.  For example,
+<pre class="ccode">  SetOfSmallInts s;
+  s = emptySet;
+</pre>
+  creates a variable <i>s</i>, and explicitly initializes it to hold an empty set.
+  (The initialization is redundant, since <i>s</i> is initialized to an empty
+  set automatically when it is created.)
+  </dd>
+
+  <dt><p>isEmpty(<i>s</i>)</p></dt>
+
+  <dd>isEmpty(<i>s</i>) returns true if <i>s</i> is an empty set, and false otherwise.
+  </dd>
+
+  <dt><p>rangeSet(<i>x</i>, <i>y</i>)</p></dt>
+
+  <dd>rangeSet(<i>x</i>, <i>y</i>) is a set {<i>x</i>, <i>x</i>+1, ..., <i>y</i>} 
+  holding all integers that
+  are greater than or equal to <i>x</i> and less than or equal to <i>y</i>.  For
+  example, rangeSet(2,6) is set {2,3,4,5,6}.  Notice that
+  rangeSet(3,2) is {}, since there are no integers that are greater than
+  or equal to 3 and less than or equal to 2.
+  For example,
+<pre class="ccode">  SetOfSmallInts s;
+  s = rangeSet(1, 9);
+</pre>
+  makes set <i>s</i> = {1,2,3,4,5,6,7,8,9}.
+  </dd>
+
+  <dt><p>singletonSet(<i>x</i>)</p></dt>
+
+  <dd>singletonSet(<i>x</i>) returns a set that contains only <i>x</i>.  For example,
+<pre class="ccode">  SetOfSmallInts t;
+  t = singletonSet(1);
+</pre>
+  makes t hold set {1}.
+  </dd>
+
+  <dt><p>isSingleton(<i>s</i>)</p></dt>
+
+  <dd>isSingleton(<i>s</i>) returns true if set <i>s</i> holds exactly one number, and
+  false otherwise.
+  </dd>
+
+  <dt><p>smallest(<i>s</i>)</p></dt>
+
+  <dd>smallest(<i>s</i>) returns the smallest member of <i>s</i>, 
+  or 0 if <i>s</i> is an
+  empty set.  For example,
+<pre class="ccode">  SetOfSmallInts s = rangeSet(3,6);
+  int n = smallest(s);
+</pre>
+  makes n = 3.
+  </dd>
+
+  <dt><p>member(<i>x</i>, <i>s</i>)</p></dt>
+
+  <dd>member(<i>x</i>, <i>s</i>) returns true (1) if <i>x</i> is a member of 
+  set <i>s</i>, and false (0) 
+  otherwise.  For example, if <i>s</i> is set {2,4}, then member(2, <i>s</i>) is true,
+  but member(5, <i>s</i>) is false.
+  </dd>
+
+  <dt><p>setUnion(<i>s</i>, <i>t</i>)</p></dt>
+
+  <dd>setUnion(<i>s</i>,<i>t</i>) returns the union of sets <i>s</i> and <i>t</i>.  
+  For example,
+<pre class="ccode">  SetOfSmallInts s, t, u;
+  s = singletonSet(2);
+  t = singletonSet(6);
+  u = setUnion(s,t);
+</pre>
+  makes <i>u</i> hold set {2,6}.
+  </dd>
+
+  <dt><p>setIntersection(<i>s</i>, <i>t</i>)</p></dt>
+
+  <dd>setIntersection(<i>s</i>, <i>t</i>) returns the intersection of 
+  sets <i>s</i> and <i>t</i> (the
+  set of all numbers that are in both <i>s</i> and <i>t</i>).  For example,
+<pre class="ccode">  SetOfSmallInts s,t,u;
+  s = rangeSet(1,5);
+  t = rangeSet(3,7);
+  u = setIntersection(s,t);
+</pre>
+  makes <i>u</i> = {3,4,5}.
+  </dd>
+
+  <dt><p>setDifference(<i>s</i>, <i>t</i>)</p></dt>
+
+  <dd>setDifference(<i>s</i>,<i>t</i>) returns the set of 
+  all numbers that are in <i>s</i>
+  but not in <i>t</i>.  For example,
+<pre class="ccode">  SetOfSmallInts s,t,u;
+  s = rangeSet(1,5);
+  t = rangeSet(3,7);
+  u = setDifference(s,t);
+</pre>
+  makes <i>u</i> = {1,2}.
+  </dd>
+
+  <dt><p>insert(<i>x</i>, <i>s</i>)</p></dt>
+
+  <dd>insert(<i>x</i>, <i>s</i>) returns the set that 
+  you get by adding <i>x</i> to set <i>s</i>.  It
+  does not change <i>s</i>.  If <i>x</i> is already in <i>s</i>, 
+  insert(<i>x</i>, <i>s</i>) returns <i>s</i>.
+  For example,
+<pre class="ccode">  SetOfSmallInts u,v;
+  u = singletonSet(3);
+  v = insert(5, u);
+</pre>
+  makes <i>u</i> = {3} and <i>v</i> = {3,5}.  
+  Notice that creating <i>v</i> does not change <i>u</i>.
+  </dd>
+
+  <dt><p>remove(<i>x</i>, <i>s</i>)</p></dt>
+
+  <dd>remove(<i>x</i>, <i>s</i>) returns the set that you get by 
+  removing <i>x</i> from set <i>s</i>.  It
+  does not change <i>s</i>.  If <i>x</i> is not in <i>s</i>
+  then remove(<i>x</i>, <i>s</i>) returns <i>s</i>.
+  </dd>
+
+  <dt><p>size(<i>s</i>)</p></dt>
+
+  <dd>size(<i>s</i>) returns the number of members that set <i>s</i> has.  For 
+  example, size(rangeSet(2,5)) = 4.
+  </dd>
+
+</dl><p></p>
+
+
+<hr>
+<a name="puzzles"></a>
+<h2>Puzzles</h2>
+
+<p>A puzzle is a 9x9 array of sets.  If you include definition
+</p><pre class="ccode">  typedef SetOfSmallInts Puzzle[9][9];
+</pre>
+then you can use Puzzle as a type, indicating a 9x9 array of sets.
+If <i>p</i> has type Puzzle, then <i>p</i>[<i>i</i>][<i>j</i>] is 
+the set stored at row <i>i</i>, column <i>j</i> of <i>p</i>.
+The rows and columns are numbered from 0 to 8, not from 1 to 9.  So the
+upper left corner of puzzle <i>p</i> is <i>p</i>[0][0] and the lower right corner
+is <i>p</i>[8][8].
+<p></p>
+
+<p>To get you going, here is a function that copies a puzzle.  This has
+already been installed in the template.  Look at it to see how it works.
+</p>
+
+<pre class="ccode">//==============================================================
+//                      copyPuzzle
+//==============================================================
+// Copy puzzle p into q.  For example, if p is a puzzle, then
+//    Puzzle q;
+//    copyPuzzle(q, p);
+// stores a copy of puzzle p into q.
+//==============================================================
+
+void copyPuzzle(Puzzle q, Puzzle p)
+{
+  int i, j;
+  for(i = 0; i &lt; 9; i++) 
+  {
+    for(j = 0; j &lt; 9; j++) 
+    {
+      q[i][j] = p[i][j];
+    }
+  }
+}
+</pre>
+
+
+<hr>
+<a name="sections"></a>
+<h2>Getting a Section of a Puzzle</h2>
+
+<p>You will find it useful to be able to extract a row, column or square
+of a puzzle as an array of 9 sets.  But you need to be able to change those
+sets, not just to look at them.  So what you really want is a pointer back
+into the original array, so that any changes you make affect the original
+array.  The template contains type definition
+</p><pre class="ccode">  typedef SetOfSmallInts* PuzzleSection[9];
+</pre>
+and three functions for extracting sections from puzzles.
+<p></p>
+<dl>
+  <dt><p>getRow(<i>s</i>, <i>p</i>, <i>i</i>)</p></dt>
+  <dd>
+    Store row <i>i</i> of puzzle <i>p</i> into section <i>s</i>.
+  </dd>
+
+  <dt><p>getColumn(<i>s</i>, <i>p</i>, <i>i</i>)</p></dt>
+  <dd>
+    Store column <i>i</i> of puzzle <i>p</i> into section <i>s</i>.
+  </dd>
+
+  <dt><p>getSquare(<i>s</i>, <i>p</i>, <i>i</i>)</p></dt>
+  <dd>
+    Store square <i>i</i> of puzzle <i>p</i> into section <i>s</i>.
+  </dd>
+</dl>
+
+<p>Suppose that <i>p</i> has type Puzzle.
+</p><pre class="ccode">  PuzzleSection Sec;
+  getSquare(Sec, p, 0);
+</pre>
+makes Sec hold the square in the upper-left corner of puzzle <i>p</i> (square 0).
+Then *(Sec[0]) is equivalent to p[0][0], the upper left corner of
+that square.  Statement
+<pre class="ccode">  *(Sec[4]) = setDifference(*(Sec[4]), s);
+</pre>
+has the same effect as
+<pre class="ccode">  p[1][1] = setDifference(p[1][1], s);
+</pre>
+since the set at index 4 in Sec is the middle one in the square.
+<p></p>
+
+
+<hr>
+<a name="read"></a>
+<h2>Reading and Writing Puzzles</h2>
+
+<p><span class="write">Start by writing three functions, 
+one to read a puzzle and two to write a puzzle.</span>
+Use the following headings.
+</p>
+
+<p></p><dl>
+  <dt><p>void readPuzzle(Puzzle p)</p></dt>
+  <dd><p>Read a puzzle from the standard input
+  in the form shown above.  
+  Store it into p.  Be sure to skip over white space
+  when getting the next character.
+  </p></dd>
+
+  <dt><p>void printPuzzle(Puzzle p)</p></dt>
+  <dd><p>Print puzzle p on the standard output
+  in a form suitable for the final output.  If a set is a singleton set,
+  write the only member of that set.
+  If it is an empty set, write 0.  
+  Otherwise, write '-'.  You should be able to use this to show
+  both the original puzzle and the solved puzzle.
+  </p></dd>
+
+  <dt><p>void showPuzzle(Puzzle p)</p></dt>
+  <dd><p>Print puzzle p on the standard output, but in a form suitable for
+  debugging.  For each set, print all of the members of the set.  Make
+  the output look nice.  Keep the columns aligned.  For example, a puzzle might
+  look as follows when printed using showPuzzle.
+<b></b></p><pre><b>1         5         25        4         8         9         3         7         6                    
+7         3         259       2         5         6         18        4         1                    
+46        46        8         3         7         1         2         9         5                    
+34        489       7         1         2         4         6         5         39                   
+5         49        129       7         46        3         149       12        8                    
+234       48        6         8         9         5         7         12        123                  
+9         1         4         6         37        78        58        258       2                    
+6         2         5         89        4         48        158       3         7                    
+8         7         3         5         1         2         9         6         4                    
+</b></pre>
+  You can see that the first square contains
+<b><pre> {1}   {5}   {2,5}
+ {7}   {3}   {2,5,9}
+ {4,6} {4,6} {8}
+</pre></b>
+  Design showPuzzle so that, if it encounters an empty set, it shows an asterisk rather
+  than showing nothing at all.
+  <p></p></dd>
+</dl><p></p>
+
+<p>Also <span class="write">write a main program that reads a puzzle and 
+prints it back out using both
+printPuzzle and showPuzzle.</span>  Make sure that all three of these functions appear
+to be working before moving on.  <b>Resist the temptation to move on to the
+rest before you are ready.</b>  Here are some puzzles for testing your program.
+</p>
+<ul>
+  <li><a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle1.txt">puzzle1.txt</a></li>
+  <li><a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle2.txt">puzzle2.txt</a></li>
+  <li><a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/puzzle3.txt">puzzle3.txt</a></li>
+</ul><p></p>
+
+
+<hr>
+<a name="build"></a>
+<h2>Building and Running Your Program</h2>
+
+<p>To build your program, copy file 
+<a href="http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/Makefile">Makefile</a> to the directory
+containing your program.  It contains a few targets to 
+make.  For example, command
+</p><pre>make sudoku</pre>
+compiles and links the program.  Command
+<pre>make run1</pre>
+compiles and runs the program on puzzle1.txt.
+Command
+<pre>make test</pre>
+runs the program on puzzle1.txt, puzzle2.txt and puzzle3.txt.
+<p></p>
+
+
+<hr>
+<a name="tactics"></a>
+<h2>Tactics</h2>
+
+<p>There are a few tactics that people (and computers)
+use to solve Sudoku puzzles.  
+</p>
+<ol>
+  <li><p>
+   A simple and obvious tactic (<b><i>tactic 1</i></b>) is to locate singleton sets, 
+   which are cells whose values are known.  If <i>K</i> occurs in a singleton
+   set, then <i>K</i> cannot occur in any other set in the same row, column or square.  
+   So remove it from them all.  
+  </p>
+
+  <p>A simple way to run this tactic is to do a loop
+  from 0 to 8.  At value <i>j</i> (0 to 8) run tactic 1 on
+  row <i>j</i>, column <i>j</i> and square <i>j</i>.
+  Do each of those by extracting a section of the puzzle
+  and running tactic 1 on the section.  You will need a function
+  that performs tactic 1 on a given puzzle section.
+  </p>
+
+  <p>To run tactic 1 on a section, look at each set in
+  the section.  If set number <i>i</i> is {<i>K</i>}, 
+  then go through all indices, skipping index <i>i</i>,
+  removing <i>K</i> from the set.
+  </p>
+
+  <p>You will need to know whether doing tactic 1 has made any
+  change to the puzzle.  Make your tactic 1 function return a boolean
+  result; true if a change was made, false if not.
+  </p>
+
+  <p><b>Note.</b> Make your function keep going even after it
+  has made a change.  It should do tactic 1 on every row, column
+  and square even if it makes a change processing the first row,
+  for example.
+  </p></li>
+
+  <li><p>
+    Another tactic (<b><i>tactic 2</i></b>) works as follows.
+    Suppose that you look at all of the sets in a given row,
+    and only one of those sets contains 2.  Then, clearly, that cell must
+    hold 2, since a 2 must go somewhere.  
+    So you change it to {2}, a singleton set.
+    </p>
+
+    <p>Write a function that performs tactic 2 on every
+    row, column and square in the puzzle.  You will need a
+    helper function that performs tactic 2 on a given puzzle section.
+    </p>
+
+    <p>As for tactic 1, make your function return true if it
+    makes a change and false if not.  Also, make it keep going
+    over every row, column and square.  It should not return
+    immediately after the first change.
+  </p></li>
+
+  <li><p>
+    Many puzzles can be solved using only tactic 1, and
+    some can be solved using only tactic 2.
+    But some, such as puzzle 3, are more stubborn.
+    There is a tactic (tactic 3) that is
+    guaranteed to finish the job, for every puzzle.
+    But it is expensive to use, so you prefer to use it
+    only after tactics 1 and 2 have nothing more to contribute
+    to the solution.
+    </p>
+
+    <p>Tactic 3 works as follows.
+    Suppose that, after running tactics 1 and 2 until they
+    no longer help, there are still nonsingleton sets, but no
+    empty sets.
+    Then find one of the nonsingleton sets and try each member
+    of it as a possible value.  You will find yourself working
+    on a copy of the puzzle with some speculative information
+    installed.
+    </p>
+
+    <p>Of course, some of your choices will not work.  So you
+    have to consider the possibility that a puzzle is not solvable, even
+    if the original puzzle that you started with is solvable.
+    You will want your puzzle solver (below) and your tactic 3 function
+    to return a result indicating one of three possible outcomes:
+    (1) the puzzle is solved, (2) the puzzle is unsolvable, or 
+    (3) the puzzle is neither solved nor unsolvable, but we have run
+    out of ideas.  (The third option will only be used before installing
+    tactic 3).  For the result, we create a new type, SolutionStatus, as
+    follows.
+</p><pre class="ccode">  enum SolutionStatus {solved, unsolvable, working};
+</pre>
+    <p></p>
+
+    <p>You will need a function that performs tactic 3 on a puzzle.
+    You will also need some helper functions.  Here are some
+    suggestions.
+    </p>
+    <ol>
+      <li><p>
+        <b>Tactic3(<i>p</i>)</b> finds a nonsingleton set (say, at
+        row <i>i</i>, column <i>j</i>).  It performs
+        speculate(<i>p</i>, <i>i</i>, <i>j</i>) to try each
+        possibility for <i>p</i>[<i>i</i>][<i>j</i>].  If
+        speculate returns solved, tactic3 returns solved.
+        If speculate returns unsolvable, tactic3 returns unsolvable.
+      </p></li>
+
+      <li><p>
+        <b>Speculate(<i>p</i>, <i>i</i>, <i>j</i>)</b> tries
+        each value for the set at row <i>i</i>, column <i>j</i> of
+        puzzle <i>p</i>.  For each one, it makes a copy <i>c</i> of
+        puzzle <i>p</i>, 
+        installs the chosen value for row <i>i</i>, column <i>j</i>
+        in the copy, then runs the solver on the copy.
+        If the solver is successful, then speculate copies 
+        <i>c</i> back into <i>p</i> and returns solved.
+        If the solver says the puzzle is unsolvable, speculate tries
+        the next speculated value.
+        If none of the values leads to a success, speculate
+        returns unsolvable.
+      </p></li>
+    </ol>
+
+  <p></p></li>
+</ol>
+
+
+<hr>
+<a name="solver"></a>
+<h2>The Puzzle Solver</h2>
+
+<p>You will need a function, the <span class="term">solver</span>, that does the entire
+job of solving a puzzle.  
+</p>
+
+<p>The solver should return one of <span class="term">solved</span>,
+<span class="term">unsolvable</span> or <span class="term">working</span>.
+It is easy to check which is the case.  If all of the sets are
+singleton, the puzzle is solved.  If there is an empty
+set in the puzzle, the puzzle is unsolvable.  If neither
+of those is the case, then we are still working on the puzzle.
+To return <i>solved</i>, the solver says
+</p><pre class="ccode">  return solved;
+</pre>
+<p></p>
+
+<p>You will need functions to test the status.
+<span class="write">Write a function that takes a puzzle and returns
+true if all of the sets are singleton.  Write another function that
+takes a puzzle and returns true if there is an empty set in the
+puzzle.</span>
+</p>
+
+<p>Test your program with just tactic 1.  After that is working
+(as well as it can, since tactic 3 is not yet available), write
+tactic 2 and modify the solver so that it only tries tactic 2
+repeatedly, and does not use tactic 1.
+
+
+</p><hr>
+<a name="development"></a>
+<h2>A Refinement Plan</h2>
+
+<ol>
+   <li><p>
+     Initially, just make your program (1) read the puzzle,
+     (2) show the puzzle (using showPuzzle), and (3) print
+     the puzzle (using printPuzzle).  Make sure that it works
+     before moving on.
+   </p></li>
+
+   <li><p>
+     Now write tactic 1.  Include debug prints (see below).
+     Make the solver run tactic 1 repeatedly
+     on the puzzle until either the puzzle is solved or tactic 1 fails to make
+     any more progress.  Make main run the solver and
+     report the result in a sensible way.
+     (If the puzzle is solvable, main should show the solved puzzle.
+     If the puzzle is unsolvable, main should say so, and <i>not</i>
+     show the unsolved puzzle.  If the program has run out of ideas,
+     main should say so.)
+     Use your debug prints to see
+     what is happening.  Make sure that tactic 1 is working
+     sensibly.
+   </p></li>
+
+   <li><p>
+     Now write tactic 2, including debug prints.
+     Modify the solver so that it only runs tactic 2
+     repeatedly.  (Do not continue to run tactic 1, since
+     its action will make tactic 2 difficult to test.)
+     Use your debug prints, and make sure that tactic 2
+     is working sensibly.
+   </p></li>
+
+   <li><p>
+     Now write tactic 3.  Modify the solver so that it
+     alternates between tactics 1 and 2 until neither
+     of them makes any more progress.  Then test
+     the puzzle status.  If the puzzle has been solved, 
+     return solved.  If the puzzle
+     is unsolvable, return unsolvable.  If the
+     puzzle is neither solved nor obviously unsolvable,
+     make the solver run tactic 3 (once) on the puzzle
+     and return the result that tactic 3 returns.
+   </p></li>
+</ol>
+
+
+<hr>
+<a name="debug"></a>
+<h2>Debug Prints</h2>
+
+<p>Professional software designers write their programs for testing,
+right from the start.  They do everything they can to make them work, but
+then presume that there will be problems.  (There usually are.)
+The idea is not to wait until problems show up to think about testing.
+Think about it from the beginning.
+</p>
+
+<p>One way to think about testing from the start is to build in
+tracing capabilities.  If you write
+</p><pre class="ccode">  #ifdef DEBUG
+    if(tracing &gt; 0) 
+    {
+      printf("tactic 1: here is the initial puzzle\n");
+      showPuzzle(p);
+    }
+  #endif
+</pre>
+inside tactic 1, then you make tactic 1 show what it is
+doing.  Of course, you do not always want it to do that.
+So you have two switches to turn it on or off.  
+<p></p>
+
+<p></p><ol>
+  <li><p>If you have written
+</p><pre class="ccode">  #define DEBUG
+</pre>
+then the part between #ifdef DEBUG and #endif will be compiled
+into the program.  But if you do not write that, or write
+<pre class="ccode">  //#define DEBUG
+</pre>
+then the compiler will ignore the part between #ifdef DEBUG
+and #endif, and it will be as if that part were not part of
+the program at all.
+  <p></p></li>
+
+  <li><p>Variable <b>tracing</b> has type int.  If it is positive, then
+  the trace will be shown (assuming it has not been skipped
+  over by the compiler.).  If tracing is 0, nothing is
+  shown.
+  </p></li>
+</ol><p></p>
+
+<p>Using this idea, add debug prints to tactic 1 and
+tactic 2.
+Show the puzzle at
+the beginning and at the end of performing the tactic.  
+But make sure that it can be turned off.
+</p>
+
+<p>Never print raw
+information, such as numbers or just a puzzle without saying
+indicating the context.  Always say which function is
+showing it, and what it represents.  See 
+<a href="http://www.cs.ecu.edu/karl/3300/fall14/Notes/Debug/trace.html">tracing</a>.
+</p>
+
+<p>Also add tracing to tactic 3.  Show that tactic 3 is starting,
+and show the puzzle.  Say which position is being speculated on
+and, for each speculation, show the value that is being tried.
+After trying each speculated value, indicate whether the value
+worked or not, and show the resulting puzzle.  If tactic 3 runs
+out of values to try, say so.  Make sure that someone reading the
+trace is informed about what is going on.
+</p>
+
+<p><b>Your trace prints should not just say "I am here".
+Every one must show
+</b></p><ul><b>
+  <li>The name of the function that is doing the trace.</li>
+  <li>Relevant information about where the function is
+      (at the beginning, about to return, etc.)</li>
+  <li>Useful information about the function's parameters
+      or result.</li>
+</b></ul><b>
+
+<p>When you turn in your program, do not remove the debug
+prints.  The point is to leave them in the program so that they
+can be turned on when they are needed. But ensure that debug prints
+are turned off in the version that you submit.
+</p>
+
+
+<hr>
+<a name="testing"></a>
+<h2>Regression Tests</h2>
+
+<p>Software needs to be tested extensively.  Any time you make a modification, you
+really should go back and redo all of your tests to make sure that you have
+not inadvertantly ruined something that used to work.  But you do not want
+to do that by hand; that is far too much work.  So you put together a suite
+of tests, called regression tests, that run automatically.  You generally
+leave tests in the suite, even after they work, unless they are testing 
+something that the software no longer supports.
+</p>
+
+<p>The Makefile that I supplied contains a target called <b>test</b> so that
+command <b>make test</b> runs ./sudoku on each of puzzle1.txt, puzzle2.txt
+and puzzle3.txt.  That is a small regression test.
+</p>
+
+<p>(Regression tests are normally done with debugging turned off.  You
+only turn debugging on when a test does not work and you want to find
+out why not.  Ideally, each test checks its own work and you only
+get output shown if the test is incorrect.  
+<b>Yours won't do that.</b>  But if
+you did want to automate checking, 
+you would run another program that captures the standard output from
+sudoku and checks it.  For example, command
+<b></b></p><pre><b>  ./sudoku &lt;puzzle1.txt | checkpuzzle puzzle1.ans
+</b></pre>
+sends the standard output of the sudoku program to the standard
+input of the checkpuzzle program.  That is, checkpuzzle sees
+in its standard input just what sudoku writes to its standard output.
+You would write checkpuzzle
+to read the information, possibly along with a prewritten
+answer file (puzzle1.ans)
+and to check whether the two are identical.)
+<p></p>
+
+<hr>
+<a name="submit"></a>
+<h2>Submitting Your Work</h2>
+
+<p>You must submit your program using the following method.  Email submissions
+will not be accepted.  An excuse that you do not know how to use Linux will
+not be accepted.
+</p>
+
+<p>To turn in version (a), log into one of the Linux machines, change
+your directory to the one that holds your programs, and do the
+following command.
+<b></b></p><pre><b>  ~abrahamsonk/3300/bin/submit 3a sudoku.cpp
+</b></pre>
+To turn in version (b), do the following.
+<b><pre>  ~abrahamsonk/3300/bin/submit 3b sudoku.cpp
+</pre></b>
+After submitting, you should receive confirmation that the
+submission was successful.  If you do not receive confirmation,
+assume that the submission did not work.
+<p></p>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+</b></body></html>
