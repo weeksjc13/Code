@@ -1,0 +1,1019 @@
+
+  Computer Science 3300
+  Section 001
+  Fall 2014
+  Programming Assignment 7
+
+*Assigned:* 	Wednesday, November 19
+*Due:* 	Monday, December 8, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Background: graphs and spanning trees <#background>
+ 2. Program requirements <#requirements>
+ 3. Algorithmic issues <#algorithm>
+ 4. Design issues <#design>
+ 5. Implementation issues <#implementation>
+ 6. Handling connections: an abstract data type <#equiv>
+ 7. An implementation plan <#plan>
+ 8. Submitting your work <#submit>
+ 9. Extra credit (Read only after you have the program working) <#extra>
+10. Why should I believe that Kruskal's algorithm works? (This is not
+    required for writing the program.) <#kruskal-justification>
+11. Motivation for computing minimal spanning trees (you can skip this)
+    <#motivation>
+
+------------------------------------------------------------------------
+
+
+    Background: Graphs and Spanning Trees
+
+You used graphs in assignment 4. This problem uses them again, so here
+is a review.
+
+graph is a collection of vertices connected by a collection of edges. An
+edge connects exactly two vertices to one another. You can draw a
+picture of a graph by showing the vertices and the edges connecting
+them. Here is an example. The vertices are shown as circles with numbers
+in them and the edges are lines connecting the vertices.
+
+We will only be concerned with connected graphs. A graph is connected if
+there is a path from every vertex to every other vertex, following
+edges. For example, in the above graph, there is a path from 3 to 4 that
+goes (3, 1, 2, 4). There are other paths from 3 to 4 as well.
+
+A weighted graph is a graph in which each edge has a number attached to
+it, called the weight of the edge. Here is a picture of a weighted graph.
+
+A spanning tree of a graph is obtained by deleting as many edges as
+possible without making the graph so that it is no longer connected.
+That is, we still need to have a path from each vertex to each other
+vertex. For example, the following is a spanning tree of the above
+weighted graph.
+
+The weight of a spanning tree is the sum of the weights of its edges.
+For example, the weight of the above spanning tree is 59. Here is
+another spanning tree for the same graph. Its weight is 48.
+
+Obviously, some spanning trees have smaller weight than others. A
+minimal spanning tree is a spanning tree with the smallest possible weight.
+
+------------------------------------------------------------------------
+
+
+    Program Requirements
+
+Write a program that reads a description of a weighted graph and prints
+the edges that are part of a minimal spanning tree of that graph. It
+should also print the total weight of the minimal spanning tree. *The
+input should be read from the standard input, and the output should be
+written to the standard output.*
+
+
+      Input format
+
+The input starts with a line that tells how many vertices the graph has.
+If there are five vertices, then those vertices have numbers 1, 2, 3, 4
+and 5. In general, if there are /n/ vertices, then they are numbered 1,
+..., /n/.
+
+Following the first line are the edges, one per line. Each edge line has
+three integers on it. Line
+
+2 4 50
+
+indicates that there is an edge between vertices 2 and 4, and that its
+weight is 50. The end of the input is signaled by a line that contains
+just a 0. An input describing graph
+
+might look like this.
+
+5
+1 2  9
+1 3 12
+2 4 18
+2 3  6
+2 5 20
+3 5 15
+0
+
+You can assume that there are no more than 100 edges, but that number
+must be easy to change. To increase this to 200, for example, should
+only require changing one line of your program.
+
+
+      Output format
+
+The output of your program for this input might look like this.
+
+
+The input graph has 5 vertices, and its edges are as follows.
+
+  vertices    weight
+  1   2            9
+  1   3           12
+  2   4           18
+  2   3            6
+  2   5           20
+  3   5           15
+  
+A minimal spanning tree uses the following edges.
+
+  vertices    weight
+  2   3            6
+  1   2            9
+  3   5           15
+  2   4           18
+
+The total weight of the spanning tree is 48.
+
+------------------------------------------------------------------------
+
+
+    Algorithmic Issues
+
+For this problem, the algorithm is sufficiently difficult that it is a
+good idea to think about the algorithm before proceeding with the
+program design.
+
+
+      Kruskal's algorithm
+
+There is a well-known algorithm, called Kruskal's algorithm, for
+computing a minimal spanning tree of a weighted graph. It goes as follows.
+
+ 1.
+
+    Sort the edges from small weight to larger weight. Call the sorted
+    list of edges /e/_0 , ..., /e/_/m-1/ . So, for example, /e/_0 is the
+    edge with the smallest weight. (See below <#sorting> for an easy way
+    to sort an array of edges.)
+
+ 2.
+
+    Start with an empty graph /K/. It has all of the vertices, but no
+    edges yet. Edges will be added to it until, at the end, it is the
+    minimal spanning tree.
+
+ 3.
+
+    For /i/ = 0, ..., /m-1/ do
+
+     1. Look at edge /e/_/i/ . Suppose that it connects vertices /u/ and
+        /v/.
+     2. If there is not already a path in /K/ between vertices /u/ and
+        /v/, then add edge /e/_/i/ to /K/. Otherwise, do not add it to
+        /K/. (How to determine whether there is already a path is
+        discussed below <#connect>.)
+
+When the algorithm is done, /K/ is a minimal spanning tree for your
+graph. See below <#kruskal-justification> for an argument that Kruskal's
+algorithm works.
+
+
+      Determining connections
+
+A tricky issue with Kruskal's algorithm is how to determine whether two
+vertices are already connected by a path. Suppose we write /u/ ~ /v/ is
+there is a path between /u/ and /v/. You might have seen the notion of
+an equivalence relation (in CSCI 2427). Notice that ~ is an equivalence
+relation.
+
+ 1.
+
+    (~ is reflexive) /u/ ~ /u/. That is, you can always get from /u/ to
+    itself (by taking no edges).
+
+ 2.
+
+    (~ is symmetric) If /u/ ~ /v/ then /v/ ~ /u/. That is, if there is a
+    path from /u/ to /v/, then there is also a path from /v/ to /u/.
+
+ 3.
+
+    (~ is transitive) If /u/ ~ /v/ and /v/ ~ /w/ then /u/ ~ /w/. If
+    there is a path from /u/ to /v/ and also a path from /v/ to /w/,
+    then there is a path from /u/ to /w/.
+
+An equivalence relation is always characterized by its equivalence
+classes. That is, at any point in time, you can characterize which
+vertices are connected to which others by writing a collection of sets
+of connected vertices. For example, suppose that there are 6 vertices. Sets
+
+    {1,3,4}, {2,5}, {6} 
+
+indicate that vertices 1, 3 and 4 are connected to one another, vertices
+2 and 5 are connected to one another, and vertex 6 is not connected to
+any other vertex. Only vertices that are in the same set are connected
+to one another.
+
+Look at what Kruskal's algorithm needs to do with this collection of sets.
+
+ 1.
+
+    It needs to be able to ask whether two vertices are in the same set.
+    That is, are they already connected by a path?
+
+ 2.
+
+    It can add an edge, which causes two of the sets to be combined. For
+    example, if it starts with
+
+        {1,3,4}, {2,5}, {6} 
+
+    and adds an edge from 3 to 5, then sets {1,3,4} and {2,5} get
+    combined, yielding a new collection of sets
+
+        {1,2,3,4,5}, {6} 
+
+If we can figure out a way to handle a collection of disjoint sets, with
+an operation to test whether two numbers are in the same set, and
+another operation that combines two of the sets in to one, then we will
+be able to implement Kruskal's algorithm. An algorithm that manages sets
+and that handles the operations required by Kruskal's algorithm is
+discussed below <#equiv>.
+
+------------------------------------------------------------------------
+
+
+    Design Issues
+
+Now, with the basics of the algorithms outlined, we can design the
+program. This program should have three modules.
+
+ 1.
+
+    *Module 1* implements the equivalence handling. It should consist of
+    two files, equiv.h and equiv.cpp. In equiv.h, define a structure
+    type Equiv, holding a pointer to an array of integers and the size
+    of that array. See the description of the equivalence manager
+    algorithm <#equiv> for the intent of the array. Write contracts and
+    prototypes for two functions, together(/e/, /x/, /y/) and
+    combine(/e/, /x/, /y/). The idea is that together(/e/, /x/, /y/)
+    returns true if /x/ and /y/ are in the same set, as described by
+    equivalence relation /e/; and combine(/e/, /x/, /y/) modifies /e/ so
+    that the sets containing /x/ and /y/ are combined into a single set.
+    The headings are as follows.
+
+       bool together(Equiv& e, int x, int y);
+       void combine(Equiv& e, int x, int y);
+
+    File equiv.cpp contains implementations of those functions, plus
+    helper functions. *Every function, including helper functions, must
+    have a clear contract that tells what it accomplishes and how each
+    of its arguments affects what it accomplishes.*
+
+ 2.
+
+    *Module 2* implements Kruskal's algorithm. Keep it simple. It has
+    two files, graph.h and graph.cpp. In file graph.h, create a
+    structure type Graph, where a graph stores
+
+      * A number of vertices
+      * A number of edges
+      * A pointer to an array of edges
+
+    You will also want a structure type that represents one edge,
+    holding two vertex numbers and a weight. Create the following
+    functions, and add prototypes and contracts for them to graph.h. Put
+    the implementations of these functions into graph.cpp.
+
+     1.
+
+        A function that reads information about a graph, in the format
+        shown in the requirements <#requirements> section, and that
+        returns a graph holding the information that it read.
+
+     2.
+
+        A function to print a graph, by telling how many vertices it
+        has, how many edges it has, and then showing the edges. It
+        should not print any specific heading. For example, it should
+        not say that it is printing the input graph. Just provide
+        information about the graph.
+
+     3.
+
+        A function to compute the total weight of a graph, by adding up
+        the weights of the edges. It should return the weight, and
+        should not write anything.
+
+     4.
+
+        A function that takes a graph /G/ as a parameter and returns
+        another graph that is a minimal spanning tree of /G/. This
+        function contains an implementation of Kruskal's algorithm.
+
+    Note that graph.cpp will need to include equiv.h, since it needs the
+    equivalence manager as a tool.
+
+ 3.
+
+    *Module 3* contains only a main program. Call it main.cpp. It should
+    include graph.h, but not equiv.h. The main program should be short.
+    It just does the following steps.
+
+     1. Read a graph. This should be one line of code, since there is
+        already a function that does this job.
+     2. Print the graph (two lines of code, one for a heading saying
+        that this is the original graph, and another line to call the
+        graph printer).
+     3. Compute the minimal spanning tree of the graph (one line).
+     4. Print the minimal spanning tree of the graph (two lines, since
+        you need to say what is being printed).
+     5. Print the weight of the minimal spanning tree (one line).
+
+------------------------------------------------------------------------
+
+
+    Implementation Issues
+
+
+      Edges and vertices
+
+Do not confuse edges with vertices. Keep track of the number of vertices
+in a graph separately from the number of edges.
+
+The /vertices/ are numbered 1, ..., /n/. You will need to have an array
+of /edges/. It is a good idea to start numbering the edges from 0, not
+from 1. So put the first edge that you read at index 0 in the array.
+
+
+      Sorting an array of edges
+
+You will need to sort the array of edges according to the weights of the
+edges. There is a function in the C standard library called qsort that
+will sort an array. It implements a variant of the Quicksort algorithm.
+You should include header file <cstdlib> to use qsort.
+
+Qsort is a general sorting function, designed to be able to sort any
+type of array into any desired order. In order to achieve that degree of
+generality, qsort needs information about the array and how to sort it.
+It also needs for you to perform some conversions that, in general,
+would be questionable, but that work correctly here.
+
+Qsort takes four parameters. In general, you write
+
+   qsort(base, numElements, elementSize, compare);
+
+where
+
+  *
+
+    Parameter *base* is a pointer to the array that you want to sort.
+    You should convert this pointer to type (void*).
+
+  *
+
+    Parameter *numElements* is the number of elements in the array.
+
+  *
+
+    Parameter *elementSize* is the number of bytes occupied by each
+    element. If each thing in the array has type Edge, then this should
+    be *sizeof(Edge)*.
+
+  *
+
+    Parameter *compare* is a function. (C++ allows you to pass a
+    function as a parameter to another function. You do not run the
+    function yourself; qsort will run it for you. You are just lending
+    the tool to qsort, not using the tool yourself.) Function compare
+    takes two parameters, which will be /pointers/ to particular members
+    of the array when qsort calls it. compare(/A/, /B/) should return
+
+    A negative number
+
+        if */A/ should come before */B/ in the sorted array
+
+    A positive number
+
+        if */A/ should come after */B/ in the sorted array
+
+    0
+
+        if you do not care what order they are in
+
+    Your comparison function might look like this, since you want to
+    sort according to the weights of the edges.
+
+      int compareEdges(const Edge* A, const Edge* B)
+      {
+        return A->weight - B->weight;
+      }
+
+To run qsort, define a new type, QSORT_COMPARE_TYPE, as follows. It is
+the type of the compare parameter that qsort expects to receive.
+
+   typedef int (*QSORT_COMPARE_TYPE)(const void*, const void*);
+
+Now statement
+
+   qsort((void*) Arr, n, sizeof(Edge), (QSORT_COMPARE_TYPE) compareEdges);
+
+will sort array of edges Arr according to weights, with smaller weights
+toward the beginning of the array.
+
+
+      Warning
+
+Your function, compareEdges, does */not/* have type QSORT_COMPARE_TYPE,
+since compareEdges takes two parameters of type const Edge*, and qsort
+says that it should take two parameters of type void*. But you can tell
+the compiler to ignore this, and to let you pass your compareEdges
+function to qsort, by doing a /cast/, which tells the compiler to treat
+a value of one type as if it is a value of a different type. In most
+cases, this is a very dangerous thing to do, but you have to do it to
+use qsort.
+
+------------------------------------------------------------------------
+
+
+    Handling Connections: An Abstract Data Type
+
+Programs often need to use tools that are provided as abstract data
+types. An abstract data type is a type of data along with some
+operations. An object that belongs to the data type remembers some
+information, and the operations either get or modify that information.
+
+You need an abstract data type that manages equivalence classes of
+positive integers. This section describes the abstract data type in a
+little more detail, and tells you a simple way to implement it.
+
+
+      The conceptual view
+
+The conceptual view is how somebody who /uses/ the abstract data type
+thinks about it. You create an Equiv object by telling it a positive
+integer /n/. You write
+
+  Equiv e(n);
+
+to create an object /e/ that manages an equivalence relation (a
+collection of disjoint sets) over 1, ..., /n/. Initially, the sets are
+{1}, {2}, ..., {/n/}.
+
+Two functions are available.
+
+together(/e/, /x/, /y/)
+
+    This returns true if /x/ and /y/ are currently in the same set in
+    object /e/, and false if they are in different sets.
+
+combine(/e/, /x/, /y/)
+
+    This makes /x/ and /y/ equivalent, combining the sets that contain
+    them.
+
+The following shows an example that does a sequence of combine and
+together operations. After each combine operation, the new collection of
+sets is shown. The result of a together operation is either true or
+false. The example is for the case where /n/ = 7.
+
+Operation 	Result
+  	{1} {2} {3} {4} {5} {6} {7}
+combine(/e/,3,6) 	{1} {2} {3,6} {4} {5} {7}
+combine(/e/,4,5) 	{1} {2} {3,6} {4,5} {7}
+together(/e/,3,6) 	true
+together(/e/,4,6) 	false
+combine(/e/,3,5) 	{1} {2} {3,4,5,6} {7}
+combine(/e/,3,1) 	{2} {1,3,4,5,6} {7}
+together(/e/,3,4) 	true
+together(/e/,1,6) 	true
+together(/e/,2,4) 	false
+combine(/e/,3,5) 	{2} {1,3,4,5,6} {7}
+
+Notice that you are allowed to combine two numbers that are already in
+the same set. Nothing happens then.
+
+*Important note.* Your graph.cpp module uses the equivalence manager. It
+must /*only*/ use the operations described here, under the conceptual
+view of the equivalence manager. It must not make use of any of the
+implementation details discussed under the algorithm. For example,
+graph.cpp should make no mention of the concept of a boss or a leader.
+
+
+      Algorithm
+
+There is a simple way to implement the Equiv abstract data type. The
+idea is to have a leader of each set. For example, if numbers 3, 5 and 8
+are in the same set, then they might decide that 5 is their leader. You
+write a function leader(/e/, /k/) that returns the leader of the set
+that contains /k/ in collection of sets /e/. Then, to find out whether
+two numbers are in the same set, just check whether they have the same
+leader.
+
+To implement the leader function, use another idea that is related to
+leaders. Each number that is not a leader has a boss. The boss of a
+number might be that number's leader, or it might not. But the boss is
+closer to the leader. You find your leader by going to your boss, then
+to your boss's boss, etc, until you hit a number that does not have a
+boss. To indicate that a leader does not have a boss, we will say that
+its boss is 0. So, if /e/.boss[/k/] is /k/'s boss (in /e/), then you can
+find /e/'s leader using the following loop.
+
+  r = k;
+  while(e.boss[r] != 0) r = e.boss[r];
+
+Now /r/ is /k/'s leader.
+
+When you combine two sets, you start by getting the leaders of those
+sets. Be careful; if the leaders are the same, do not make any changes.
+But if the leaders are different, then make one of those leaders be the
+boss of the other. For example, if /x/ and /y/ are two different
+leaders, then
+
+  e.boss[x] = y;
+
+makes /y/ be /x/'s new boss.
+
+*It is critical that you only change the boss of a leader. If /x/ is not
+a leader, do not change /x/'s boss.*
+
+Remember that, if you are asked to combine two values that already have
+the same leader, do not make any change.
+
+------------------------------------------------------------------------
+
+
+    Tracing
+
+Your program must contain switchable debug prints. At a minimum, it must
+show each edge as it is considered and whether or not the edge was added
+to the tree.
+
+------------------------------------------------------------------------
+
+
+    An Implementation Plan
+
+Here is a suggestion for how to write this program.
+
+ 1.
+
+    Write the type definitions, contracts and headings in equiv.h.
+    Implement the functions in equiv.cpp, including functions leader,
+    together and combine. They should be very short and simple. Add one
+    more function that prints the boss array, for testing. Add debug
+    prints to the combine function so that it can show the boss array
+    before and after it runs.
+
+    Write a separate main program that tests your implementation of this
+    module. Print the result of each together call. Be sure to try cases
+    where you are combining things that are already together. */Test
+    thoroughly./* Do not throw away your tester, and do not move on
+    until this module works.
+
+    Read: Handling connections: an abstract data type <#equiv>.
+
+ 2.
+
+    Create types Edge and Graph in graph.h. An Edge just remembers the
+    two vertices that it connects and its weight. A graph needs to
+    remember how many vertices it has, how many edges it has, and an
+    array of Edges. Include a constructor that builds an array of a
+    fixed size. You will want to tell the constructor how many vertices
+    there are, but make it set the graph to have no edges initially. The
+    size of the array of edges should be a named constant, such as
+    maxEdges. For example,
+
+       const int maxEdges = 100;
+
+    defines maxEdges to be 100. *Do not forget to write const.* Make the
+    definition of maxEdges global so that it can be shared by different
+    functions. Global constants are not a problem.
+
+    Add prototypes to graph.h for the readGraph and printGraph functions.
+
+    In graph.cpp, define a function that adds an edge to a graph. Then
+    implement the functions that read and print a graph. You should be
+    able to adapt your readGraph function from assignment 3. But do not
+    use an adjacency list for this program. Just put the edges into the
+    array of edges. You should find readGraph and printGraph to be
+    simple functions.
+
+    Now write part of the main function in main.cpp. Just have it read
+    the graph and print it. Do not move on until it works.
+
+    Read: Input format <#inputFormat>, Output format <#outputFormat> and
+    Synopsis of module 2 <#module2>.
+
+ 3.
+
+    Implement the function that computes the total weight of a graph.
+    Add a line to your main program that computes and prints the total
+    weight of the input graph. Test it.
+
+    Read: Function to compute the total weight of the graph <#totalWeight>.
+
+ 4.
+
+    Implement the function that computes the minimal spanning tree,
+    using Kruskal's algorithm <#algorithm>. It needs to take a graph as
+    a parameter and yield another graph, which will hold the minimal
+    spanning tree.
+
+    Add debug prints that allow you to print the list of edges. Show the
+    list before and after you sort it, to ensure that you are using
+    qsort correctly.
+
+    Since you already have the equivalence manager, Kruskal's algorithm
+    is very short and simple. Make sure not to make it too complicated.
+
+    Modify your main program to use Kruskal's algorithm, and to do the
+    entire job, according to the requirements. Test it on several
+    different graphs. Do not try just one graph. */Be warned that most
+    students under-test their programs, and turn in programs that
+    contain errors./*
+
+    Read: Kruskal's algorithm <#KruskalsAlgorithm>, Sorting the array of
+    edges <#sorting>
+
+ 5.
+
+    Now that you have a working version, */save it/* and */keep it/*.
+    For example, create a subdirectory to hold the basic, working
+    version. In Linux, command
+
+      cp -R /olddir newdir/
+
+    will make a copy of directory olddir, calling the copy newdir. For
+    example,
+
+      cp -R mst mst1
+
+    makes a copy of directory mst and all of its contents, and calls the
+    copy mst1.
+
+ 6.
+
+    If you have time, implement the extra credit parts <#extra>. Test
+    them carefully. Do not make the mistake of just writing something
+    and then doing shoddy testing. Actually look at the results of your
+    tests. Notice that you are modifying equiv.cpp. Instead of just
+    running your application, try running your tester that was designed
+    for testing equiv.cpp. You will get better testing that way. */Be
+    warned that most students implement the improvements incorrectly
+    because they do not take time to think carefully about what they are
+    doing./*
+
+ 7.
+
+    Submit your work.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+Turn in this program in the usual way. Use command
+
+~abrahamsonk/3300/bin/submit 7 equiv.cpp equiv.h graph.cpp graph.h main.cpp
+
+------------------------------------------------------------------------
+
+
+    Extra Credit
+
+For extra credit (up to 15 points), implement two improvements on the
+algorithm for managing equivalence classes. But do so carefully.
+
+  *
+
+    You will only receive extra credit for an improvement that is
+    implemented correctly.
+
+  *
+
+    You will only receive extra credit for the improvement if the
+    program works correctly. So do not do the improvement before the
+    graph module is working.
+
+  *
+
+    If your "improvement" actually breaks the implementation, so that it
+    gives incorrect results, you will receive less credit for the
+    "improved" version than you would for a correct version without any
+    improvements.
+
+The improvements make the equivalence manager more efficient when it is
+working on very large collections of sets.
+
+For simplicity, instead of /e/.boss, I will just write boss in this
+section. Assume we are talking about a particular /e/.
+
+
+      The first improvement: improving leader
+
+The first improvement involves a change to the leader function. After
+the leader function scans through a chain of boss links to find the
+leader of a number, it should go back through the chain and put the
+genuine leader in the boss array for every number that was looked at in
+the chain. That way, subsequent leader computations will go much more
+quickly. For example, if the boss array contains
+
+  boss[1] = 2
+  boss[2] = 4
+  boss[3] = 0
+  boss[4] = 6
+  boss[5] = 3
+  boss[6] = 0
+  boss[7] = 4
+  boss[8] = 5
+
+then computing the leader of 1 requires chaining through 1, 2, 4, 6,
+stopping at leader 6. The improvement changes the contents of the boss
+array to the following, by installing the correct leader (6) of each of
+the numbers that was looked at.
+
+  boss[1] = 6
+  boss[2] = 6
+  boss[3] = 0
+  boss[4] = 6
+  boss[5] = 3
+  boss[6] = 0
+  boss[7] = 4
+  boss[8] = 5
+
+You can do this with another loop that rescans through the chain, the
+same way the chain was scanned the first time, but now putting the
+leader into the array as you go. Alternatively, modify the leader
+function to be recursive, then just change the boss after each recursive
+call. (In the past, most students who did this improvement using a loop
+got it wrong, so be careful. Most students who did it with recursion got
+it right.)
+
+*Notice that we have not scanned the entire boss array from beginning to
+end!* Boss[8] is still 5, even though the leader of 8 is 3. Only the
+numbers that were looked at in the original scan have their boss values
+changed. If you try to change everything in the array, you make the
+implementation */slower/*, not faster.
+
+Also notice that it was not just the boss of 1 that was changed. All of
+the numbers that were examined in the chain have their bosses set to
+their leaders. For example boss[2] was changed too.
+
+Be sure to test your improved leader function. It is easy to write it
+incorrectly. Try it by hand to see whether it seems to do the right thing.
+
+
+      The second improvement: improving combine
+
+Each number that is a leader has a collection of constituents who have
+that number as their leader. For example, in the above array, number 3
+is a leader, and the constituents of 3 are 3, 5 and 8. So number 3 has
+three constituents, counting itself. The constituent count of a leader
+tells how many numbers are in the set that contains that leader.
+
+When doing a combine operation, you find two values /s/ and /t/ that are
+leaders. You can then either change the boss of /s/ to /t/ (so /s/ is no
+longer a leader) or change the boss of /t/ to /s/ (so /t/ is no longer a
+leader). Either one will accomplish the goal of combining the two sets,
+but the choice of which to do influences the efficiency of the
+implementation. The best choice is to change the boss of the number that
+has the fewest constituents. That tends to keep the lengths of the boss
+chains up to the leader short.
+
+Modify the data structure so that each number has not only a boss, but
+also a count of its constituents. A number that is not a leader has no
+constituents. So now the information is an array of structures, where
+each structure contains a boss and a constituent count.
+
+A picture of the initial array, before any combines have been done,
+might look like this. Notice that each number has one constituent, itself.
+
+  index    boss  numConstituents
+    1        0           1
+    2        0           1
+    3        0           1
+    4        0           1
+    5        0           1
+    6        0           1
+    7        0           1
+
+When doing a combine, compare the constituent counts of the two leaders.
+Change the boss of the leader with the fewer constituents. (If they have
+the same number of constituents, then the choice is arbitrary.) If you
+change things so that the boss of /s/ becomes /t/, then remember that
+/all/ of the constituents of /s/ become new constituents of /t/.
+
+If you do combine(e,3,5) in the above array, you might arbitrarily
+decide to make the boss of 3 be 5. Then the array looks like this.
+
+  index   boss  numConstituents
+    1        0           1
+    2        0           1
+    3        5           0
+    4        0           1
+    5        0           2
+    6        0           1
+    7        0           1
+
+If you now do combine(e,5,1), you must change the boss of 1, since it
+has fewer constituents than 5. The array ends up looking like this.
+
+  index   boss  numConstituents
+    1        5           0
+    2        0           1
+    3        5           0
+    4        0           1
+    5        0           3
+    6        0           1
+    7        0           1
+
+As before, only change the boss of a number that is currently a leader.
+If you now do combine(e,2,1), you must realize that you are really being
+asked to combine 2 and 5, since 5 is the leader of 1. Since 5 has more
+constituents, you change 2's boss, yielding
+
+  index   boss  numConstituents
+    1        5           0
+    2        5           0
+    3        5           0
+    4        0           1
+    5        0           4
+    6        0           1
+    7        0           1
+
+As you can see, this improvement tends to lead to shorter chains of
+bosses before the leader is found.
+
+Suppose you continue by combining 6 and 7. You might get the following.
+
+  index   boss  numConstituents
+    1        5           0
+    2        5           0
+    3        5           0
+    4        0           1
+    5        0           4
+    6        7           0
+    7        0           2
+
+Now combine 1 and 6. Their leaders are 5 and 7. Since 5 has more
+constituents, change the boss of 7 to be 5. The new information is as
+follows.
+
+  index   boss  numConstituents
+    1        5           0
+    2        5           0
+    3        5           0
+    4        0           1
+    5        0           6
+    6        7           0
+    7        5           0
+
+Notice that 5 now has six constituents. Also notice that, although 6 is
+one of 5's constituents, its boss is 7. The boss chains are shorter, but
+you still need to do the leader calculation using a loop (or recursion).
+
+
+      Efficiency before and after improvements
+
+If you do neither improvement, then the equivalence manager can take
+time proportional to /n/^2 to process /n/ combine and together requests.
+With the improvements, the time is no worse than proportional to
+/n/(α(/n/)) where α(/n/), the inverse of Ackerman's function, is a very
+slowly growing function of /n/, so slow that, for all remotely practical
+values of /n/, α(/n/ is no more than 6.
+
+------------------------------------------------------------------------
+
+
+    Why Should I Believe that Kruskal's Algorithm Works?
+
+Algorithm design requires creativity, and often requires simply feeling
+around until you hit on something that looks like it might work. But be
+careful not to stop after you have something that feels reasonable. A
+lot of algorithms that initially look like they will work are incorrect.
+You don't want to jump into writing a program that implements the
+algorithm when the algorithm is wrong. That is a waste of time. It is
+important to offer some careful reasoning about why the algorithm works
+before you try to implement it.
+
+Kruskal's algorithm adds the edges starting with the cheapest ones, and,
+since it is supposed to find a cheapest possible spanning tree, it seems
+to be doing something right. But that is not justification that the
+algorithm works. It is only justification for investigating it to see
+whether it works.
+
+This section offers an argument that Kruskal's algorithm is correct. It
+should be clear that Kruskal's algorithm finds /a/ spanning tree, if one
+exists, since it only skips over edges between vertices that are already
+connected by a path. The issue is whether that spanning tree is
+/minimal/. The argument is necessarily of a mathematical nature, as are
+most such arguments. It will probably take more than one reading for a
+person who is inexperienced with this kind of argument to make sense of
+it. But it is worth getting used to the idea of checking your algorithms
+carefully.
+
+We will simplify the argument by assuming that no two edges of a graph
+can have the same weight. That assumption is fairly easy to get rid of,
+and the argument is essentially the same, but the assumption reduces the
+complexity of the argument a bit.
+
+
+      The argument
+
+Before trying to show that an algorithm works, you typically try looking
+for some counterexamples. Try to find an input that the algorithm gets
+wrong. Suppose that you try that for a while with Kruskal's algorithm,
+and are not able to find any counterexamples. Then imagine somebody else
+searching for counterexamples. What if that other person finds one?
+Think about that (unknown, or generic) counterexample, and try to
+convince yourself that it cannot really be a counterexample; that is, no
+counterexample exists.
+
+*CLAIM.* Kruskal's algorithm finds a minimal spanning tree of a graph.
+
+The argument is a kind of thought experiment. Suppose that somebody else
+claims to have found a counterexample demonstrating that Kruskal's
+algorithm does not work. We ask that person to give us the weighted
+graph /G/ that the algorithm gets wrong, and the actual minimal spanning
+tree /T/ for that graph. Obviously, if Kruskal's algorithm fails to
+work, then somebody should be able to come up with both /G/ and /T/,
+where /T/ is the correct minimal spanning tree, and where Kruskal's
+algorithm gets the wrong answer.
+
+Compute the spanning tree /K/ produced by Kruskal's algorithm. It must
+be different from /T/ or this is certainly not a counterexample.
+
+If /G/ has /n/ vertices, then every spanning tree of /G/ has exactly
+/n/-1 edges. (Try arguing that.) Since /K/ and /T/ do not have exactly
+the same edges, there must be some edge that is in /T/ but not in /K/.
+
+Look at the edges of /G/ in the same order /e/_0 , /e/_2 , ...,
+/e/_/m-1/ that they are looked at by Kruskal's algorithm (in ascending
+order of weight), and select the first one /e/_/i/ that is in /T/ but
+not in /K/. Suppose that edge /e/_/i/ connects vertices /u/ and /v/. Why
+wasn't /e/_/i/ added to tree /K/? Because vertices /u/ and /v/ were
+already connected by a path through edges that Kruskal's algorithm had
+looked at earlier. Look at that path, and look at how the same vertices
+are connected in /T/.
+
+At least one of the edges /e/_/j/ in this path between /u/ and /v/ must
+not be in tree /T/. (Otherwise, /T/ would have a cycle, and a tree
+cannot have any cycles.) Also, /j/ < /i/, since the edges shown for /K/
+were added before edge /e/_/i/ was considered. Since the edges are
+looked at in ascending order of weight, /e/_/j/ must have a smaller
+weight than edge /e/_/i/ .
+
+Make a modified tree /T'/ by removing edge /e/_/i/ from /T/ and adding
+edge /e/_/j/ . All of the vertices are still connected. (You can still
+get from any vertex shown in the picture to any other, so you have not
+cut anything off from anything else.) So /T'/ is another spanning tree.
+But /T'/ has smaller total weight than /T/, since we replaced a heavier
+edge by a lighter one. Obviously, /T/ is not a minimal spanning tree,
+because /T'/ is a spanning tree with smaller total weight.
+
+That completes the argument. No matter what purported counterexample
+somebody gives us, we have shown that it cannot be a genuine
+counterexample. So no counterexample exists, and Kruskal's algorithm is
+correct for every graph.
+
+------------------------------------------------------------------------
+
+
+    Motivation for Computing Minimal Spanning Trees
+    (you can skip this)
+
+Suppose that we have a collection of towns, and we must build railroad
+tracks so that it is possible for a train to get from any town to any
+other town. Our budget for building tracks is small, so we choose to
+build as little track as possible. One approach to deciding which tracks
+to build is to construct a weighted graph, where the vertices are the
+towns, and the weight of the edge from town /A/ to town /B/ is the
+length of the railroad track that would need to be built to connect
+towns /A/ and /B/ directly. Then a minimal spanning tree of that graph
+would be a good choice for connecting the towns, since it is the
+cheapest way to connect all of the towns using railroad tracks between
+towns.
+
+A similar problem occurs when a house is being wired for electricity.
+All of the outlets on a given circuit need to be connected to the
+circuit panel, and to each other. To connect them with a minimum amount
+of wire, you might build a graph having a vertex for each outlet and for
+the circuit panel, with the weight between two vertices being the wiring
+distance between those vertices. Then get a minimal spanning tree for
+the graph.
+
+(A minimal spanning tree is not always the best solution to either of
+those problems. You can often do better by introducing new railroad
+track junctions or wiring junctions, called Steiner points. For example,
+if you have three towns in a triangle, you can connect them together by
+sending tracks to a point in the middle of the triangle. The middle
+point is a Steiner point. But good placements of Steiner points can be
+difficult to find, so a minimal spanning tree is a reasonable compromise.)
+
+There are other uses of minimal spanning trees. For example, they are
+used as part of an algorithm that finds good (but not optimal) traveling
+salesman tours of graphs.
+
+ 
+
+ 
+
+ 
+

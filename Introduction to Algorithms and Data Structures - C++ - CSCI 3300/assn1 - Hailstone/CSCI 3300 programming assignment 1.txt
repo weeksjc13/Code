@@ -1,0 +1,437 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 1
+
+*Assigned:* 	Tuesday, September 9
+*First version due:* 	Tuesday, September 16, 11:59pm
+*Second version due:* 	Tuesday, September 30, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Note about this assignment <#note>
+ 2. Background <#background>
+ 3. Functional requirements <#functionalrequirements>
+ 4. Nonfunctional requirements <#nonfunctionalrequirements>
+ 5. Design issues <#design>
+ 6. Compiling and testing your program <#run>
+ 7. A development plan <#plan>
+ 8. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Note about This Assignment
+
+This assignment is intended to familiarize you with C++, loops,
+functions and contracts.
+
+*It is important that you follow the instructions. Do not try to improve
+on the design described here. Read the entire assignment before you
+start working on it.*
+
+------------------------------------------------------------------------
+
+
+    Background
+
+Given any positive integer /n/, the /hailstone sequence/ starting at /n/
+is obtained as follows. You write a sequence of numbers, one after
+another. Start by writing /n/. If /n/ is even, then the next number is
+/n//2. If /n/ is odd, then the next number is 3/n/ + 1. Continue in this
+way until you write the number 1.
+
+For example, if you start at 7, then the next number is 22 (3 times 7
+plus 1). The next number after 22 is 11. The hailstone sequence starting
+at 7 is [7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1],
+and it contains 17 numbers. The hailstone sequence starting at 6 is [6,
+3, 10, 5, 16, 8, 4, 2, 1], and the hailstone sequence starting at 1 is [1].
+
+------------------------------------------------------------------------
+
+
+    Functional Requirements
+
+The functional requirements tell what the program is supposed to do.
+
+Write a C++ program that reads a number /n/ from the user (after giving
+a suitable prompt) and then tells the user four things:
+
+ 1. the entire hailstone sequence starting at /n/, all on one line, with
+    the numbers separated by spaces;
+ 2. the length of the hailstone sequence that starts with /n/;
+ 3. the largest number in the hailstone sequence that starts with /n/;
+ 4. how many of the numbers in that hailstone sequence are odd;
+ 5. the largest length of any hailstone sequence starting with a number
+    from 1 to /n/.
+
+The output needs to be sensible and easy to read, not just numbers. For
+example, a session with this program might look as follows. Parts in
+black are written by the program. Parts in blue are typed by the user. *
+
+  What number shall I start with?  *7*
+  The hailstone sequence starting at 7 is
+  7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1
+  The length of the sequence is 17.
+  6 of the numbers are odd.
+  The largest number in the sequence is 52.
+  The longest hailstone sequence starting with a number up to 7 has length 17
+
+*
+
+Here is another example. **
+
+*  What number shall I start with?  *1*
+  The hailstone sequence starting at 1 is
+  1
+  The length of the sequence is 1.
+  1 of the numbers are odd.
+  The largest number in the sequence is 1.
+  The longest hailstone sequence starting with a number up to 1 has length 1*
+
+And here is another. *
+
+  What number shall I start with?  *8*
+  The hailstone sequence starting at 8 is
+  8 4 2 1
+  The length of the sequence is 4.
+  1 of the numbers are odd.
+  The largest number in the sequence is 8.
+  The longest hailstone sequence starting with a number up to 8 has length 17
+
+*
+
+------------------------------------------------------------------------
+
+
+    Nonfunctional Requirements
+
+The nonfunctional requirements are additional requirements on how the
+program must be written, documented, etc.
+
+The program is */required/* to be written in accordance with the design
+issues discussed below.
+
+The program is required to follow the coding standards
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/index.html> for
+this course, which include the following.
+
+  * The program must use the correct file format
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>
+    and file name
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>.
+
+  * Every function is required to have a clear, concise and precise
+    contract
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#contract>.
+
+  * Each function can have at most one loop
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#functionloop>
+    in its body.
+  * The main function cannot contain a loop.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#main>
+
+  * A function body must not change the value of a call-by-value
+    parameter.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#value>
+
+  * Do not write functions that do not perform their whole jobs.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#crippled>
+
+  * Use margin comments
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#margin>
+    sparingly.
+  * Avoid code duplication
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#dup>.
+
+  * End the last line
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/other.html#eol>.
+
+  * Do not use global or static variables
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/variable.html#global>.
+
+  * Every body of an if-statement, loop, etc. must be a compound
+    statement.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/component.html#compound>
+
+  * Do not use redundant tests
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/conditional.html#redundant>
+    in if-statements.
+  * If code is only performed at the end of the last iteration of a
+    loop, then it should be written after the loop
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/loop.html#loop-end>.
+
+
+------------------------------------------------------------------------
+
+
+    Design Issues
+
+The design of a program includes issues such as which functions it
+includes, how those functions are organized into modules, and what each
+function and module accomplishes. It does not include details of how
+each function works.
+
+For this assignment, there should be only one file (or /module/). It
+should be called hailstone.cpp.
+
+This is an exercise in using C++, not an attempt to design the most
+efficient possible solution to this problem. Your design is required to
+use the following functions. Do not try to fold all of these functions
+together into one. Do not modify what each function is supposed to do.
+Make it do what is called for.
+
+ 1.
+
+    Include a function that computes the value that follows a given
+    value /n/ in the hailstone sequence. If you call it *next*, then
+    next(7) = 22 and next(22) = 11. Any time you want to get the next
+    number in the sequence, you */must/* use this function.
+
+ 2.
+
+    Include a function that takes an integer /n/ and prints the
+    hailstone sequence starting at /n/ on one line, separating the
+    numbers by spaces. This function should not print a newline
+    character. Make the return type *void*, indicating that it does not
+    yield an answer, it just does something.
+
+ 3.
+
+    Include a function that takes an integer /n/ and returns the length
+    of the hailstone sequence starting at /n/. For example, if this
+    function is called hailstoneLength, then you will find that
+    hailstoneLength(3) = 8, hailstoneLength(4) = 3 and
+    hailstoneLength(1) = 1.
+
+ 4.
+
+    Include a function that takes an integer /n/ and returns the largest
+    number in the hailstone sequence starting at /n/. For example, if
+    this function is called hailstoneLargest, then you should find that
+    hailstoneLargest(3) = 16 and hailstoneLargest(4) = 4.
+
+ 5.
+
+    Include a function that takes an integer /n/ and returns the number
+    of odd numbers in the hailstone sequence starting at /n/. For
+    example, if this function is called hailstoneOdds, then you should
+    find that hailstoneOdds(3) = 3, hailstoneOddss(4) = 1 and
+    hailstoneOdds(1) = 1.
+
+ 6.
+
+    Include a function that takes an integer /n/ and returns the length
+    of the longest hailstone sequence that starts with a number from 1
+    to /n/. For example, if this function is called
+    hailstoneLargestLength, then hailstoneLargestLength(3) = 8 and
+    hailstoneLargestLength(10) = 20.
+
+ 7.
+
+    Include a main program that interacts with the user, asking for the
+    start number /n/, and then writing the results.
+
+ 8.
+
+    You can include any other functions that you find helpful.
+
+For this program, use loops. Do not use recursion.
+
+------------------------------------------------------------------------
+
+
+    Compiling and Testing Your Program
+
+Get file Makefile
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment1/Makefile> and
+put it in the same directory as your program. Then, to compile your
+program, it suffices to perform command
+
+  make
+
+To run it, use command
+
+  make run
+
+To run it via gdb
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Debug/debugger.html>, use
+command
+
+  make debug
+
+To remove all machine-generated files, use
+
+  make clean
+
+------------------------------------------------------------------------
+
+
+    A Development Plan
+
+For a large piece of software, it is critical to have a development
+plan. You simply cannot write the whole thing and then begin testing.
+This assignment is not a large piece of software, but it is a good idea
+to become familiar with development plans on smaller programs rather
+than being thrown into them on your first large program.
+
+Here is a suggestion for steps to get this done. It uses an approach
+called /successive refinement/, where you write a little bit, test it,
+write a little more, test that, and so on.
+
+ 1.
+
+    *Write the design as a skeleton program.* Start from the template
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/template.txt> and
+    modifiy it. If you use tabs, also include a comment telling how
+    often there is a tab stop. For example, **
+
+    *  // tab stops: every 4 characters
+    *
+
+    says that a tab moves 4 characters.
+
+    Write a contract
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Documentation/contract.html>
+    and heading for each function, with an empty body. For example, a
+    contract and heading for function next could be as follows.
+
+      //======================================================================
+      // next(n) returns the number that follows n in the hailstone sequence.
+      // For example, next(7) = 22 and next(22) = 11.
+      //======================================================================
+
+      int next(int n)
+      {
+      }
+
+    ------------------------------------------------------------------------
+ 2.
+
+    *Write the body of the *next* function.* Make it do exactly what the
+    contract says it does. Make sure this function definition is well
+    indented /before/ you test it. Keep every function well indented
+    while you work on it.
+
+    *Now test it.* Write a main program that just computes next of a few
+    values, and checks that they are right. Here is a sample main program.
+
+    #include <cstdio>
+    using namespace std;
+    ...
+    int main()
+    {
+       printf("next(3)  = %i\n", next(3));
+       printf("next(7)  = %i\n", next(7));
+       printf("next(22)  = %i\n", next(22));
+       printf("next(44)  = %i\n", next(44));
+       return 0;
+    }
+
+    Write main at the bottom of the program. In C++, you need to define
+    a function (or provide other information about it) before it is used
+
+    ------------------------------------------------------------------------
+ 3.
+
+    *Write the function that prints the entire sequence.* Make sure that
+    it is well indented and readable. Be sure that it uses the *next*
+    function to compute the next value. Check it by doing a hand
+    simulation.
+
+    Modify your main program so that it now reads a number /n/ from the
+    user and prints the hailstone sequence starting at /n/. Your main
+    program might look as follows. **
+
+    *#include <cstdio>
+    using namespace std;
+    ...
+    int main()
+    {
+      int n;
+      printf("What number should I start with? ");
+      scanf("%i", &n);
+
+      printf("The hailstone sequence starting at %i is\n", n);
+      printHailstoneSequence(n);
+      printf("\n");
+
+      return 0;
+    }
+    *
+
+    Test it.
+
+    ------------------------------------------------------------------------
+ 4.
+
+    *Write the function that computes the length of the hailstone
+    sequence starting at /n/.* Make sure it is well indented and
+    readable. Check it by doing a hand simulation. Modify main so that
+    it shows both the hailstone sequence and its length. Test it.
+
+    ------------------------------------------------------------------------
+ 5.
+
+    *Write the function that computes the largest number in the
+    sequence.* Keep it well indented and readable. Check it by doing a
+    hand simulation. Augment your main program to use that function.
+    Test it.
+
+    ------------------------------------------------------------------------
+ 6.
+
+    *Write the function that computes how many of the numbers are odd.*
+    Keep it well indented and readable. Check it by doing a hand
+    simulation. Augment the main program to show that information. Test it.
+
+    ------------------------------------------------------------------------
+ 7.
+
+    *Write the function that computes the length of the longest
+    hailstone sequence for any starting value from 1 to /n/.* Augment
+    the main program to show that information. Test it.
+
+    ------------------------------------------------------------------------
+ 8.
+
+    *At this point you should have a working programs that is well
+    documented, well indented and readable.* Submit your program. See
+    below for how to do that.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+You must submit your program using the following method. Email
+submissions will not be accepted. An excuse that you do not know how to
+use Linux will not be accepted.
+
+To turn in version (a), log into one of the Linux machines, change your
+directory to the one that holds your programs, and do the following
+command. **
+
+*  ~abrahamsonk/3300/bin/submit 1a hailstone.cpp
+*
+
+To turn in version (b), do the following. *
+
+  ~abrahamsonk/3300/bin/submit 1b hailstone.cpp
+
+* After submitting, you should receive confirmation that the submission
+was successful. If you do not receive confirmation, assume that the
+submission did not work.
+
+You can do repeated submissions. New submissions will replace old ones.
+
+ 
+
+ 
+
+ 
+

@@ -1,0 +1,118 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 0
+
+*Assigned:* 	Tuesday, August 26
+*Due:* 	Tuesday, September 2, 11:59pm
+
+
+      Table of contents
+
+ 1. Note about this assignment <#note>
+ 2. The assignment <#assignment>
+ 3. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Note about This Assignment
+
+The purpose of this assignment is just to ensure that you know how to
+log into Linux, compile and run a program, and submit your solution.
+
+------------------------------------------------------------------------
+
+
+    The Assignment
+
+Log into Linux
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/System/linux.html>. Start
+a terminal. Create a directory
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/System/linux.html#mkdir>
+to hold your CSCI 3300 submissions, and a subdirectory of that to hold
+assignment 0. Open a text editor
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/System/linux.html#gedit>.
+Copy the following program into it and save it as file assn0.cpp. (Do
+not copy it by hand! Just copy and paste.)
+
+// CSCI 3300
+// Assignment: 0
+// Author:     Karl Abrahamson
+// File:       assn0.cpp
+// Tab stops:  none
+
+/* This program shows the greatest common divisor
+   of two numbers that are read from the user.
+*/
+
+#include <cstdio>
+using namespace std;
+
+//===========================================
+//             gcd
+//===========================================
+// gcd(a,b) returns the greatest common
+// divisor of a and b.
+//===========================================
+
+long gcd(long a, long b)
+{
+  if(a == 0)
+  {
+    return b;
+  }
+  else
+  {
+    return gcd(b % a, a);
+  }
+}
+
+//===========================================
+//               main
+//===========================================
+
+int main(int argc, char** argv)
+{
+  long a, b;
+
+  printf("gcd of which two numbers? ");
+  if(scanf("%li%li", &a, &b) == 2)
+  {
+    printf("The gcd of %li and %li is %li.\n", a, b, gcd(a,b));
+  }
+  return 0;
+}
+
+Compile and run
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/System/compile.html> the
+program. It will ask you for two numbers. Copy
+
+  6456477721591 6456492967333
+
+into the terminal and hit enter. Record answer and save it into a file
+called answer.txt.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+Normally, you would not submit my work as your own, but this assignment
+is just to get you some experience to using Linux. In the directory that
+contains your work, run command **
+
+*  ~abrahamsonk/3300/bin/submit 0 assn0.cpp answer.txt
+*
+
+You should get a reply that the submission was successful. See
+submitting assignments
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/System/submit.html>.
+
+ 
+
+ 
+
+ 
+

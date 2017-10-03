@@ -1,0 +1,122 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 2
+
+*Assigned:* 	Tuesday, September 16
+*First version due:* 	Tuesday, September 23, 11:59pm
+*Second version due:* 	Tuesday, October 7, 11:59pm
+
+
+      Table of contents
+
+ 1. The assignment <#assignment>
+ 2. Hints <#hints>
+ 3. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    The Assignment
+
+This assignment has the same requirements as assignment 1
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment1/assn1.html>.
+However, for this assignment, do not use any loops. Use recursion instead.
+
+*For this assignment, no function is allowed to change the value of any
+variable, once that variable has been given a value.*
+
+------------------------------------------------------------------------
+
+
+    Hints
+
+Think about how each function can help itself. Here are some suggestions.
+
+ 1.
+
+    Suppose that you want to find the length of the hailstone sequence
+    starting at 7. If you ask for the length of the hailstone sequence
+    starting at 22 (result: 16), how would you determine the length of
+    the sequence starting at 7?
+
+    Handle the length of the sequence starting at 1 as a special case.
+    Use an if-statement to decide whether this is the special case of 1
+    or not.
+
+ 2.
+
+    Suppose that you want to know the largest number in the sequence
+    starting at 7. Ask for the largest number in the sequence starting
+    at 22. (The answer is 52). The largest number is clearly the larger
+    of 7 and 52. As another example, suppose that you want to know the
+    largest number in the sequence starting at 52. Ask for the largest
+    number in the sequence starting at 26. The answer is 40. What you
+    want is the larger of 52 and 40, clearly 52.
+
+    *Important Note.* In terms of efficiency, recursion acts as an
+    amplifier. Algorithm designers use it because, if they think of a
+    clever idea and they use it in a recursive definition, recursion
+    amplifies it into a very efficient algorithm. But recursion also
+    amplifies bad ideas. If you do something in a slopply way in a
+    recursive function, recursion can amplify it and make a very slow
+    algorithm. In particular, if you do the same recursive call twice,
+    which is a waste of time, recursion will be /very/ slow. Try your
+    program on input 31. Does it respond quickly, or is it really slow?
+
+ 3.
+
+    To count the odd numbers, there are three cases. Call the first
+    number in the sequence /n/.
+
+     1. *Case 1.* (/n/ = 1) The answer should be obvious.
+     2. *Case 2.* (/n/ is even) Then there are the same number of odd
+        numbers in the sequence starting on /n/ as there are starting on
+        next(/n/).
+     3. *Case 3.* (/n/ is odd) Then there is one more odd number in the
+        sequence starting at /n/ as there are starting at next(/n/). 
+
+One problem that you might encounter is an infinite recursion, where a
+function keeps calling itself with the same value until the program runs
+out of memory. If you run gdb
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Debug/debugger.html> with
+an infinite recursion, try to stop the program with control-C before it
+has produced too many copies of your function. If you do a backtrace and
+gdb says the run-time stack is corrupt, or that there is no run-time
+stack, then it means that you have run out of memory. Try slowing down
+your function by making it write something. Then you will be able to
+stop it before too many copies have been created. If you are using
+successive refinement, you will know which function is at fault. It will
+be the one that you just added.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+You must submit your program using the following method. Email
+submissions will not be accepted. An excuse that you do not know how to
+use Linux will not be accepted.
+
+To turn in version (a), log into one of the Linux machines, change your
+directory to the one that holds your programs, and do the following
+command. **
+
+*  ~abrahamsonk/3300/bin/submit 2a hailstone.cpp
+*
+
+To turn in version (b), do the following. *
+
+  ~abrahamsonk/3300/bin/submit 2b hailstone.cpp
+
+* After submitting, you should receive confirmation that the submission
+was successful. If you do not receive confirmation, assume that the
+submission did not work.
+
+ 
+
+ 
+
+ 
+

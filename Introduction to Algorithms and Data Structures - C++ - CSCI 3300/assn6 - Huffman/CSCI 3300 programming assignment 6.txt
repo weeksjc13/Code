@@ -1,0 +1,683 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 6
+
+*Assigned:* 	Wednesday, November 5
+*First version due:* 	Wednesday, November 21, 11:59pm
+*Second version due:* 	Wednesday, December 10, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Background <#background>
+ 2. Requirements <#requirements>
+ 3. Algorithmic issues <#algorithm>
+ 4. Tracing <#trace>
+ 5. Implementation issues and a development plan <#implementation>
+ 6. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Background
+
+Data compression is a way of finding economical ways to encode
+information, for storing files using limited disk space, or for
+transfering files over a network. Sophisticated data compression
+algorithms for text files take into account sequences of characters that
+occur often, so that they can encode those sequences in an efficient
+way. For example, if the word /Rumplestiltskin/ occurs often, then there
+will be a very short code for that word. But a simpler kind of data
+compression works on individual characters, without paying attention to
+how characters are grouped. This assignment has to do with that simple
+form of data compression, using an algorithm called Huffman coding.
+
+A file is a sequence of bits. Codes such as Ascii and Unicode use a
+fixed number of bits to encode each character. For example, in the 8-bit
+Ascii code, the letters 'a', 'b' and 'c' have the following encodings.
+
+'a' 	  	01100001
+'b' 	  	01100010
+'c' 	  	01100011
+
+In the 16 bit Unicode standard, the codes for 'a', 'b' and 'c' are as
+follows.
+
+'a' 	  	0000000001100001
+'b' 	  	0000000001100010
+'c' 	  	0000000001100011
+
+Some characters are used more than others. For an economical encoding,
+instead of using the same number of bits for every character, it would
+be better to use shorter codes for characters that occur more
+frequently. For example, suppose that a document contains only the
+letters /a/, /b/ and /c/, and suppose that the letter /b/ occurs far
+more often than either /a/ or /c/. An alternative character encoding is
+as follows.
+
+'a' 	  	10
+'b' 	  	0
+'c' 	  	11
+
+This code has the property that no character code is a prefix of any
+other character code. Using this kind of character code (called a
+/prefix code/) allows you to break apart a string of bits into the
+characters that it encodes. For example, string of bits "01001110"
+encodes "babca". To decode a string, you repeatedly remove a prefix that
+encodes a character. Since no code is a prefix of any other code, there
+is only one way to select the next character.
+
+------------------------------------------------------------------------
+
+
+    Requirements
+
+For this assignment you will write two programs.
+
+The first program, called /huffman/, gets two file names, which I will
+refer to as /A/ and /B/, from the command line
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/Function/main.html>. It
+should do the following.
+
+ 1.
+
+    Count how many occurrences of each character are in file /A/.
+
+ 2.
+
+    Show the character frequencies on the standard output, showing only
+    characters that occur at least once.
+
+ 3.
+
+    Construct a Huffman code for the characters that occur in file /A/
+    (ignoring characters that do not occur at all).
+
+ 4.
+
+    Write the code on the standard output.
+
+ 5.
+
+    Reread file /A/ and, using the constructed Huffman code, write an
+    encoded version of file /A/ into file /B/.
+
+For example, command **
+
+*  huffman data.txt data.cmp
+*
+
+reads file data.txt and writes a compressed version into a file called
+data.cmp.
+
+The second program, called /unhuffman/, will also be given two file
+names, /A/ and /B/, on the command line. It reads file /A/, which must
+be a file that was written by your first program, and it writes file
+/B/, which should be the decoded version of /A/. The decoded file should
+look /identical/ to the file that you encoded. For example, command **
+
+*  unhuffman data.cmp newdata.txt
+*
+
+reads data.cmp and writes newdata.txt.
+
+
+      The standard output
+
+If the file being encoded contains only characters a, b, c, d and e, the
+/huffman/ program should show information about the character
+frequencies and the code on the standard output, in addition to writing
+the compressed file. For example, the output for a particular file might
+be as follows. **
+
+*The character frequencies are:
+
+a 500
+b 230
+c 300
+d 250
+e 700
+
+A Huffman code is as follows.
+
+a 10
+b 010
+c 00
+d 011
+e 11
+*
+
+------------------------------------------------------------------------
+
+
+    Algorithmic Issues
+
+There is an algorithm that is due to Huffman for finding efficient
+prefix codes, called /Huffman codes/. The input to the algorithm is a
+table of characters with their frequencies.
+
+
+      Trees and codes
+
+A tree is used to define a prefix code. Each node of the tree is either
+a leaf or a nonleaf. Each nonleaf has two children, one labeled the '0'
+child, the other the '1' child. (I will assume that the left child is
+the '0' child and the right child is the '1' child.) Each leaf contains
+a character. An example is the following tree.
+
+               .
+              / \
+            0/   \1
+            /     \
+           /       \
+          .         .
+         / \       / \
+       0/   \1   0/   \1
+       /     \   /     \
+      c      b   a      d                         
+
+A tree defines a code as follows. You find the code for a character by
+following the path from the top (the root) of the tree to that
+character, writing down the 0's and 1's that you see. For example, in
+the tree above, the code for 'b' is 01 and the code for 'a' is 10. What
+is the code for 'c'? A different code is given by the following tree.
+
+                    .
+                   / \
+                 0/   \1
+                 /     \
+                b       .
+                       / \
+                     0/   \1
+                     /     \
+                    a       c
+
+where 'b' has code 0 and 'a' has code 10.
+
+A tree can be thought of as a composite character. A tree with leaves
+/a/ and /c/ stands for the combination of /a/ and /c/. A character by
+itself is thought of as a tree that has just one leaf.
+
+
+      Huffman's algorithm
+
+The algorithm to create the tree starts by making each character into a
+tree that is just a leaf holding that character. Each tree has a
+frequency, which is the character frequency that was counted. For
+example, if the frequency input is
+
+a 500
+b 230
+c 300
+d 250
+e 700
+
+then the algorithm creates five leaves, one holding /a/, with frequency
+of 500, one holding /b/ with a frequency of 230, etc.
+
+(*Note.* A frequency is associated with an entire tree, not with each
+node of a tree. Initially, each tree has just one node, but as the
+algorithm runs the trees will grow. You still have just one frequency
+per tree.)
+
+Now the algorithm repeatedly performs the following, as long as there
+are still at least two trees left in the collection of trees.
+
+ 1.
+
+    Remove the two trees that have the lowest frequencies from the
+    collection of trees. Suppose that they are trees /S/ and /T/.
+    Suppose that tree /S/ has frequency /F/_/S/ and tree /T/ has
+    frequency /F/_/T/ .
+
+ 2.
+
+    Build a tree that looks as follows.
+
+                  .
+                 / \
+               0/   \1
+               /     \
+              /S/       /T/
+
+    Say that this tree has frequency /F/_/S/ + /F/_/T/ , the sum of the
+    frequencies of /S/ and T.
+
+ 3.
+
+    Add the new tree, with its new frequency, to the collection of trees.
+
+The number of trees decreases each time because you remove two trees and
+put back just one tree. When there is only one tree left, the algorithm
+is done. That tree is the result.
+
+
+      A notation for trees
+
+It is a little awkward to draw pictures of the trees, so a notation for
+describing trees is useful. A leaf is shown as the character at that
+leaf. A nonleaf is shown as the two subtrees, surrounded by parenthese
+and separated by a comma. For example, tree
+
+                   .
+                  / \
+                0/   \1
+                /     \
+               e       c
+
+is written (e,c). Tree
+
+                    .
+                   / \
+                 0/   \1
+                 /     \
+                b       .
+                       / \
+                     0/   \1
+                     /     \
+                    a       c
+
+is written (b,(a,c)). Tree
+
+               .
+              / \
+            0/   \1
+            /     \
+           /       \
+          .         .
+         / \       / \
+       0/   \1   0/   \1
+       /     \   /     \
+      c      b   a      d                         
+
+is written ((c,b),(a,d)). We use this notation to demonstrate the
+algorithm.
+
+
+      Example
+
+Suppose there are five letters, /a/, /b/, /c/ /d/ and /e/. After
+counting the characters in a document, you get the following counts.
+
+/a/ 	500
+/b/ 	230
+/c/ 	300
+/d/ 	250
+/e/ 	700
+
+The initial collection of trees (all leaves) with their frequencies is
+as follows.
+
+/b/ 	230
+/d/ 	250
+/c/ 	300
+/a/ 	500
+/e/ 	700
+
+Removing the two with the smallest frequencies and combining them yields
+a tree with frequency 480. It is inserted into the collection, yielding
+the following.
+
+/c/ 	300
+(/b/,/d/) 	480
+/a/ 	500
+/e/ 	700
+
+The next step combines /c/ with (/b/,/d/), yielding tree
+(/c/,(/b/,/d/)), with a frequency of 300 + 480 = 780. The collection of
+trees and frequencies is now
+
+/a/ 	500
+/e/ 	700
+(/c/,(/b/,/d/)) 	780
+
+Now combine /a/ and /e/, yielding
+
+(/c/,(/b/,/d/)) 	780
+(/a/,/e/) 	1200
+
+The last step combines those two trees, yielding
+
+((/c/,(/b/,/d/)),(/a/,/e/)) 	1980
+
+The final tree is ((/c/,(/b/,/d/)),(/a/,/e/)), which is the following tree.
+
+                    .
+                   / \
+                 0/   \1
+                 /     \
+                /       \
+               .         .
+              / \       / \
+            0/   \1   0/   \1
+            /     \   /     \
+           c       .  a      e 
+                  / \
+                0/   \1
+                /     \
+               b       d
+
+For example, the code for /d/ is 011.
+
+------------------------------------------------------------------------
+
+
+    Tracing
+
+Your program is required to contain debug prints that can be turned on
+and off. At a minimum, they must show the following.
+
+  * Show the huffman tree after it is constructed.
+  * Show the contents of the priority queue after each step. (For this,
+    modify the trace prints in pqueue.cpp.)
+
+------------------------------------------------------------------------
+
+
+    Implementation Issues and a Development Plan
+
+Start by writing file huffman.cpp, the source code for the encoding
+program /huffman/. Do not try to write it all and then test it. Write a
+little at a time and test that part before moving on.
+
+
+      Getting the character frequencies
+
+Write a function to get the character frequencies. Assume the characters
+in the file are 8-bits (one byte), so there are 256 possible characters.
+See writing files using the stdio library
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/IO/Stdio/stdio-outf.html> and
+reading files using the stdio library
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/IO/Stdio/stdio-inf.html>.
+
+Create an array of 256 integers to store the frequency counts, one for
+each possible character that can be stored in one byte. Initially, all
+of the counts are 0. Now read each character of the file, adding 1 to
+its count.
+
+Write a function to show the character frequencies on the standard
+output. Make the function show a newline character as /(newline)/, a tab
+character as /(tab)/ and a space as /(space)/. You are going to want to
+show other characters the same way later, so plan for that.
+
+Write a main function in huffman that reads the input file, counts the
+character frequencies and shows the frequencies on the standard output.
+
+
+      Trees
+
+Implement trees using pointers. Each node in a tree is a structure that
+tells whether the tree is a leaf (containing a character) or a nonleaf
+(containing two subtrees). Use the following structure for the nodes of
+the tree. The idea is that a leaf has kind *leaf* and a nonleaf has kind
+*nonleaf*. The /ch/ field should only be used in a leaf and the /left/
+and /right/ fields should only be used for a nonleaf.
+
+  enum NodeKind {leaf, nonleaf};
+
+  struct Node {
+    NodeKind kind;
+    char     ch;
+    Node*    left;
+    Node*    right;
+
+    Node(char c)
+    {
+      kind = leaf;
+      ch   = c;
+    }
+    Node(Node* L, Node *R)
+    {
+      kind  = nonleaf;
+      left  = L;
+      right = R;
+    }      
+  };
+
+When you set up your initial trees (each holding just one letter) use
+the first constructor. When you build a composite tree, use the second
+constructor. For example, statement
+
+   Node* t = new Node('a');
+
+builds a leaf that contains only the character 'a'. Statement
+
+   Node* t = new Node(r,s);
+
+builds a new tree whose left subtree is /r/ and whose right subtree is
+/s/. You can tell what kind of tree you are looking at by checking its
+kind. For example, if /t/ has type Node*, you might ask
+
+   if(t->kind == nonleaf) 
+   {
+     ...
+   }
+
+Create two files, tree.h and tree.cpp. In tree.cpp, put a function that
+prints a tree using the notation described above. (Module tree.cpp will
+only contain one function, but that is not as unusual as you might
+imagine.) In tree.h put the definition of type Node and a prototype for
+your function that prints a tree.
+
+
+      Priority Queues
+
+For Assignment 4
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment4/assn4.html#pq>
+you implemented the priority queue abstract data type. Copy that
+implementation into the directory for assignment 6 and modify it by
+defining
+
+  struct Node;
+  typedef Node* PQItemType;
+  typedef int   PQPriorityType;
+
+After you have counted character frequencies, insert each character (as
+a leaf node of a tree) that has a nonzero count, with its frequency as
+its priority, into a priority queue. Now repeat the following steps to
+carry out Huffman's algorithm.
+
+ 1.
+
+    Remove a tree /S/, and let /x/ be its priority (obtained from the
+    remove function).
+
+ 2.
+
+    If the priority queue is now empty, the result tree is /S/, since
+    that is the only tree left. Otherwise continue.
+
+ 3.
+
+    Remove a tree /T/, and let /y/ be its priority (obtained from the
+    remove function).
+
+ 4.
+
+    Insert tree (/S/,/T/) into the priority queue with priority /x/ + /y/.
+
+Ensure that your algorithm only uses features of the priority queue
+module that are part of its interface. Do not use features that should
+remain hidden inside the priority queue module.
+
+Test what you have by building and printing the huffman tree.
+
+
+      Getting the code from the tree
+
+Now build an array of 256 strings to hold the character codes. Use the
+C++ string
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/String/string.html> type
+to make your job easy. Write a function that traverses the tree and
+stores the code for each character into the array. That function will
+need to have three parameters: the array (so that it knows where to
+store the codes), the tree /t/ (a subtree of the full huffman tree) and
+a string that is the path from the root of the full huffman tree to
+subtree /t/. Now ask yourself how to handle the case where /t/ is a leaf
+and how to handle the case where /t/ is a nonleaf.
+
+
+      Echoing the code
+
+Write a function to show the code, from the array. (Don't show the code
+while building the array. If you do, then any mistake in building the
+array will not show up when you print the code. Build the array first,
+then show it.)
+
+As above, show a newline character as /(newline)/, a tab character as
+/(tab)/ and a space as /(space)/.
+
+
+      Writing the encoded file
+
+The goal is to pack 8 bits into each byte. But before doing that, take a
+simpler approach where you write each bit as a character so that you can
+read it. After everything seems to work, you change the interface so
+that it writes out a binary file instead.
+
+Get files binary.h
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment6/binary.h>,
+binary1.cpp
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment6/binary1.cpp>
+and binary2.cpp
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment6/binary2.cpp>.
+They provide the following tools for writing files.
+
+Type BFILE
+
+BFILE* openBinaryFileWrite(const char* filename)
+
+    This function opens binary file /filename/ for writing and returns a
+    structure that describes the open file. It returns NULL if the file
+    cannot be opened. 
+
+void writeBit(BFILE* f, int b)
+
+    This function writes bit /b/ (either 0 or 1) into open file f. Make
+    sure that /b/ is either 0 or 1. It should not be '0' or '1'. 
+
+void writeByte(BFILE* f, int b)
+
+    This function writes byte or character /b/. into open file f. 
+
+void closeBinaryFileWrite(BFILE* f)
+
+    This function closes file f. You must close the file when you are
+    done writing. 
+
+Both files binary1.cpp and binary2.cpp have the same interface,
+described by binary.h. But binary1.cpp writes a text file, writing
+character '0' to represent bit 0 and character '1' to represent bit 1.
+Module binary2.cpp writes the file in binary format. If you link with
+binary1.cpp you will be able to read the "compressed" file using a text
+editor, but you will not get real compression. If you link with
+binary2.cpp you will get compression but you will not be able to read
+the compressed file using a text editor.
+
+Write two functions. The first writes the huffman tree into the binary
+file. (You will need to get the tree back in order to decode the file.)
+
+ 1.
+
+    To write a leaf, write a 1 bit followed by the character stored at
+    the leaf (8 bits). So, if /t/ is a leaf, you write /t/ as follows.
+
+      writeBit(f, 1);
+      writeByte(f, t->ch);
+
+ 2.
+
+    To write a nonleaf, write a 0 bit followed by the left subtree
+    followed by the right subtree. So, if /t/ is not a leaf, write /t/
+    as follows, assuming your function is called writeTreeBinary.
+
+      writeBit(f, 0);
+      writeTreeBinary(f, t->left);
+      writeTreeBinary(f, t->right);
+
+Now write a function that reads file /A/ and writes out an compressed
+file /B/. It should write the Huffman tree at the beginning of the file.
+Then it just reads each character from file /A/, finds its code in the
+code array and writes out the code, one bit at a time.
+
+
+      Uncompression
+
+The next step is to write the source code for /unhuffman/. Use the
+following for reading the binary file, also described by binary.h.
+
+BFILE* openBinaryFileRead(const char* filename)
+
+    This function opens binary file /filename/ for reading and returns a
+    structure that describes the open file. It returns NULL if the file
+    cannot be opened. 
+
+int readBit(BFILE* f)
+
+    This function reads one bit from file f and returns the bit (either
+    0 or 1). At the end of the file, readBit returns EOF. 
+
+int readByte(BFILE* f)
+
+    This function reads one byte (8 bits) from file f and returns the
+    byte. Use it to get a byte that you wrote using writeByte. At the
+    end of the file, readByte returns EOF. 
+
+void closeBinaryFileRead(BFILE* f)
+
+    This function closes file f. Once it is closed, you cannot write to
+    it again. 
+
+When you link unhuffman.cpp, it is critical that you use the same
+implementation of binary.h as for huffman.cpp. Either link both with
+binary1.cpp or both with binary2.cpp.
+
+Write a function that reads a tree. You will need to use it at the
+beginning of decoding to get the tree back. To read a tree, start by
+reading a bit. If the bit is a 1, you are looking at a leaf. Read the
+character (a byte) and build a leaf holding that character. But if the
+bit is a 0, then you are looking at a nonleaf. Just call your readTree
+function twice, once to build the left subtree and once to build the
+right subtree. Then build the whole tree by building a root with those
+two subtrees. You should have recovered the original tree.
+
+Test your function by just reading a tree and writing it.
+
+Now write a function to do the uncompression. Use the tree that
+describes the code. As you read each bit, move down the tree in the
+appropriate direction. When you hit a leaf, write out the character at
+that leaf then start again at the root of the tree to get the next
+character. Keep going until you hit the end of the file.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+To turn in this program, log into Linux. Change to the directory that
+contains those files. Then issue one of the following commands.
+
+First version
+
+    *~abrahamsonk/3300/bin/submit 6a huffman.cpp unhuffman.cpp tree.h
+    tree.cpp pqueue.h pqueue.cpp*
+
+Second version
+
+    *~abrahamsonk/3300/bin/submit 6b huffman.cpp unhuffman.cpp tree.h
+    tree.cpp pqueue.h pqueue.cpp*
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+

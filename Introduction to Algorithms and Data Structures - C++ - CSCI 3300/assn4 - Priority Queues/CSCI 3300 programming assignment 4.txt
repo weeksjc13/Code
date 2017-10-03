@@ -1,0 +1,217 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 4
+
+*Assigned:* 	Wednesday, October 15
+*First version due:* 	Wednesday, October 22, 11:59pm
+*Second version due:* 	Wednesday, November 5, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Priority queues <#pq>
+ 2. Tracing <#trace>
+ 3. Testing your implementation <#test>
+ 4. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Priority Queues
+
+
+      Priority queues
+
+A priority queue
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/DataStructure/Queue/priorityqueue.html>
+is an abstract data type
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/DataStructure/List/list.html>.
+An instance of a priority queue holds a collection items, with a
+priority associated with each item. You can insert an item, with a given
+priority into the collection and you can remove the item with the
+smallest priority from the collection.
+
+For this assignment, you will not write an application, but just a
+module that can be used in other applications. Create a module called
+*pqueue.cpp* that implements priority queues, with a header file called
+*pqueue.h* that describes what pqueue.cpp exports.
+
+
+      Generalizing priority queues
+
+The items in a priority queue could be of any type, and the priorities
+could be any numeric type (so that we know whether one priority is less
+than another). For example, an item could be a Widget (whatever that is)
+and the priority could be an integer.
+
+We do not want to commit to particular types for the items and
+priorities in more than one place. Put type definitions
+
+  typedef char*  PQItemType;
+  typedef double PQPriorityType;
+
+in pqueue.h to define type PQItemType to be char* and PQPriorityType to
+be double. Write the entire implementation of priority queues using
+PQItemType for the type of an item and PQPriorityType for the type of a
+priority. Do not assume that PQItemType will be char* or that
+PQPriorityType will be double.
+
+
+      Functions on priority queues
+
+Provide a type PriorityQueue and the following functions for type
+PriorityQueue.
+
+ 1.
+
+    bool isEmpty(const PriorityQueue& q): return true if q is empty.
+
+ 2.
+
+    void insert(PriorityQueue& q, const PQItemType& x, PQPriorityType
+    p): Insert item /x/ with priority /p/ into /q/.
+
+ 3.
+
+    void remove(PriorityQueue& q, PQItemType& x, PQPriorityType& p):
+    Remove the item from /q/ that has the smallest priority. Store the
+    item into variable /x/ and store the priority into variable /p/.
+
+
+      Representing priority queues
+
+Store the information in a priority queue using a linked list, kept in
+increasing order by priority. You will need the following types.
+
+ 1.
+
+    A type, *PQCell*, that is used as a cell in a linked list. It holds
+    an item, a priority, and a pointer to the next cell in the list.
+
+ 2.
+
+    A type, *PriorityQueue*. A PriorityQueue should hold just a pointer
+    to a linked list made of PQCells, which /must/ be initially set to
+    NULL by a parameterless constructor.
+
+Define type PriorityQueue in pqueue.h so that it can be used by any
+other module that includes pqueue.h. Other modules do not need to know
+about type PQCell, and must not use it. But the definition of type
+PriorityQueue needs to use PQCell, so you need to tell the compiler that
+PQCell exists. In pqueue.h, just write
+
+  struct PQCell;
+
+to allow yourself to use type PQCell* without providing details about
+what a PQCell structure looks like. Put the full definition of PQCell in
+pqueue.cpp, not in pqueue.h.
+
+Put implementations of the priority queue functions in pqueue.cpp. You
+will find it easiest to implement insert if you provide a helper function
+
+  void insertCell(PQCell*& p, const PQItemType& x, PQPriorityType p)
+
+that inserts item /x/ with priority /p/ into the linked list pointed to
+by /p/. The advantage is that insertCell can call itself on other
+pointers in the linked list. That is, it can be recursive.
+
+Provide a prototype
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/Function/prototype.html>
+in pqueue.h for each of the functions for priority queues that other
+modules are expected to use. Do not put a definition of insertCell,
+since other modules are not supposed to use it directly.
+
+
+      Nonfunctional requirements
+
+Keep functions short and simple.
+
+As always, you must follow the coding standards
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/index.html> for
+this course, which include the following.
+
+  * The program must use the correct file format
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>
+    and file name
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/fileformat.html>.
+    See the template below.
+  * Every function is required to have a clear, concise and precise
+    contract
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#contract>
+    telling what the function accomplishes and returns and how each of
+    its parameters influences what it accomplishes and what it returns.
+    The contract must /not/ be concerned with how the function works.
+  * A function body must not change the value of a call-by-value
+    parameter.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/function.html#value>
+
+  * Do not use global or static variables
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/variable.html#global>.
+
+  * Every body of an if-statement, loop, etc. must be a compound
+    statement.
+    <http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/Structure/component.html#compound>
+
+
+------------------------------------------------------------------------
+
+
+    Tracing
+
+As for assignment 3
+<http://www.cs.ecu.edu/karl/3300/fall14/assignments/Assignment3/assn3.html#debug>,
+provide debug prints that can be turned on and off. Write a function
+that prints the contents of a given priority queue. Add tracing to
+/insert/ and /remove/. The tracing must show what is being added or
+removed, what its priority is, the contents of the priority queue before
+performing the operation and the contents of the priority queue after
+performing the operation.
+
+The trace prints can assume that PQItemType is char* and PQPriorityType
+is double. Be sure to surround trace prints by #ifdef DEBUG ... #endif
+so that, when PQItemType and PQPriorityType are something else, these
+parts can be kept out of compilation without going through the program
+and making several changes.
+
+------------------------------------------------------------------------
+
+
+    Testing your implementation
+
+You will need to write a test module that uses priority queues and
+demonstrates that your implementation is working, at least in the test
+cases. Test every function. Try creating more than one priority queue.
+(You will need to use the same types of items and priorities for both.)
+
+Testing is critical. Do not turn in an untested module.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+To turn in this program, log into one of the Linux computers in the lab.
+(You can log in remotely.) Ensure that your files are there. Change to
+the directory that contains those files. Then issue one of the following
+commands.
+
+First version
+
+    *~abrahamsonk/3300/bin/submit 4a pqueue.cpp pqueue.h*
+
+Second version
+
+    *~abrahamsonk/3300/bin/submit 4b pqueue.cpp pqueue.h*
+
+ 
+
+ 
+
+ 
+
+ 
+

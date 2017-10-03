@@ -1,0 +1,464 @@
+
+  Computer Science 3300
+  Fall 2014
+  Section 001
+  Programming Assignment 5
+
+*Assigned:* 	Tuesday, October 22
+*First version due:* 	Tuesday, November 11, 11:59pm
+*Second version due:* 	Wednesday, December 3, 11:59pm
+
+------------------------------------------------------------------------
+
+
+      Table of contents
+
+ 1. Background <#background>
+ 2. Requirements <#requirements>
+ 3. Input format <#inputformat>
+ 4. Dijkstra's algorithm <#dijkstra>
+ 5. Priority queues <#pq>
+ 6. Graphs <#graph>
+ 7. Tracing <#trace>
+ 8. Submitting your work <#submit>
+
+------------------------------------------------------------------------
+
+
+    Background
+
+A graph is a collection of vertices connected by a collection of edges.
+An edge connects exactly two vertices to one another. You can draw a
+picture of a graph by showing the vertices and the edges connecting
+them. Here is an example. The vertices are shown as circles with numbers
+in them and the edges are lines connecting the vertices.
+
+Two vertices are said to be adjacent if there is an edge that connects
+them directly to one another. In the graph above, vertices 1 and 2 are
+adjacent, but 1 and 4 are not adjacent.
+
+A path is a sequence of vertices where every consecutive pair of
+vertices are adjacent to one another. For example, in the above graph,
+[3, 1, 2, 4] is a path that connects vertices 3 and 4.
+
+A graph is connected if there is a path from every vertex to every other
+vertex. We will only be concerned with connected graphs.
+
+A weighted graph is a graph in which each edge has a number attached to
+it, called the weight of the edge. Here is a picture of a weighted graph.
+
+Think of the vertices of a graph as towns and the edges as roads. The
+weight of an edge is the length of the road. One thing that you might
+like to know is how to get from one town to another by the shortest
+possible route. For example, in the weighted graph above, the shortest
+route from vertex 1 to vertex 5 is to go from 1 to 3 and then from 3 to
+5, and the length of that route is 27. You add the weights of the edges
+that you use.
+
+------------------------------------------------------------------------
+
+
+    Requirements
+
+
+      Functional requirements
+
+Write a program that reads information about a weighted graph from the
+standard input. The input format is described in detail below
+<#inputformat>. After the description of the graph, the input has two
+vertex numbers, /s/ and /t/.
+
+Your program should print a description of the graph, followed by the
+shortest path from /s/ to /t/ and the distance from /s/ to /t/ via that
+path, on the standard output.
+
+For example, the input might look like this. **
+
+*5
+1 2  9.0
+1 3 12.0
+2 4 18.0
+2 3  6.0
+2 5 20.0
+3 5 15.0
+0
+1 5
+*
+
+That says that there are five vertices. There is an edge from vertex 1
+to vertex 2, with weight 9.0, an edge from vertex 1 to vertex 3 with
+weight 12.0, etc. The start vertex /s/ is 1, and the end vertex /t/ is
+5. The output for this input would be as follows. *
+
+There are 5 vertices.
+The edges are as follows.
+
+ (1,3) weight 12.000
+ (1,2) weight 9.000
+ (2,5) weight 20.000
+ (2,3) weight 6.000
+ (2,4) weight 18.000
+ (3,5) weight 15.000
+
+The shortest path from 1 to 5 has length 27.000 and is
+1 -> 3 -> 5
+
+*
+
+Please make the last two lines of your output have the form shown above,
+where the last line shows the path from /s/ to /t/, with -> between
+vertices, and the line before that has the form shown. My tester will
+look for that.
+
+
+      Nonfunctional requirements
+
+This page describes an algorithm, based on Dijkstra's algorithm, for
+solving this problem, and provides additional details on how to
+implement it. You are required to use this algorithm, and to follow the
+guidelines for its implementation. It is not acceptable to rely on a
+different approach to the problem.
+
+Use sensible terminology in your program. If something is a graph, do
+not call it an edge. If something is an edge, do not call it a vertex.
+Make variable and type names sensible. Keep functions short and simple.
+
+As always, you must follow the coding standards
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/Standards/index.html> for
+this course.
+
+------------------------------------------------------------------------
+
+
+    Input Format
+
+The input starts with a line that tells how many vertices the graph has.
+If there are five vertices, then those vertices have numbers 1, 2, 3, 4
+and 5. In general, if there are /n/ vertices, then they are numbered 1,
+..., /n/.
+
+Following the first line are the edges, one per line. Each edge line has
+two integers and one real number on it. Line **
+
+*2 4 5.4
+*
+
+indicates that there is an edge between vertices 2 and 4, and that its
+weight is 5.4. The end of the list of edges is signaled by a line that
+contains just a 0. After that are the numbers for vertices /s/ and /t/.
+An input describing graph
+
+with start vertex 2 and end vertex 4 might look like this. **
+
+*5
+1 2  9.0
+1 3 12.0
+2 4 18.0
+2 3  6.0
+2 5 20.0
+3 5 15.0
+0
+2 4
+*
+
+*Important note.* The first number in the input is the number of
+/vertices/, not the number of /edges/. Do not use that number to
+determine how many remaining lines need to be read. Just keep reading
+edges until you read a 0.
+
+------------------------------------------------------------------------
+
+
+    Dijkstra's Algorithm
+
+Imagine yourself at the start vertex. You send out a signal from there
+along each edge, where the signal takes /w/ seconds to traverse an edge
+of weight /w/. For example, if the start vertex is vertex 1 and there is
+an edge between vertices 1 and 2 of weight 5.1, then the signal send
+from vertex 1 reaches vertex 2 after 5.1 seconds.
+
+The /first/ time a signal reaches a vertex /v/, you record the time at
+which the signal arrived, and which vertex the signal arrived from. Then
+you send a signal out on all of the edges that hit vertex /v/.
+
+The second and subsequent times a signal arrives at a vertex, the signal
+is ignored.
+
+The algorithm is finished when a signal reaches the end vertex. The time
+at which the signal arrived at the end vertex is the distance from the
+start vertex to the end vertex.
+
+Suppose that next(/u/) is the number of the vertex from which the first
+signal reached vertex /u/. Then you can find a path back from /u/ toward
+the start vertex as [/u/, next(u), next(next(u)), ...].
+
+
+      Discrete event simulation
+
+The program simulates this process by keeping a list of events, where an
+event indicates the arrival of a signal at a given vertex, from another
+given vertex, at a given time. So an event has two vertex numbers and a
+real number (the time at which the event occurs).
+
+The idea is to store the events in increasing order by the times at
+which they occur. The program repetitively performs the following steps.
+
+ 1.
+
+    Get the next event (/u/, /v/, /t/) indicating the arrival of a
+    signal sent from vertex /u/ to vertex /v/ and arriving at /v/ at
+    time /t/. The next event is the one that occurs next in
+    chronological order. So it is the one with the smallest time.
+
+ 2.
+
+    If no signal has yet arrived at vertex /v/, then do the following.
+
+     1.
+
+        Record next(/v/) = /u/ and distance(/v/) = /t/.
+
+     2.
+
+        For each edge that hits vertex /v/ (say, connecting /v/ with
+        vertex /x/ and having weight /w/), schedule a new event (/v/,
+        /x/, /t/+/w/) indicating that a signal will arrive at vertex
+        /x/, coming from vertex /v/, at a time that is /w/ seconds after
+        time /t/. That simulates sending a signal from /v/ to /x/.
+
+
+      Getting started
+
+To get going, record, for each vertex, that no signal has yet reached
+that vertex. After that, it suffices to send an initial signal to the
+start vertex. It arrives at time 0. It does not matter where it comes
+from because, if /s/ is the start vertex, then your program should never
+ask what next(/s/) is. So just schedule event (0, /s/, 0.0).
+
+
+      Information about vertices
+
+You will need to store some information for each vertex in the graph.
+Create an array holding a structure for each vertex. (So it will be an
+array of structures.) Suppose that array is called vertexInfo. Store the
+following information for each vertex.
+
+ 1.
+
+    Each vertex has a /distance/ from the start vertex. The distance of
+    /v/ is called dist(/v/) above, but in your program it might be
+    called g.vertexInfo[v].distance, where /g/ is the graph.
+
+ 2.
+
+    Each vertex has a boolean value indicating whether a signal has
+    reached this vertex.
+
+ 3.
+
+    Each vertex /v/ has a /next vertex/, written next(/v/) above.
+
+ 4.
+
+    Each vertex has a linked list of edge descriptions, telling the
+    vertices that are adjacent to this vertex, and the weight of the
+    edge that connects them. So each cell in the linked list holds (1)
+    another vertex number and (2) a weight. (This list is called the
+    adjacency list of this vertex.)
+
+
+      Getting the final answer
+
+When the algorithm is finished, you will be able to follow a path from
+/t/ back to /s/ by following the chain of next vertices. **
+
+*     /t/ -----> next(/t/) -------> next(next(/t/)) ----> ... -----> /s/
+*
+
+Print that chain out /backwards/, so that it goes from /s/ to /t/
+instead of from /t/ to /s/. The easiest way to do that is to use
+recursion. To print a path backwards, starting at vertex /u/, print the
+path starting at next(/u/) backwards, then print /u/. Of course, in the
+special case where /u/ is the start vertex /s/, just print /s/. Remember
+to put -> between vertex numbers.
+
+------------------------------------------------------------------------
+
+
+    Priority Queues
+
+You will need a data structure to hold the events that have been
+scheduled. If you think about the requirements of such a data structure,
+you will see that you require the following.
+
+ 1.
+
+    A type, so that you can create a variable of this type to hold the
+    events.
+
+ 2.
+
+    A way to create an initialized event queue with no events in it.
+
+ 3.
+
+    A way to insert a new event into the event queue, with a given time.
+
+ 4.
+
+    A way to remove the event that has the smallest time.
+
+ 5.
+
+    A way to ask whether there are any events in the event queue.
+
+Those features are just what you have already implemented as a priority
+queue. Just use that module. You will need to change the definition of
+PQItemType to be Event. You will need to make pqueue.h include a header
+file that defines type Event.
+
+------------------------------------------------------------------------
+
+
+    Graphs
+
+You will also need file *event.h* where type Event (discussed above
+<#Event>) is defined. It is possible that your program will include
+event.h more than once, which, if not taken into account, will cause the
+compiler to think that you have two different definitions of type Event.
+Write file event.h as follows.
+
+#ifndef EVENT_H
+#define EVENT_H
+
+struct Event
+{
+  ...
+};
+
+#endif
+
+where the ... part tells what is in an event. This says that if
+preprocessor
+<http://www.cs.ecu.edu/karl/3300/fall14/Notes/C/preprocessor.html>
+symbol EVENT_H has not yet been defined, then define it and put the
+definition of type Event in the program. But if EVENT_H has already been
+defined, then omit the (redundant) definition of type Event.
+
+Create a module, *graph.cpp*, that is responsible for managing graphs,
+for the shortest path algorithm, and for the main program.
+
+ 1.
+
+    Create a structure type, *Vertex*, that contains information about
+    one vertex. It should contain a distance, a next-vertex value, a
+    boolean value indicating whether a signal has arrived at this
+    vertex, and a pointer to an adjacency list for this vertex, as
+    described above. Keep in mind that a Vertex structure stores
+    information about /one/ vertex, including a linked list of other
+    vertices to which that one vertex is connected.
+
+ 2.
+
+    Create a structure type, *Graph*, that contains information about an
+    entire graph. It should hold (1) the number of vertices, (2) a
+    pointer to an array of Vertex structures, giving information about
+    every vertex in the graph. Here is a suggestion for the Graph type
+    definition.
+
+      struct Graph
+      {
+        int     numVertices;
+        Vertex* vertexInfo;
+
+        Graph(int n)
+        {
+          numVertices = n;
+          vertexInfo  = new Vertex[n+1];
+          for(int i = 1; i <= n; i++)
+          {
+            vertexInfo[i].signaled = false;
+          }
+        }
+      };
+
+    There should be /n/+1 slots in the array because vertices are
+    numbered starting at 1, not a 0, so you do not use index 0.
+
+Provide functions to do the following tasks.
+
+ 1.
+
+    *Read a graph*, in the format described above <#inputformat>. Build
+    up the adjacency lists as you read the graph. When you read an edge
+    from /u/ to /v/, put it into both the adjacency list of /u/ and the
+    adjacency list of /v/. That is, indicate that /u/ is adjacent to /v/
+    and /v/ is adjacent to /u/.
+
+ 2.
+
+    *Print a graph.* To print a graph, show the number of vertices and
+    all of the edges, as shown above <#example> in the example. You only
+    want to show each edge once, even though it is in two adjacency
+    lists. To do that, scan each adjacency list, but only print an edge
+    when it goes to a higher numbered vertex, to avoid printing it
+    twice. You will have two nested loops, an outer one that goes
+    through the array of Vertex structures, and an inner one that goes
+    through the adjacency list of a particular vertex.
+
+ 3.
+
+    *Run Dijkstra's algorithm.* Create the event queue and initialize
+    it. Repetitively get an event and process the event.
+
+ 4.
+
+    *Print the path* from /s/ to /t/ that was found by Dijkstra's
+    algorithm. This function will need to have /s/, /t/ and the graph as
+    parameters.
+
+ 5.
+
+    *The main program.* This should, by calling functions, (1) read in
+    the graph, (2) print the graph, (3) run Dijkstra's algorithm and (4)
+    print out the shortest path that was requested.
+
+------------------------------------------------------------------------
+
+
+    Tracing
+
+You are required to put trace (or debug) prints in your program that can
+be turned on and off. At a minimum, trace the action of Dijkstra's
+algorithm by:
+
+ 1. Showing the sending of a signal.
+ 2. Showing the arrival of a signal. (Say what the signal is.)
+ 3. Showing updates when the first signal arrives at a vertex.
+
+------------------------------------------------------------------------
+
+
+    Submitting Your Work
+
+To turn in this program, log into one of the Linux computers in the lab.
+(You can log in remotely.) Ensure that your files are there. Change to
+the directory that contains those files. Then issue one of the following
+commands.
+
+First version
+
+    *~abrahamsonk/3300/bin/submit 5a graph.cpp event.h pqueue.cpp pqueue.h*
+
+Second version
+
+    *~abrahamsonk/3300/bin/submit 5b graph.cpp event.h pqueue.cpp pqueue.h*
+
+ 
+
+ 
+
+ 
+
+ 
+
