@@ -1,0 +1,204 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 7
+
+*Assigned:* 	Monday, October 31
+*Due:* 	Wednesday, November 16, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment gives you experience using Prolog to solve a planning
+problem.
+
+
+      A politically incorrect puzzle
+      ------------------------------------------------------------------------
+
+There are three cannibals and three missionaries on one bank of a river.
+They want to get to the other side. There is a rowboat, but it can only
+hold one or two people at a time.
+
+The boat will not go across the river by itself. It must be rowed.
+Either a missionary a cannibal can row the boat, but if it ever happens
+that cannibals outnumber missionaries on either bank of the river, then
+the cannibals will eat the missionaries on that bank. (Note that it is
+okay for there to be some positive number of cannibals and no
+missionaries on a bank, since then there are no missionaries to be
+eaten.) Someone who is in the boat on a given bank is considered to be
+on that bank, so a missionary cannot hide in the boat.
+
+The problem is to develop a plan for getting everybody across the river
+without anybody being eaten.
+
+
+      The assignment
+      ------------------------------------------------------------------------
+
+Write a program in a logic programming style in Prolog for the
+Missionaries/Cannibals problem. It should print solutions that do not
+involve reaching the same state twice. Print the solution as a sequence
+of states. It is not necessary to give instructions for how to get from
+one state to the next, since that should be obvious from the states
+themselves.
+
+
+      Hints
+      ------------------------------------------------------------------------
+
+Use the Farmer/Wolf/Goat/Cabbage program in the book as a guide. (It is
+described in Section 16.3, where it is implemented using direct
+backtracking, and is implemented again in Prolog in Section 18.10 of the
+book.) Here are some suggestions.
+
+ 1.
+
+    Decide on a reasonable notion of a state. What do you need to know
+    about a snapshot? How can you represent it? */This step is
+    critical./*. How you choose to represent the state can have a strong
+    impact on how easy the program is to write. Think ahead about the
+    operations that you need to implement, and then ask how the state
+    might be represented to make the operations easy to write.
+
+    To represent a number, you will probably find jailbird notation the
+    best. Instead of using the number 3 to stand for 3 missionaries, for
+    example, use list [m,m,m]. Then you can use list operations that
+    work well in a logic programming style, instead of arithmetic
+    operations that are problematic for logic programming. How would you
+    add 1 to a number in jailbird notation?
+
+ 2.
+
+    Write a predicate follows(/S/, /T/) that is true if state /T/ can
+    immediately follow state /S/ in the sequence of states. The change
+    from /S/ to /T/ might involve a missionary and a cannibal paddling
+    across the river, for example. You will find the definition of
+    follows to be rather long. A simple approach is to used 10 axioms,
+    one for each kind of move that can be made. (There are five kinds of
+    moves from left to right, and five from right to left.)
+
+    Do not worry about whether state /T/ is a good state. That will be
+    handled by a different predicate.
+
+    Note that /follows/ is a predicate, and I have described it as if it
+    is a pure test. But it will be /used/ in mode follows(in,out). That
+    is, you will give follows a state and ask it to produce a next state.
+
+ 3.
+
+    Write a predicate admissible(/S/) that is true if /S/ is an
+    admissible state. An admissible state is one where no missionary is
+    being eaten on either bank of the river. Be sure to allow the case
+    where there are no missionaries, even though there are more
+    cannibals than missionaries.
+
+ 4.
+
+    A /plan/ is a list of states. You will find it convenient to
+    represent plans backwards, so that the first state in the plan is at
+    the end of the list and the last state in the plan is at the
+    beginning of the list. By a /plan list/ I mean a list that is the
+    reversal of a plan.
+
+    Say that plan list /Y/ is an extension of plan list /X/ if there is
+    a list /Z/ such that /Y/ = /Z/ ++ /X/ and no state in list /Z/ also
+    occurs in list /X/. Think of /X/ as a start of a plan to solve the
+    problem, and /Z/ as a continuation of it. (Remember that plans are
+    backwards.)
+
+    Write a predicate plan(/X/, /G/, /L/) that takes a list of states
+    /X/, a goal state /G/ and a list of states /L/, and is true if /L/
+    is an extension of /X/ that begins with state /G/. That is, in terms
+    of the lists, /L/ = /Z/ ++ /X/ and /L/ = [/G/ | /Y/]. for some lists
+    /Y/ and /Z/. Predicate plan is intended to be used in mode
+    plan(in,in,out). That is, you give it the desired partial plan and
+    the desired goal, and it extends that partial, adding as many states
+    as necessary to reach the goal. Since the plan list is backwards,
+    the goal state is at the beginning.
+
+    To understand how plan works, look at the Farmer/Wolf/Goat/Cabbage
+    solution.
+
+
+      Writing Prolog programs
+      ------------------------------------------------------------------------
+
+The program file contains axioms, one after another. Be sure to put a
+period at the end of every axiom. In Prolog, variables start with upper
+case letters, and constants start with lower case letters. */Be careful
+about that./* Predicate names also start with lower case letters. A
+single underscore stands for an anonymous, or don't-care, variable.
+
+Comments in Prolog start with % and end at the end of a line.
+
+Prolog has pseudo-predicates to perform actions. Use parameterless
+pseudo-predicate nl to print an end-of-line character, and write(k) to
+print term k. If you print a term, and the value is something like V001,
+then the term is an unbound variable (and so is unknown).
+
+SWI Prolog, a dialect that we will use, is unreasonably sensitive about
+spaces. Do not put any space between the name of a predicate and left
+parenthesis just after it. For example, you can write plan(/X/,/Y/,/Z/),
+but not plan (/X/,/Y/,/Z/), or SWI Prolog will report a syntax error.
+The error reporting is horrible.
+
+If you decide not to follow my advice about using jailbird notation and,
+instead, you use numbers in the representation of the state, then you
+will need to perform arithmetic. Prolog is not really designed for
+arithmetic, and it is a little awkward. You can write /X is E/ to ask
+for /X/ to be unified with the result of evaluating expression /E/. For
+example,
+
+  W is 3 + 4
+
+binds /W/ to 7. You can perform order tests using operators < and >, but
+you must ensure that the things that you are comparing are numbers, not
+terms. Do not write /X/ < /Y/ + 1, since /Y/ + 1 is not a number. (/Y/ +
+1 is an application of the + operator to /Y/ and 1.) Instead write
+
+  Z is Y+1,
+  X < Z
+
+to compute /Y/+1 first.
+
+
+      Running Prolog programs
+      ------------------------------------------------------------------------
+
+Use the pl command on the Linux machines in the lab to run SWI Prolog.
+To use pl, first compile your file. If your Prolog program is in file
+myprog.pl, type
+
+  pl -o myprog -c myprog.pl
+
+This only compiles your program into an intermediate code. To run your
+program, use command
+
+  myprog
+
+You will be prompted for goals. Each goal must end on a period. A goal
+is not required to be just one line long, and it can contain several
+subgoals separated by commas. If you forget the period and type a
+carriage-return, just type the period on the next line. After a result
+is shown, you can type a semicolon to ask for more solutions. When there
+are no more solutions the system will respond "no".
+
+To close SWI Prolog, just type a control-D.
+
+If you make an error in a goal, SWI prolog might say "DWIM could not
+correct goal". DWIM stands for "do what I mean". Unfortunately, it is
+not very good at figuring out what you really mean.
+
+
+      Submitting the program
+      ------------------------------------------------------------------------
+
+Submit your program in the usual way, using the submit program. Be sure
+to indicate that the assignment number is 7. So, if your Prolog program
+is called cannibal.pl, submit it using command
+
+  ~abrahamsonk/3675/bin/submit 7 cannibal.pl
+

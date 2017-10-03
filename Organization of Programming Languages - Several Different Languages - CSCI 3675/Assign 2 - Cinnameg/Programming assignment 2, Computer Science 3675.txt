@@ -1,0 +1,218 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 2
+
+*Assigned:* 	Monday, September 12
+*Due:* 	Wednesday, September 21, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment gives you some experience in equational programming and
+has you compare that to the imperative programming that you used in
+assignment 1.
+
+
+      Overview of assignment
+      ------------------------------------------------------------------------
+
+For this assignment, you will write the inc, sum, and product functions
+in an equational style instead of an imperative style. You will add to
+that functions to decrement, subtract and compare two numbers. You
+should find the function definitions fairly short and simple.
+
+
+      Language
+      ------------------------------------------------------------------------
+
+The language that you will use is Cinnameg. There is material in the
+book on Cinnameg, and you can find documentation here
+<http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/index.html>. It is
+installed on xlogin.cs.ecu.edu as /usr/local/bin/cmgc [a compiler] and
+/usr/local/bin/cmgr [an interpreter].
+
+Cinnameg is not a purely equational language, and it allows you to use
+other styles. For this assignment, stay within the equational subset for
+writing the arithmetic and comparison functions. Do not use loops, or
+anything that changes something once you have already created it. Write
+in a declarative, equational style.
+
+You may use imperative aspects, such as Displayln, for testing.
+
+
+      Representing nonnegative integers
+      ------------------------------------------------------------------------
+
+A nonnegative integer can be represented in binary as a list of zeros
+and ones. The most convenient way to do so is to put the least
+significant bit first. For example, the binary number 1101_2 (13
+decimal) would be represented by the list [1,0,1,1].
+
+Of course, list [1,0,1,1,0] also represents 13. Leading zeros in the
+standard representation (as in 01101) are ignored, and they become
+trailing zeros in the list representation. Say that a list is
+/normalized/ if it does not end on 0. So [1,0,1,1] is normalized, but
+[1,0,1,1,0] is not. Note that list [0] is not normalized, but [ ] is.
+The empty list is a representation of 0.
+
+
+      The assignment
+      ------------------------------------------------------------------------
+
+Your assignment is to write the following functions that work on lists
+as representations of binary numbers.
+
+ 1.
+
+    inc(/x/) produces /x/ + 1 (as a normalized list);
+
+ 2.
+
+    dec(/x/) produces max(0, /x/ − 1) (as a normalized list);
+
+ 3.
+
+    sum(/x/,/y/) produces /x/ + /y/ (as a normalized list);
+
+ 4.
+
+    diff(/x/,/y/) produces max(0, /x/ − /y/) (as a normalized list);
+
+ 5.
+
+    product(/x/,/y/) produces the product /x/ * /y/ (as a normalized list)
+
+ 6.
+
+    compareInts(/x/,/y/) produces a character: '<' if /x/ < /y/, '>' if
+    /x/ > /y/ and '=' if /x/ = /y/.
+
+For example inc([1,1,0,1,0,1]) = [0,0,1,1,0,1] (43 + 1 = 44), and
+sum([1,1], [1,1]) = [0,1,1] (3 + 3 = 6). The result list of each
+function should be normalized even if the parameter lists are not. For
+example, inc([1,0,0,0]) = [0,1] (1 + 1 = 2).
+
+
+      Normalizing
+
+You can handle normalization as follows. An example for inc should
+suffice. First, write an implementation of inc that does not worry about
+normalizing its result. You might call it incn, for inc-nonnormalizing.
+Now define inc as follows.
+
+   Define inc x = normalize(incn x).
+
+Do the same for the other functions. Function normalize is provided for
+you. It just removes any trailing zeroes from the list
+
+
+      Requirement
+      ------------------------------------------------------------------------
+
+Cinnameg allows large integers. But for this assigment, you are expected
+to handle the algorithms directly using lists of bits. It is not
+acceptable to convert from a list to an integer, do the arithmetic on
+the integers, and then convert back to a list. You are allowed to do
+arithmetic on small integers (say, any integers less than 10).
+
+
+      Hints
+      ------------------------------------------------------------------------
+
+Think about the number that each list represents. Here are some
+correspondences between lists and numbers. In the left-hand column, /x/
+stands for a list of bits. In the right-hand column, /x/ stands for the
+corresponding number.
+
+_List_ 	_Integer_
+[ ] 	0
+0::/x/ 	2/x/
+1::/x/ 	2/x/ + 1
+
+For example, [0,1,1] = 0::[1,1]. List [1,1] stands for 3. So [0,1,1]
+stands for 2(3) = 6. Similarly, [1,0,0,1] = 1::[0,0,1]. List [0,0,1]
+stands for 4. So [1,0,0,1] stands for 2(4) + 1 = 9.
+
+Think about your functions first in terms of arithmetic, then convert to
+lists. For example, you know that 2/x/ + (2/y/ + 1) = 2(/x/+/y/) + 1.
+Converting that to list notation, and writing sum(/a/,/b/) for /a/ +
+/b/, yields
+
+    sumn(0::x, 1:y) = 1::sumn(x,y) 
+
+Here are a few useful (and hopefully obvious) equations. Check them. For
+example, replacing dec(/a/) by /a/ − 1 in the first equation yields 2/x/
+− 1 = 2(/x/ − 1) + 1.
+decn(2/x/) 	= 	2decn(/x/) + 1 	when x ≠ 0
+diffn(/x/, /y/) 	= 	0 	when /x/ < /y/
+productn(2/x/, /y/) 	= 	2productn(/x/, /y/) 	
+compareInts(/x/, 0) 	= 	'>' 	when x ≠ 0
+
+Be cautious about dec and diff. Remember that they are not strictly
+decrementing and difference because they are not allowed to yield a
+negative number. If you don't pay attention to that, you will make
+mistakes.
+
+
+      Writing and running the program
+      ------------------------------------------------------------------------
+
+Write one package that defines and exports your definitions. Do not
+export the helper functions that do not normalize their results. See
+arithmetic.cmg
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn2/arithmetic.cmg> for a
+skeleton of this module. Use the skeleton as a starting point.
+
+Please include at least one Example for each function. I have written
+inc for you. You will need to provide dec, sum, diff, product and
+compareInts.
+
+To test your functions, use a separate module. See here
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn2/arithtest.cmg> for a
+skeleton of a testing module. Add tests.
+
+To compile arithmetic.cmg, use command
+
+  cmgc arithmetic
+
+if you want to have a listing written, or
+
+  cmgc -l arithmetic
+
+if you do not want a listing.
+
+The interpreter is called cmgr. You will want to compile both
+arithmetic.cmg and arithtest.cmg and then run arithtest. To do that use
+commands
+
+  cmgc arithmetic
+  cmgc arithtest
+  cmgr -t arithtest
+
+Option -t of cmgr tells cmgr not to perform some optimizations that
+would hide information from you if the program encounters an error.
+
+
+      Submitting your work
+      ------------------------------------------------------------------------
+
+*Be sure to include your name in the program.* When you are ready to
+turn in your work, use command
+
+   ~abrahamsonk/3675/bin/submit 2 arithmetic.cmg arithtest.cmg
+
+on xlogin.cs.ecu.edu. Command
+
+   ~abrahamsonk/3675/bin/submit 2
+
+will tell you what you have submitted.
+
+ 
+
+ 
+
+ 
+

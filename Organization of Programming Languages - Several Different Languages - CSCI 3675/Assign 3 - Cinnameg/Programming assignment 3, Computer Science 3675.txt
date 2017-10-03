@@ -1,0 +1,307 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 3
+
+*Assigned:* 	Monday, September 19
+*Due: * 	Wednesday, September 28, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment gives you experience using Lisp syntax and writing in a
+typeless language. You will need to be cautious since the compiler does
+not perform any type checking.
+
+This exercise has you write a program in Scheme. You can read in the
+book about Scheme, or see the Scheme Report
+<http://www-swiss.ai.mit.edu/~jaffer/r5rs_toc.html> for a more
+definitive and complete source.
+
+To use Scheme, you will find Racket convenient. You can get it from
+racket-lang.org <http://racket-lang.org/>. When you run it, set the
+language to R5RS Scheme (under legacy languages).
+
+A Scheme comment is begins with a semicolon and ends at the end of the
+line.
+
+
+      The Assignment
+      ------------------------------------------------------------------------
+
+Write an evaluator for expressions in Scheme. Use the evaluator in the
+book on page 151 as a starting point. It is recommended that you use
+that form, with helper function eval-params.
+
+Your evaluator should allow more than the one in the book.
+
+ 1.
+
+    The expressions should allow numbers and operations *plus*, *minus*,
+    *times* and *divide*. All of those operations should take any
+    positive number of parameters. For example, if your evaluator is
+    passed parameter (plus 3 5 4), then it should produce answer 12.
+    Subtractions and divisions are done from left to right. Evaluating
+    (minus 5 2 1) yields 2, and evaluating (divide 10 5) yields 2.
+
+    Make this change to the evaluator and test it.
+
+ 2.
+
+    Your expression evaluator should handle an expression of the form
+    (if /A/ /B/ /C/). It starts by evaluating /A/. If /A/'s value is 0
+    or 0.0, then it yields the value of /C/. Otherwise, it yields the
+    value of /B/.
+
+    For example, evaluation of expression (if (plus 1 2) (minus 3 5)
+    (plus 5 6)) yields −2. Evaluating (if /A/ /B/ /C/) must only
+    evaluate one of expressions /B/ and /C/, not both.
+
+    Add this to your expression evaluator. Test it.
+
+ 3.
+
+    Your expression evaluator will allow variables. Add a second
+    parameter to it, which is an /environment/ telling the values of
+    variables.
+
+    An environment is a list of the form ((x1 v1) (x2 v2) ...),
+    indicating that variable x1 has value v1, x2 has value v2, etc. A
+    list of that form is called an /association list/. For example,
+    association list ((rabbit 4) (mouse 30)) indicates that variable
+    rabbit has value 4 and variable mouse has value 30.
+
+    There is a useful Scheme function called *assoc* for looking up
+    values in association lists. Scheme expression (assoc /x/ /L/)
+    searches association list /L/ for the first occurrence of a list
+    whose car is /x/, and it returns that list. For example, evaluating
+    (assoc 'mouse '((rabbit 4) (mouse 30) (hamster 25))) yields list
+    (mouse 30). If it cannot find a suitable pair, assoc yields #f.
+
+    Add the second parameter and add a case for evaluating0 a variable.
+    Assume that a variable is a symbol. Use function symbol? to test
+    whether a value is a symbol.
+
+    Be sure to add a second parameter to each recursive call to
+    eval-expr. Note that eval-params will also need another parameter,
+    since it also needs to know the environment.
+
+    Test this. For example, (eval-expr 'y '((y 20))) should yield 20. It
+    says to produce the value of expression /y/, assuming that /y/ is 20.
+
+ 4.
+
+    Your evaluator should allow an expression of the form (let (/x/ /v/)
+    /e/), which indicates that variable /x/ should be bound to the value
+    of expression /v/, and that /e/ should be evaluated with that binding.
+
+    The value of expression (let (/x/ /v/) /e/) is the value of /e/. If
+    /x/ already has a value, then the new value takes precedence over
+    the old one.
+
+    That is easy to handle by just adding another pair to the beginning
+    of the association list. But don't just add pair (/x/ /v/) to the
+    environment, since /v/ can be an expression. To evaluate (let (/y/
+    (plus 1 4)) (times /y/ /y/)) should add pair (/y/ 5) to the
+    environment and evaluate (times /y/ /y/) in that environment,
+    yielding 25.
+
+    Note that your version of let is a little different from the /let/
+    function that is part of Scheme. The Scheme /let/ takes a list of
+    binding pairs, where yours takes only one binding pair.
+
+ 5.
+
+    Add an expression whose result is a function closure. Evaluating
+    (function /x/ /E/) creates a function that takes parameter /x/ and
+    yields the value of expression /E/. (/x/ is required to be a symbol).
+
+    For example, expression (function /d/ (plus /d/ 1)) yields a
+    function. If the function were called /d/, it would be defined by
+    f(/d/) = /d/ + 1.
+
+    A function is allowed to use variables that have definitions at the
+    point where the function is built. For example, evaluating
+    (eval-expr (function /q/ (time /q/ w)) ((w 4) (r 20))) yields a
+    function f defined by f(/q/) = /q/*4.
+
+    Accomplish this by representing a function in the form (closure /x/
+    /E/ /env/) where /x/ is the function's parameter (a symbol), /E/ is
+    the function body (an expression) and /env/ is an environment (the
+    environment that was in effect when this function was evaluated).
+
+ 6.
+
+    Add an expression of the form (call /F/ /E/) where /F/ and /E/ are
+    expressions. For this to make sense, the value of expression /F/
+    (after evaluating it) must be a closure. Evaluate /E/, giving a
+    value /p/ that is to be used as the function's parameter.
+
+    After evaluating /F/ and /E/, you should have something like (call
+    (closure /x/ /A/ /env/) /p/). Evaluate that by evaluating expression
+    /A/ in environment (/x/ /p/)::/env/. That is, just add a pair (/x/
+    /p/) to the beginning of the environment env that you get out of the
+    closure, and evaluate the function's body in that environment.
+
+ 7.
+
+    You already have a /let/ expression. It also works for functions. So
+    you can give a function a name.
+
+    But a function is not required to have a name. Evaluating (call
+    (function z (plus z z)) (plus 5 3)) should yield 16.
+
+Here are some examples of what your evaluator should do. In these
+examples, it is presumed that the first parameter of evaluate is the
+expression to evaluate, and the second parameter is the environment.
+
+ 1.
+
+    (eval-expr '(plus 2 3) '( )) = 5 (Notice that the environment is ( 
+    ). There are no variable bindings. Also notice the quote mark on the
+    expression. You need to quote it to prevent the Scheme interpreter
+    from trying to evaluate it.)
+
+ 2.
+
+    (eval-expr '(plus (times 2 3) (minus 4 2)) '( )) = 8.
+
+ 3.
+
+    (eval-expr '(if (times 2 4) (plus 1 8) (divide 5 0)) '( )) = 9.
+
+ 4.
+
+    (eval-expr '(if (minus 5 5) (divide 1 0) (plus 1 8)) '( )) = 9.
+
+ 5.
+
+    (eval-expr 'x '((y 2) (x 5))) = 5. (This evaluates expression /x/ in
+    an environment where /y/ is bound to 2 and /x/ is bound to 5. The
+    answer is 5, the value of /x/.)
+
+ 6.
+
+    (eval-expr '(times x 3) '((x 5) (y 2))) = 15.
+
+ 7.
+
+    (eval-expr '(times x 3) '((x 5) (x 2))) = 15.
+
+ 8.
+
+    (eval-expr '(let (z 15) (plus z z)) '( )) = 30.
+
+ 9.
+
+    (eval-expr '(let (r (plus 2 5)) (times r 2)) '( )) = 14.
+
+10.
+
+    (eval-expr '(let (s 5) (let (t (plus s s)) (times s (plus t 3)))) '(
+     )) = 65 This is easier to understand as follows.
+
+          (eval-expr
+             '(let (s 5)                       ; s = 5
+                   (let (t (plus s s))         ; t = s + s
+                        (times s (plus t 3))   ; compute s*(t+3)
+                   )
+              )
+              '()                              ; the environment has no bindings
+          )
+
+11.
+
+        (eval-expr 
+           '(let (f 
+                 (function z (times z (plus w 1))) ; f(z) = z*(w+1)
+                )
+             (call f (times 2 a))                  ; compute f(2*a)
+           )
+           '((a 5) (w 20))                         ; env: a = 5 and w = 20.
+        )
+
+        yields 210 since 2*a = 10, f(10) = 10*(w + 1) = 10*(21) = 210.    
+      
+
+
+      Hints
+      ------------------------------------------------------------------------
+
+This assignment should be easy to do if you are careful. Pay careful
+attention to what you are writing, and try it on simple examples by
+hand. Rember that evaluating (cdr '(1 2)) yields list (2), not number 2.
+Remember that computing (cons 1 2) does not yield list (1 2), but yields
+an improper list. But (list 1 2) yields list (1 2).
+
+Type in the interpreter from the book, and try it to ensure that it is
+working.
+
+Now add subtraction and division. Test. Then add *if* expressions. Test
+that.
+
+Now add the environment parameter. Also add a symbol as one of the
+possible forms that an expression can have. You will have a case in the
+cond that looks something like this.
+
+        ((symbol? E) (...))
+
+where the missing expression looks up the value of symbol /E/ in the
+environment. Use standard Scheme function assoc to get the value of /E/
+from the environment. Initially assume that the variable value must be a
+number. Test this new evaluator.
+
+Now add the let expressions. If the first thing in the expression is the
+symbol *let*, and the expression looks like (let (/x/ /v/) /a/), then
+you want to add pair (/x/ /v/&prime) to the front of the current
+environment env, where /v/&prime' is the result of evaluating /v/ in
+environment env.
+
+Notice that, if /E/ = (let (/x/ /v/) /a/) then /x/ is (caadr /E/). What
+are the other parts?
+
+Finally, add functions and call. Test them. Represent a function as a
+closure. For example, if (function y (times y z)) is evaluated in
+environment ((w 10) (z 6)) then the result would be something like
+(closure y (times y z) ((w 10) (z 6))), providing the function argument
+name, the function body and the environment in which the function
+expression was evaluated. How would you evaluate the following?
+
+  (eval '(call f ((w 10) (z 6)) 25)
+        '((f (closure y (times y z) ((w 10) (z 6))))))
+
+If you want to, you can allow a closure to appear directly in an
+expression to simplify testing. Any expression that starts with closure
+should be left exactly as it is, like a number.
+
+
+      Tester
+      ------------------------------------------------------------------------
+
+Add a tester to your program that runs enough test cases to show that
+the evaluator appears to be working. Put it in a function called *test*.
+Running (test) should run the tests and show the results.
+
+
+      Submitting the assignment
+      ------------------------------------------------------------------------
+
+Submit this assignment as assignment 3, using submit as in previous
+assignments. For example, use command
+
+  ~abrahamsonk/3675/bin/submit 3 eval.scm
+
+Command
+
+   ~abrahamsonk/3675/bin/submit 3
+
+will tell you what you have submitted.
+
+ 
+
+ 
+
+ 
+

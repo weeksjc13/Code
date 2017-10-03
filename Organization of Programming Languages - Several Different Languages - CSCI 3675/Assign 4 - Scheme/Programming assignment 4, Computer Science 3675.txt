@@ -1,0 +1,170 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 4
+
+*Assigned:* 	Wednesday, September 28
+*Due:* 	Friday, October 21, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This is an exercise in defining and using a type with multiple
+constructors. The language is Cinnameg.
+
+
+      Derivatives
+      ------------------------------------------------------------------------
+
+The derivative of an expression is a concept from calculus. You take the
+derivative of a function of /x/ (given as an expression involving /x/),
+and the answer is another function of /x/ (also given as an expression
+involving /x/.
+
+The derivative of /x/ (with respect to /x/) is 1, and the derivative of
+expression /x/^2 is 2/x/. If you are unfamiliar with derivatives, the
+general rules that are needed here are given below.
+
+Symbolic mathematics packages such as Mathematica, Maple and Derive will
+take derivatives for you. They do so symbolically, in the same way as
+you do when you are doing it by hand. They require the concept of an
+/expression/, such as 2*/x/. That concept can be captured in a type
+called Expression.
+
+
+      The assignment
+      ------------------------------------------------------------------------
+
+For this assignment, you will write a program to compute the derivative
+of an expression. Do so by modifying the starting point file
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn4/deriv.cmg>. It
+provides a function called deriv that takes an expression and produces
+another expression. deriv(/E/) is the derivative of /E/ with respect to
+/x/. (The variable is called /xx/ in the program just because it is
+probably a bad idea to have a global constant called /x/.) In addition
+to the independent variable, the current version handles constants and
+addition.
+
+Your assignment is to extend the given program so that it can handle
+subtraction, multiplication and constant powers. Add more cases to the
+definition of type Expression. So that everybody uses the same names
+(making programs easier for me to test) use operator − for subtraction,
+operator * for multiplication and operator ^ for exponentation. Design
+your program so that each of these operators takes two expressions as
+parameters.
+
+
+      Computing derivatives
+      ------------------------------------------------------------------------
+
+The rules for taking the derivative /a/' of an expression /a/ (with
+respect to /x/) are as follows. Here, /c/ is a constant and /x/ is the
+independent variable (called /xx/ in the program.)
+
+/c/' 	 =  	0
+/x/' 	 =  	1
+(/a/+/b/)' 	 =  	/a/' + /b/'
+(/a/ - /b/)' 	 =  	/a/' - /b/'
+(/ab/)' 	 =  	/a/(/b/') + (/a/')/b/
+(/a/^/c/ )' 	 =  	/ca/^/c/-1 /a/'
+
+Be careful about types. When I present these facts to you, I write them
+using ordinary mathematical notation. When I write 0, I might be talking
+about the number 0 or the expression that consists only of the number 0.
+In mathematics, we do not distinguish between the two. But your program
+needs to pay attention to types. One type that your program must use is
+Real, the type of a real number. Another type is Expression. They are
+not the same. Constant 0 can have type Real. (It is polymorphic, and can
+have other numeric types.) But constant 0 cannot have type Expression.
+To make the /expression/ 0, you must convert from type Real to type
+Expression. Function /constant/ does that. So constant(0) is the number
+0, as an expression.
+
+
+      Simplification
+      ------------------------------------------------------------------------
+
+The derivative rules can lead to some rather silly looking expressions.
+If you apply them exactly as stated, you find that the derivative of
+2+3*/x/ is 0 + 3*1 + 0*/x/. It is nice to do some simplifications. A
+simplification function is provided. You should extend the simplifier as
+well, to get simplifications involving subtractions, multiplication and
+constant powers. Do /at least/ the following simplifications.
+
+/y/ - 0 	 =  	/y/
+0 * /y/ 	 =  	0
+/y/ * 0 	 =  	0
+1 * /y/ 	 =  	/y/
+/y/ * 1 	 =  	/y/
+/y/ ^ 1 	 =  	/y/
+/1/ ^ /y/ 	 =  	1
+
+Also perform constant arithmetic. For example, expression 3*4 should be
+simplified to 12. Expression 3^4 should be simpified to 81.
+
+
+      Important notes
+      ------------------------------------------------------------------------
+
+*Note.* The program is broken into two parts. deriv.cmg implements
+expressions, derivatives and the simplifier. File testderiv.cmg
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn4/testderiv.cmg>
+contains a tester. Extend it to do more tests. *Be sure to test your new
+code!*
+
+*Note.* You are only supposed to deal with /constant/ powers. The
+equation given for the derivative of a power *does not work* when /c/ is
+a general expression. If your deriv function is asked to produce the
+derivative of an expression where the exponent is not constant, it
+should fail. File deriv.cmg has an /exception/ called derivativeX
+defined in it. You can indicate failure to compute the derivative of
+expression /e/ using expression fail(derivativeX(e)), as in
+
+  ...
+  else derivative(e) = fail(derivativeX(e))
+
+*Note.* Internal documentation is important in any program, and it is
+important that it be correct. When you make modifications, keep the
+documentation up to date. *Failure to do so will cause you to lose points.*
+
+*Note.* Pay attention to what you are writing. I have received
+submissions for this assignment containing "facts" such as
+
+  * 0*/x/ = /x/
+  * /x/^0 = /x/
+  * /x/^0 = 0
+  * 0-/x/ = /x/
+
+and assorted other goodies. (By the way, 0^0 is undefined. It is not
+terribly important how your program handles that little problem. If you
+treat /x/^0 as 1, that is okay. But in unusual cases, it can lead to
+some problems.)
+
+*Note.* To compute a real number to a real power, use operator ^*. It
+computes powers using logarithms and exponentials. (/x/^*/y/ = exp(/y/
+ln(/x/)).) You can still call your expression exponentiation operator ^.
+
+
+      Submitting the program
+      ------------------------------------------------------------------------
+
+Submit both of your programs, the derivative finder and the tester, in
+the usual way, using the submit program. Be sure to indicate that the
+assignment number is 4. So use command
+
+  ~abrahamsonk/3675/bin/submit 4 deriv.cmg testderiv.cmg
+
+Command
+
+   ~abrahamsonk/3675/bin/submit 4
+
+will tell you what you have submitted.
+
+ 
+
+ 
+
+ 
+

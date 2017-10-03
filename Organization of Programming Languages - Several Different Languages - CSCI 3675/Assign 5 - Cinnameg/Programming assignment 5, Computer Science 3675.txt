@@ -1,0 +1,537 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 5
+
+*Assigned:* 	Wednesday, October 5
+*Due: * 	Wednesday, November 2, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment has you put higher-order functions to work on a larger
+problem using defined types.
+
+It is very important that you keep your function definitions short,
+simple and easy to understand. Document your work!
+
+
+      Parsing and file name
+      ------------------------------------------------------------------------
+
+Two files are provided for you.
+
+ 1.
+
+    sequent.cmg
+    <http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn5/sequent.cmg> is a
+    starting point. Add more to that file to finish the assignment.
+
+ 2.
+
+    parseSequent.cmg
+    <http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn5/parseSequent.cmg>
+    contains support for parsing a string and producing a sequent.
+
+Please call your program sequent.cmg. Module parseSequent.cmg assumes
+that it is called sequent.cmg.
+
+
+      Propositional logic
+      ------------------------------------------------------------------------
+
+I assume that you are familiar with the basics of propositional logic.
+We will restrict ourselves to a subset that allows propositional
+variables and operations ¬ <#not>, ∧ <#and>, ∨ <#or> and ⇒ <#implies>.
+(See the precedence rules <#precedence>.)
+
+We say that a propositional formula is valid if it is true no matter
+what values the propositional variables have. For example, /P/ ∨ ¬/P/ is
+a valid propositional formula, as is /P/∧/Q/ ⇒ /P/∨Q.
+
+
+      Sequent logic
+      ------------------------------------------------------------------------
+
+Sequent logic is described in the textbook in exercise 5.17, pages 219
+and 220. A sequent has the form α |– β where α and β are lists of
+formulas. Sequent α |– β means "If all of the formulas in list α are
+true then at least one of the formulas in list β is true."
+
+For example, sequent /P/, /Q/ |– /P/, /Q/ says that, if /P/ and /Q/ are
+both true then at least one of /P/ and /Q/ is true.
+
+If the left-hand list in a sequent is empty, it is treated as true. So
+sequent |‐ /P/ ⇒ /P/ says that formula /P/ ⇒ /P/ is true.
+
+If the right-hand list in a sequent is empty, it is treated as false, So
+/P/∧¬/P/ |– says that, if /P/∧¬/P/ is true then false is true. Since
+false is not true, that sequent can be read as saying that /P/∧¬/P/ is
+false.
+
+A sequent is valid if it is true no matter what the values of the
+variables are. All of the sequents shown in this section are valid.
+
+We will use notation for sequents where an English letter refers to a
+single formula while a Greek letter refers to a list of formulas. For
+example, /x/, α |‐ β indicates that the left-hand list consists of
+formula /x/ followed by the formulas in list α. Handling of lists is
+informal. For example, list /x/, α is the list of formula /x/ followed
+by the formulas in list α.
+
+
+      Basic sequents
+      ------------------------------------------------------------------------
+
+A sequent is basic if some formula occurs in both the left-hand list and
+the right-hand list. For example, sequent /P/, /Q/ |– /P/, /Q/ is basic,
+as is /P/, /Q/ |– /Q/.
+
+*/Every basic sequent is valid./* (Why?) That gives us a starting point
+for proving that other, nonbasic sequents are valid.
+
+
+      Rules of inference
+      ------------------------------------------------------------------------
+
+A rule of inference lets you derive new valid sequents from other
+sequents that you already know are valid. Page 220 of the textbook shows
+some rules of inference. Each shows one or more sequents above a line
+and one sequent below the line. Such a rule means that, if you know that
+all of the sequents above the line are valid, then the sequent below the
+line is valid.
+
+There are two rules for each logical operator; one rule adds a formula
+with the given operator to the left-hand list and one rule adds a
+formula with the given operator to the right-hand list.
+
+
+      Goal-directed proofs
+      ------------------------------------------------------------------------
+
+A goal-directed proof works backwards. You start with a sequent that you
+want to prove valid. Find an inference rule that would work. (That is
+discussed below.) Then prove each of the sequents that is above the line
+in the rule. Each of those proofs also proceeds in a goal-directed fashion.
+
+Eventually, you wind up trying to prove one of two kinds of sequents. In
+one case, the sequent is basic, and you can conclude that it is valid.
+
+In the other case, the sequent is not basic, but all of its formulas are
+just propositional variables; there are no logical operators. A nonbasic
+sequent with no logical operators is always invalid. For example,
+sequent /P/ |– /Q/ is not valid.
+
+
+      The assignment
+      ------------------------------------------------------------------------
+
+The assignment is to write a Cinnameg program that reads a sequent and
+responds by saying whether the sequent is valid. You are */required/* to
+do this using the design below. (For example, don't use truth-tables
+instead.)
+
+Try to use higher order functions to make the program shorter and simpler.
+
+
+      Types
+      ------------------------------------------------------------------------
+
+Types Formula and Sequent are defined in the template file. A value of
+type Formula is a propositional formula. A value of type Sequent is a
+sequent.
+
+If f is a function that takes a parameter of type α and yields a result
+of type β, then f has type α → β. (The arrow is written in programs as ->.)
+
+Ordered pair (true, "goat") has type (Boolean, String).
+
+If /x/ is a list whose members have type /T/, then /x/ has type [/T/].
+
+Maybe
+<http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Maybe/maybe.html>
+of Integer is a type whose members have two kinds: *nothing* and
+*something(/n/)*, where /n/ is an integer. Value *nothing* indicates
+that there is nothing here. Value *something(/n/)* indicates integer
+/n/; so there is something here. (You can think of *nothing* as
+analogous to *null* in Java.)
+
+You will want to use type Maybe of [Sequent] as the result type of a
+function that handles an inference rule. The function returns
+*something(/L/)* if /L/ is a list of subgoals that come out of the
+inference rule. It returns *nothing* if the inference rule cannot be
+applied at all.
+
+
+      Expectations
+      ------------------------------------------------------------------------
+
+You will want to provide an expectation for each of your functions.
+Paragraph
+
+  Expect validSequent?: Sequent -> Boolean.
+
+indicates that you will define a function called validSequent? that
+takes a sequent as a parameter and yields a boolean result.
+
+If you write an expectation for a function then you can use that
+function anywhere in the program (before or after the expectation and
+the definition.)
+
+Please document what your functions do. Here is an example.
+
+  Expect validSequent?: Sequent -> Boolean
+    %: validSequent?(x) is true if sequent x is
+    %: valid.
+  %Expect
+
+
+      Design and hints
+      ------------------------------------------------------------------------
+
+ 1.
+
+    Get the template file
+    <http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn5/sequent.cmg>. Use
+    it as a starting point. It defines types Formula and Sequent.
+
+    There are five kinds of formula: A variable (with a name), and one
+    for each logical operator. Expression vbl "P" \/ vbl "Q" is the
+    formula P ∨ Q.
+
+    There is just one kind of sequent. Expression [vbl "P", vbl "Q"] |-
+    [vbl "Q"] is sequent P, Q |– Q.
+
+    You can use type constructors in patterns. For example, case
+
+      case f(vbl name) = …
+
+    is only used if the parameter is a formula that is a variable with
+    name /name/, and
+
+      case f(a /\ b) = …
+
+    is only used if the formula is a conjunction (of /a/ and /b/).
+    Similarly,
+
+      g(alpha |- beta) = …
+
+    says that g takes a sequent as its parameter, with left-hand list
+    alpha and right-hand list beta.
+
+    You can use a type constructor for Formula as testers by adding a
+    question mark to the end of it. For example, neg?(/x/) is true if
+    /x/ has the form neg(/y/) for some /y/. Similarly, /\?(/x/) is true
+    if formula /x/ was built using constructor /\. Each such tester has
+    type Formula → Boolean, and the template file defines abbreviation
+    FormulaTester for that type.
+
+ 2.
+
+    Define a function that tests whether a given sequent is basic.
+    Consider using someSatisfy
+    <http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Lists/Functions/search.html#someSatisfy>
+    and `in`
+    <http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Lists/Functions/search.html#in>.
+
+
+ 3.
+
+    Define a function moveToFront that takes a list of formulas /fs/ and
+    a FormulaTester /t/.
+
+     1.
+
+        If list /fs/ contains a formula /x/ such that /t/(/x/) is true,
+        then moveToFront should return a reordered version of list /fs/
+        where /x/ has been moved to the beginning.
+
+     2.
+
+        If list /fs/ does not contain such a formula, then moveToFront
+        should return /fs/ (unchanged).
+
+    Use select
+    <http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Lists/Functions/search.html#select>
+    and operator −/
+    <http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Lists/Functions/extract.html#minusslash>.
+
+
+ 4.
+
+    For each rule of inference /R/, define a function of type Sequent →
+    Maybe of [Sequent]. (You can call that type Rule, using an
+    abbreviation given in the template file.) This function should take
+    a goal sequent /s/ and produce a result of type Maybe of [Sequent].
+
+     1.
+
+        If rule /R/ applies to sequent /s/, then this function should
+        apply /R/ and yield something(/L/) where /L/ is a list of
+        subgoals needed to prove /s/ according to rule /R/.
+
+     2.
+
+        If rule /R/ does not apply to sequent /s/, then this function
+        should return nothing.
+
+    This function for rule /R/ should try to find a formula on the
+    appropriate side of sequent /s/. If there is one, this function
+    should move it to the front of the list.
+
+    For example, Rule negL can be defined by
+
+    Define
+      case negLHelp (neg x :: alpha |- beta) = something [alpha |- x :: beta]
+      case negLHelp (?)                      = nothing;
+
+      negL(alpha |- beta) = negLHelp(moveToFront neg? alpha |- beta)
+
+ 5.
+
+    Write a function that takes a list of sequents and returns true if
+    every sequent in the list is valid. Use allSatisfy
+    <http://www.cs.ecu.edu/~karl/cinnameg/9-0/lin/Manual/Library/Structure/Lists/Functions/search.html#allSatisfy>.
+
+
+    You will need to use a function that tests whether a single sequent
+    is valid, which you have not yet written. I hope that doesn't bother
+    you.
+
+ 6.
+
+    Write a function that takes a sequent and a list of Rules <#Rule>
+    (that is, a list of functions), and tries to use each rule on the
+    sequent. If a rule applies, it should use that rule to get one or
+    two new goals, and should test whether the new goals are valid.
+
+    If a rule can be used and the new goals are valid, this function
+    should return true. (That is, it has found a proof that the sequent
+    is valid.) If none of the rules applies, or if it is not possible to
+    prove one of the new goals, this function should return false,
+    indicating that it has not found a proof using the given list of
+    rules that the sequent is valid.
+
+ 7.
+
+    Write a function that takes a sequent and tells whether the sequent
+    is valid. First, test for a basic sequent. For a non-basic sequence,
+    try all of the inference rules. If none of those rules works, the
+    sequent is not valid.
+
+    It is most efficient to try the rules that only have one sequent
+    above the line in the inference rule before trying those with two
+    sequents above the line, since that tends to reduce the
+    proliferation of sequents to test. Order the rules appropriately.
+
+ 8.
+
+    Write valid?, which takes a formula and returns true if it is valid.
+    Formula /x/ is valid if and only if sequent |– /x/ is valid. (In the
+    program you would write [] |- [/x/].)
+
+ 9.
+
+    Write an Execute block that reads a line of text, converts the line
+    to a sequent, and says whether the sequent is valid. Import
+    parseSequent.cmg
+    <http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn5/parseSequent.cmg>
+    for a parser that converts a string into a sequent or formula. You
+    can use
+
+      Match $(s: Sequent) = str.
+
+    to convert a string to a sequent called /s/, and
+
+      Match $(f: Formula) = str.
+
+    to convert str to a formula called /f/.
+
+    Write input formulas as you would in a program, except that a
+    variable is just a name consisting of one or more letters and that
+    you use − for negation. Write a sequent by writing a comma-separated
+    list of zero or more formulas, then |-, then another comma-separated
+    list of zero or more formulas. You can put spaces between things (or
+    not) and you can use parentheses. For example, **
+
+    *  P \/ Q, -Q |- (P /\ Q ==> P \/ Q), P
+    *
+
+    is suitable for input as a sequent.
+
+    If you write a formula as a string constant in a program, be sure to
+    double all backslashes. For example, "P \\/ Q" is P \/ Q.
+
+    The syntax that the parser uses is as follows. **
+
+    *    sequent   → formulas |- formulas
+     
+        formulas  → formula , formulas
+                  |  formula
+     
+        formula   → sum ==> formula
+                  |  sum
+     
+        sum       → term \/ sum
+                  |  term
+     
+        term      → component /\ term
+                  |  component
+     
+        component → - component
+                  |  ( formula )
+                  |  vblname
+
+        vblname   → letter
+                  |  letter vblname
+    *
+
+
+      Extra credit
+      ------------------------------------------------------------------------
+
+Instead of providing only a yes or no answer concerning the validity of
+a sequent or formula, rework the program so that it shows a proof. Be
+sure to keep a copy of the version that does not include the extra
+credit so that you have a backup in case this does not work out.
+
+First, add the following to the export part of your package.
+
+*
+
+=============================================
+%%               Inference
+=============================================
+%: inference(old, new) indicates that new is
+%: inferred based on prior inferences in
+%: list old.  inference([], s) indicates that
+%: s is basic.
+=============================================
+
+Type Inference = inference ([Sequent], Sequent).
+
+=============================================
+%%               Proof
+=============================================
+%: A proof is either [], indicating
+%: that the proof was not successful, or is
+%: a list of inferences that prove a given
+%: sequent.
+%:
+%: The sequent that is proved is the right-hand
+%: side of the last inference. So 
+%: [..., inference(x,s)] proves sequent s.
+=============================================
+
+Abbrev Proof = [Inference].
+
+*
+
+Also add the following to the expectations.
+
+*
+
+  proof: Sequent -> Proof
+    %: proof(s) yields one of the following.
+    %:   If s is valid:
+    %:     a list of one or more inference 
+    %:     steps that prove s.
+    %:
+    %:   If s is not valid:
+    %:     []
+    ;
+
+  ShowProof: Proof -> ();
+
+  cmg.$: Inference -> String;
+
+*
+
+In the implementation part, write definitions of proof and ShowProof.
+Here is a definition of $ for Inference. Symbol |= is used in
+mathematical logic to mean "proves." It is like the horizontal line in a
+rule of inference, but for cases where you write the rule in one line.
+
+*
+
+==============================================================
+%%                     $ (Inference)
+==============================================================
+
+Define $(inference(a,b)) = $(a) ++ " |= " ++ $(b).
+
+*
+
+You will want to make some functions that yield boolean results in the
+original program yield values of type Proof instead. You will probably
+find the following useful.
+
+Be sure to plan your ideas before you start coding.
+
+
+      The difficulty of checking validity
+      ------------------------------------------------------------------------
+
+The validity problem is the problem of determining whether a given
+propositional formula is valid. In general, the validity problem takes a
+long time to solve for long formulas. It belongs to a family of problems
+called coNP-complete problems, and all of those problems are conjectured
+not to have any algorithm that runs in time /n/^/k/ for any fixed /k/,
+where /n/ is the length of the formula.
+
+It is possible that you will run into that issue when asking whether
+certain formulas are valid; your program will run a long time. More
+likely, you will stay away from the really difficult ones.
+
+
+      Notation
+      ------------------------------------------------------------------------
+
+
+        Logical operators
+
+¬
+
+    ¬/P/ is true precisely when /P/ is false.
+
+∧
+
+    /P/∧/Q/ is true precisely when both /P/ and /Q/ are true.
+
+∨
+
+    /P/∨/Q/ is true precisely when at least one of /P/ and /Q/ is true.
+
+⇒
+
+    /P/⇒/Q/ is equivalent to (¬/P/)∨/Q/.
+
+
+        Precedence
+
+By convention, ¬ has the highest precedence, followed by ∧, then ∨, with
+⇒ having the lowest precedence.
+
+
+      Submitting your work
+      ------------------------------------------------------------------------
+
+Submit theorem prover in the usual way. Be sure to indicate that the
+assignment number is 5. Use command
+
+  ~abrahamsonk/3675/bin/submit 5 sequent.cmg
+
+Command
+
+   ~abrahamsonk/3675/bin/submit 5
+
+will tell you what you have submitted.
+
+ 
+
+ 
+
+ 
+

@@ -1,0 +1,65 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 8
+
+*Assigned:* 	Wednesday, November 9
+*Due:* 	Monday, December 5, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment has you use inheritance and virtual methods to similate
+a type with variants.
+
+
+      The assignment
+      ------------------------------------------------------------------------
+
+This assignment has you redo the derivative computing program in Java.
+
+Your first derivative program uses a type with several constructors to
+represent expressions. Java is an object-oriented programming language,
+and object-oriented programming has a different way of managing types
+with several flavors. You create an abstract class Expression that
+stands for an arbitrary kind of expression, and a subclass of Expression
+for each kind of expression.
+
+This has the advantage that new kinds of expressions can be added just
+by adding new subclasses. It is not necessary to modify any existing
+code; you just add new code. Removing a kind of expression is just a
+matter of removing a subclass. If you imagine providing expressions and
+derivative computations in a library (which most programmers are not
+allowed to modify) you can see how useful this approach is. Programmers
+can add their own kinds of expressions without the need to modify the
+library.
+
+A starting point
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn8/Derivatives.java> is
+provided for you. Extend this to handle the subtraction, multiplication
+and constant powers, as you did for assignment 3. A tester
+<http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn8/TestDeriv.java> is
+also available. Try compiling and running the starting point files
+before trying to modify them.
+
+
+      Submitting your solution
+      ------------------------------------------------------------------------
+
+Hand in your program using the submit utility, as assignment 8. Turn in
+both your tester and your file containing the expression classes. Please
+continue to call them Derivatives.java and TestDeriv.java to make
+testing easy for me. So use command
+
+  ~abrahamsonk/3675/bin/submit 8 Derivatives.java TestDeriv.java
+
+to submit your files.
+
+ 
+
+ 
+
+ 
+

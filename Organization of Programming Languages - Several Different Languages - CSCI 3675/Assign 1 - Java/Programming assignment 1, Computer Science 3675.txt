@@ -1,0 +1,185 @@
+
+    Computer Science 3675
+    Section 001
+    Fall 2016
+    Programming Assignment 1
+
+*Assigned:* 	Monday, August 22
+*Due:* 	Wednesday, September 7, 11:59pm
+
+
+      Purpose of this assignment
+      ------------------------------------------------------------------------
+
+This assignment is intended to form a baseline so that, when you do
+assignment 2, you can compare equational programming to imperative
+programming, at least for these functions.
+
+
+      Large integer arithmetic
+      ------------------------------------------------------------------------
+
+Arithmetic on large integers can be done by storing an integer in an
+array, in binary notation. Each member of the array is either 0 or 1.
+Functions can be written to perform operations such as addition and
+multiplication.
+
+
+      Assignment
+      ------------------------------------------------------------------------
+
+Write a Java class called Arithmetic in a file called Arithmetic.java,
+with static methods to increment, add and multiply nonnegative integers.
+The integers must be represented in binary as arrays of bytes, with one
+bit stored per byte, and with the low order bit at index 0. Use this
+template <http://www.cs.ecu.edu/karl/3675/fall16/Assn/Assn1/template.txt>.
+
+You can add any number of private static methods.
+
+***Note*** *Please do not include a package line.* If there is a package
+line, then I must either put your file into a directory whose name
+matches your package name or I must remove the package line. If your IDE
+(such as Eclipse) puts in a package line, just remove it in the version
+that you submit.
+
+
+      Requirements
+      ------------------------------------------------------------------------
+
+You are not asked to write a complete application here. Only three
+functions (or methods) are to be provided. They are for use in other
+programs. I will test them by using them in another program. Do not
+include a main method.
+
+Your functions must meet the following requirements.
+
+ 1.
+
+    You are not allowed to trivialize the problem by using a library
+    that performs arithmetic on large integers. The idea is to program
+    the algorithms.
+
+ 2.
+
+    Your addition and multiplication methods must implement something
+    close to the standard addition and multiplication algorithms. It is
+    not acceptable, for example, to add /x/ and /y/ by starting at /x/
+    and doing /y/ increments. That is /extremely/ slow. Similarly, it is
+    not acceptable to multiply /x/ and /y/ by adding /y/ to itself /x/
+    times. That is also much too slow.
+
+    The multiplication algorithm that you learned in grade shool has you
+    write down all of the intermediate products before adding them all
+    up. It is not necessary to do that. Just accumulate the sum as you
+    generate each intermediate product. Be sure to shift over an
+    appropriate amount.
+
+ 3.
+
+    Your methods must not make any assumptions about how large the
+    arrays are, other than those explicitly stated. You cannot assume
+    that the numbers fit into a 64-bit integer. It is unacceptable to
+    assume that the numbers have no more than 100 bits in them. It must
+    be possible to compile your class and put it into a library, and
+    find that it can be used for arbitrarily large integers /without
+    recompiling it/.
+
+ 4.
+
+    Say that a binary number is /normalized/ if its most significant bit
+    is 1. As a special case, *a normalized representation of the number
+    0 is an array if 0 bytes*. Your methodss must produce normalized
+    results. They cannot presume, however, that their parameter arrays
+    are normalized. For example, a parameter to the addition function
+    might be a number whose high-order bit is 0.
+
+ 5.
+
+    Your methods must not have requirements that have not been stated.
+    For example, they cannot require that the caller perform some
+    initialization.
+
+ 6.
+
+    Your methods must not have any visible actions not stated in the
+    contracts. For example, the contracts do not indicate that anything
+    is being read or written, so nothing should be read or written. Your
+    exported methods (inc, sum and product) cannot change any of the
+    parameter arrays. They should put the result in a new array.
+    (Non-exported functions can do whatever you want them to do.)
+
+ 7.
+
+    Strive for simplicity and elegance in your definitions. Try to make
+    them clear and readable. Do not be /excessively/ concerned with
+    efficiency.
+
+
+      Testing the methods
+      ------------------------------------------------------------------------
+
+Test your methods thoroughly. Do not be satisfied with one or two tests
+of each method.
+
+Test your class by writing a separate class ArithmeticTest that does the
+testing. It will have /at least/ a main method and a method that prints
+a binary number.
+
+Here are some recommended tests. You would be */well advised/* to do
+others as well. All numbers are in standard binary notation (high order
+bit first). Check the number of bits as well. The result of 0 + 0 should
+have 0 bits.
+
+ 1. 0 + 0 = 0
+ 2. 0 × 0 = 0
+ 3. 0 + 1 = 1
+ 4. 0 × 1 = 0
+ 5. 1 + 1 = 10
+ 6. 1 × 1 = 1
+ 7. 10 + 11 = 101
+ 8. 10 × 11 = 110
+ 9. 101001 + 101111100 = 110100101
+10. 101111100 + 101001 = 110100101
+11. 101111100 × 101001 = 11110011011100
+12. 111111 + 111111111111 = 1000000111110
+13. 111111111111 + 111111 = 1000000111110
+14. 111111 × 111111111111 = 111110111111000001
+15. 111111111111 × 111111 = 111110111111000001
+16. 11111111111111111111111111111111111111111111111111111111111111111111111111111111
+    + 1 =
+    100000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+
+
+      Systems
+      ------------------------------------------------------------------------
+
+You can use any system that you like. If you have any questions about
+this, or if you have trouble using a system, please let me know.
+
+
+      Submitting Your Work
+      ------------------------------------------------------------------------
+
+To submit your work you will need to log into one of the Linux computers
+in Austin 208, or log into xlogin.cs.ecu.edu remotely (using ssh or
+putty or NX client). Be sure that your files are on that computer, and
+that your current directory is the one that contains those files. *Be
+sure to include your name in the program.*
+
+Then, in a terminal, issue command
+
+  ~abrahamsonk/3675/bin/submit 1 Arithmetic.java ArithmeticTest.java
+
+Command
+
+   ~abrahamsonk/3675/bin/submit 1
+
+will tell you what you have submitted.
+
+ 
+
+ 
+
+ 
+
