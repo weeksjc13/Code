@@ -1,0 +1,4 @@
+Initial sum array ==> 5 6 9 4 7 3 
+Array after distance: 1 ==> 5 11 15 13 11 10 
+Array after distance: 2 ==> 5 11 20 24 26 23 
+Array after distance: 4 ==> 5 11 20 24 31 34 

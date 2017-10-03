@@ -1,0 +1,235 @@
+%% Name: Josh Weeks
+%% Date: 9/21/16
+%% Tabs: none
+
+Package arithtest
+
+Import "arithmetic".
+
+Expect 
+  intToBinary: Integer -> [Integer]
+     %: intToBinary(n) is the binary equivalent of
+     %: nonnegative integer n.
+     ;
+
+  binaryToInt: [Integer] -> Integer
+     %: binaryToInt(x) is the integer that binary
+     %: list x stands for.
+%Expect
+
+===============================================================
+%%                    intToBinary
+===============================================================
+
+Define 
+  case intToBinary (0)     = []
+  case intToBinary (2*n)   = 0 :: intToBinary(n)
+  case intToBinary (2*n+1) = 1 :: intToBinary(n)
+%Define
+
+Example
+  intToBinary(12) = [0,0,1,1]
+%Example
+
+===============================================================
+%%                    binaryToInt
+===============================================================
+
+Define 
+  case binaryToInt([])   = 0
+  case binaryToInt(0::x) = 2*binaryToInt(x)
+  case binaryToInt(1::x) = 2*binaryToInt(x) + 1
+%Define
+
+Example
+  binaryToInt([0,0,1,1]) = 12
+%Example
+
+
+%% Note: $(x) is x converted to a string.  It is similar
+%% to x.tostring() in Java.
+
+===============================================================
+%%                    TestInc
+===============================================================
+
+Define TestInc(n: Integer). =
+  !x = intToBinary(n).
+  !y = inc(x).
+  !z = binaryToInt(y).
+
+  If z == n + 1 then
+    Displayln "inc works for %(n)".
+  else
+    Displayln "***inc(%(n)) = %(z)".
+    Displayln "---inc(%(x)) = %(y)".
+  %If
+%Define
+
+Execute
+  TestInc(0).
+  TestInc(1).
+  TestInc(2).
+  TestInc(31).
+  TestInc(64).  
+
+%Execute
+
+===============================================================
+%%                    TestDec
+===============================================================
+
+Define TestDec(n: Integer). =
+  !x = intToBinary(n).
+  !y = dec(x).
+  !z = binaryToInt(y).
+
+  If z == n - 1 then
+    Displayln "dec works for %(n)".
+  %If
+  If n == 0 then If z == 0 then
+    Displayln "dec works for %(n)".
+  %If
+  %If
+%Define
+
+Execute
+  TestDec(0).
+  TestDec(1).
+  TestDec(2).
+  TestDec(31).
+  TestDec(64).  
+
+%Execute
+
+===============================================================
+%%                    TestSum
+===============================================================
+
+Define TestSum(x: Integer, y: Integer). =
+  !a = intToBinary(x).
+  !b = intToBinary(y).
+  !c = sum(a, b).
+  !z = binaryToInt(c).
+
+  If z == x + y then
+    Displayln "sum works for %(x) + %(y)".
+  else
+    Displayln "***sum(%(a), %(b)) = %(z)".
+  %If
+%Define
+
+Execute
+  TestSum(0, 0).
+  TestSum(0, 1).
+  TestSum(2, 5).
+  TestSum(3, 9).
+  TestSum(10, 10).
+  TestSum(5, 0).
+  TestSum(1, 0).
+  TestSum(1, 2).
+  TestSum(2, 1).
+
+%Execute
+
+===============================================================
+%%                    TestDiff
+===============================================================
+
+Define TestDiff(x: Integer, y: Integer). =
+  !a = intToBinary(x).
+  !b = intToBinary(y).
+  !c = diff(a, b).
+  !z = binaryToInt(c).
+  
+  If z == 0 then If (x - y) <= 0 then
+    Displayln "diff works for %(x) - %(y)".
+  %If
+  %If
+  If z == x - y then If (x - y) > 0 then
+    Displayln "diff works for %(x) - %(y)".
+  %If
+  %If
+%Define
+
+Execute
+  TestDiff(0, 0).
+  TestDiff(0, 1).
+  TestDiff(2, 5).
+  TestDiff(3, 9).
+  TestDiff(10, 10).
+  TestDiff(5, 0).
+  TestDiff(1, 0).
+  TestDiff(1, 2).
+  TestDiff(2, 1).
+
+%Execute
+
+===============================================================
+%%                    TestProduct
+===============================================================
+
+Define TestProduct(x: Integer, y: Integer). =
+  !a = intToBinary(x).
+  !b = intToBinary(y).
+  !c = product(a, b).
+  !z = binaryToInt(c).
+
+  If z == x * y then
+    Displayln "product works for %(x) * %(y)".
+  else
+    Displayln "***product(%(a), %(b)) = %(z)".
+  %If
+%Define
+
+Execute
+  TestProduct(0, 0).
+  TestProduct(0, 1).
+  TestProduct(2, 5).
+  TestProduct(3, 9).
+  TestProduct(10, 10).
+  TestProduct(5, 0).
+  TestProduct(1, 0).
+  TestProduct(1, 2).
+  TestProduct(2, 1).
+
+%Execute
+
+===============================================================
+%%                    TestCompareInts
+===============================================================
+
+Define TestCompareInts(x: Integer, y: Integer). =
+  !a = intToBinary(x).
+  !b = intToBinary(y).
+  !c = compareInts(a, b).
+
+  If c == '=' then If x == y then
+    Displayln "compareInts works for %(x) and %(y)".
+  %If
+  %If
+  If c == '<' then If x < y then
+    Displayln "compareInts works for %(x) and %(y)".
+  %If
+  %If
+  If c == '>' then If x > y then
+    Displayln "compareInts works for %(x) and %(y)".
+  %If
+  %If
+
+%Define
+
+Execute
+  TestCompareInts(0, 0).
+  TestCompareInts(0, 1).
+  TestCompareInts(5, 2).
+  TestCompareInts(3, 9).
+  TestCompareInts(10, 10).
+  TestCompareInts(5, 0).
+  TestCompareInts(1, 0).
+  TestCompareInts(1, 2).
+  TestCompareInts(2, 1).
+
+%Execute
+
+%Package

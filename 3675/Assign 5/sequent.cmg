@@ -1,0 +1,377 @@
+%% Name: Josh Weeks
+%% Date: 11/9/16
+%% Tabs: none
+
+Package sequent
+
+============================================================
+                  export
+============================================================
+
+============================================================
+%%             Binary operators
+============================================================
+
+Operator 
+  |-  (++);
+  \/  (+);
+  /\  (*);
+  ==> (opL5)
+%Operator
+
+
+
+============================================================
+%%             Formula
+============================================================
+
+Type Formula =
+    vbl String
+  | neg Formula
+  | Formula /\ Formula
+  | Formula \/ Formula
+  | Formula ==> Formula
+with
+  $, show, ==
+%Type
+
+
+
+============================================================
+%%             Sequent
+============================================================
+
+Type Sequent =
+  [Formula] |- [Formula]
+with
+  $, show, ==
+%Type
+
+Expect
+  valid?: Formula -> Boolean
+
+  %% valid?(f) is true if formula f is valid.
+%Expect
+
+
+
+============================================================
+                implementation
+============================================================
+
+Import "collect/search".
+Import "parseSequent".
+
+Abbrev 
+
+  MaybeSequents = Maybe of [Sequent];
+  FormulaTester = Formula -> Boolean;
+  Rule          = Sequent -> MaybeSequents
+
+%Abbrev
+
+
+
+============================================================
+%% Declarations
+============================================================
+Expect
+
+  isBasic?: Sequent -> Boolean;
+
+  negL: Rule;
+  negR: Rule;
+  andL: Rule;
+  andR: Rule;
+  orL: Rule;
+  orR: Rule;
+  implyL: Rule;
+  implyR: Rule;
+  
+  moveToFront: (FormulaTester, [Formula]) -> [Formula];
+  allValid?: [Sequent] -> Boolean;
+  validSequent?: Sequent -> Boolean;
+  applyRule: (Sequent, [Rule]) -> Boolean;
+
+%Expect
+
+
+
+============================================================
+%% isBasic
+%% takes a sequent and returns true if it is basic
+%% if there is a formula that occurs in both 
+%% the left list and the right list it is basic
+============================================================
+
+Define 
+
+case isBasic? (alpha |- beta) = someSatisfy (x |-> x `in` beta) alpha
+
+%Define
+
+
+
+============================================================
+%% moveToFront
+%% takes a FormulaTester (t) which is a rule
+%% and takes a formula (form)
+%% it moves the formula that contains the rule
+%% to the front of the list
+============================================================
+
+Define
+
+case moveToFront(?, []) = []
+
+case moveToFront(t, form) = (select t form) :: (form-/(select t form)) when (someSatisfy t form)
+
+case moveToFront(?, form) = form
+
+%Define
+
+
+
+============================================================
+%% negL
+%% rule for negation on the left side  
+============================================================
+
+Define 
+
+case negLHelp(neg x :: alpha |- beta) = something [alpha |- x :: beta]
+
+case negLHelp(?) = nothing
+
+%Define
+
+Define negL(alpha |- beta) = negLHelp(moveToFront (neg?, alpha) |- beta).
+
+
+ 
+============================================================
+%% negR
+%% rule for negation on the right side 
+============================================================
+
+Define 
+
+case negRHelp(alpha |- neg x :: beta) = something [x :: alpha |- beta]
+
+case negRHelp(?) = nothing 
+
+%Define 
+
+Define negR(alpha |- beta) = negRHelp(alpha |- moveToFront (neg?, beta)).
+
+
+
+============================================================
+%% andL
+%% rule for taking the and of two expressions
+%% on left side 
+============================================================
+
+Define
+
+case andLHelp (x /\ y :: alpha |- beta) = something [x :: y :: alpha |- beta]
+
+case andLHelp (?) = nothing
+ 
+%Define 
+
+Define andL(alpha |- beta) = andLHelp(moveToFront (/\?, alpha) |- beta).
+
+
+
+============================================================
+%% andR
+%% rule for taking the and of two expressions
+%% on right side 
+============================================================
+
+Define 
+
+case andRHelp (alpha |- x /\ y :: beta) = something [alpha |- x :: beta, alpha |- y :: beta]
+
+case andRHelp (?) = nothing
+
+%Define
+
+Define andR(alpha |- beta) = andRHelp(alpha |- moveToFront (/\?, beta)).
+
+
+
+============================================================
+%% orL
+%% rule for taking the or of two expressions
+%% on left side 
+============================================================
+
+Define 
+
+case orLHelp (x \/ y :: alpha |- beta) = something [x :: alpha |- beta, y :: alpha |- beta]
+
+case orLHelp (?) = nothing
+
+%Define
+
+Define orL(alpha |- beta) = orLHelp(moveToFront (\/?, alpha) |- beta).
+
+
+
+============================================================
+%% orR
+%% rule for taking the or of two expressions
+%% on right side 
+============================================================
+
+Define 
+
+case orRHelp (alpha |- x \/ y :: beta) = something [alpha |- x :: y :: beta]
+
+case orRHelp (?) = nothing
+
+%Define
+
+Define orR(alpha |- beta) = orRHelp(alpha |- moveToFront (\/?, beta)).
+
+
+
+============================================================
+%% implyL
+%% rule for taking the implication of two expressions
+%% on left side 
+============================================================
+
+Define 
+
+case implyLHelp (x ==> y :: alpha |- beta) = something [alpha |- x :: beta, y :: alpha |- beta]
+
+case implyLHelp (?) = nothing
+
+%Define
+
+Define implyL(alpha |- beta) = implyLHelp(moveToFront (==>?, alpha) |- beta).
+
+
+
+============================================================
+%% implyR
+%% rule for taking the implication of 
+%% two expressions on left side 
+============================================================
+
+Define 
+
+case implyRHelp (alpha |- x ==> y :: beta) = something [x :: alpha |- y :: beta]
+
+case implyRHelp (?) = nothing
+
+%Define
+
+Define implyR(alpha |- beta) = implyRHelp(alpha |- moveToFront (==>?, beta)).
+
+
+
+============================================================
+%% allValid? 
+%% takes a list of sequents and returns true 
+%% if every sequent in the list is valid.
+============================================================
+
+Define allValid?(x) = allSatisfy (a |-> validSequent?(a)) x.
+
+
+
+============================================================
+%% validSequent?
+%% takes a sequent and tells whether the 
+%% sequent is valid or not.
+============================================================
+
+Define 
+
+case validSequent?(a) = isBasic?(a) `or` applyRule(a, [negL, andL, orL, implyL, negR, andR, orR, implyR])
+
+case validSequent?(?) = false
+
+%Define
+
+
+
+============================================================
+%% applyRule
+%% takes a list of rules and a sequent
+%% the rules are applied to the sequent
+============================================================
+
+Define
+
+case applyRule(?, []) = false
+
+case applyRule(seq, a::b) = applyRule(seq, b) when a(seq) == nothing
+
+case applyRule(seq, a::?) = allValid?(unsomething(a(seq)))
+
+%Define 
+
+
+
+============================================================
+%% valid?
+%% takes a formula and returns true if it is valid
+============================================================
+
+Define valid?(x) = validSequent?([] |- [x]). 
+
+
+
+============================================================
+%% testing
+============================================================
+
+Execute
+  
+  Match $(f1: Formula) = "p \\/ -p".
+  
+  Match $(f2: Formula) = "p /\\ q ==> p \\/ q". 
+  
+  Match $(s1: Sequent) = "p /\\ q |- p /\\ q". 
+  
+  Match $(s2: Sequent) = "p /\\ q, p |- p /\\ q".
+
+  Match $(s3: Sequent) = "p /\\ q |- p \\/ q". 
+
+  Match $(s4: Sequent) = "p \\/ q |- p /\\ q". 
+
+  Match $(s5: Sequent) = "p \\/ q, -q |- (p /\\ q ==> p \\/ q), p". 
+  
+  Match $(s6: Sequent) = "|- p ==> p".
+  
+  Match $(s7: Sequent) = "p \\/ q |-".
+
+  Writeln.
+  Writeln ["valid? p \\/ -p = ", $(valid? f1)].
+  Writeln.
+  Writeln ["valid? p /\\ q ==> p \\/ q = ", $(valid? f2)].
+  Writeln.
+  Writeln ["validSequent? p /\\ q |- p /\\ q = ", $(validSequent? s1)]. 
+  Writeln.
+  Writeln ["validSequent? p /\\ q, p |- p /\\ q = ", $(validSequent? s2)].
+  Writeln.
+  Writeln ["validSequent? p /\\ q |- p \\/ q = ", $(validSequent? s3)].
+  Writeln.
+  Writeln ["validSequent? p \\/ q |- p /\\ q = ", $(validSequent? s4)].
+  Writeln.
+  Writeln ["validSequent? p \\/ q, -q |- (p /\\ q ==> p \\/ q), p = ", $(validSequent? s5)].
+  Writeln.
+  Writeln ["validSequent? |- p ==> p = ", $(validSequent? s6)].
+  Writeln.
+  Writeln ["validSequent? p /\\ -p |- = ", $(validSequent? s7)].
+  Writeln.
+  
+
+%Execute
+
+%Package

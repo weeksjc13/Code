@@ -1,0 +1,264 @@
+
+
+Converted form of expression/paragraph:
+
+- 134.   Define (TestDiff) =
+- 134.     ((x, y) |->
+- 135.        Define a = intToBinary(x) %Define
+- 136.        Define b = intToBinary(y) %Define
+- 137.        Define c = diff(a, b) %Define
+- 138.        Define z = binaryToInt(c) %Define
+- 140.        If (z == 0) then
+- 140.          If ((a - b) <= 0) then
+- 141.            Displayln (("diff works for " ++ (toString(x))) ++ ((" - " ++ (toString(y))) ++ [])) %Displayln
+- 140.          %If
+- 140.        %If
+- 144.        If (z == (x - y)) then
+- 145.          Displayln (("diff works for " ++ (toString(x))) ++ ((" - " ++ (toString(y))) ++ [])) %Displayln
+- 147.        else
+- 147.          Displayln (("***diff(" ++ (toString(a))) ++ ((", " ++ (toString(b))) ++ ((") = " ++ (toString(z))) ++ []))) %Displayln
+- 144.        %If
+- 134.     )
+- 134.   %Define
+
+-----Types:
+
+- 134.   TestDiff        : ((Integer, Integer) -> ())
+- 134.   x               : Integer
+- 134.   y               : Integer
+- 135.   a               : [Integer]
+- 135.   intToBinary     : (Integer -> [Integer])
+- 135.   x               : Integer
+- 136.   b               : [Integer]
+- 136.   intToBinary     : (Integer -> [Integer])
+- 136.   y               : Integer
+- 137.   c               : [Integer]
+- 137.   diff            : (([Integer], [Integer]) -> [Integer])
+- 137.   a               : [Integer]
+- 137.   b               : [Integer]
+- 138.   z               : Integer
+- 138.   binaryToInt     : ([Integer] -> Integer)
+- 138.   c               : [Integer]
+- 140.   ==              : ((Integer, Integer) -> Boolean)
+- 140.   z               : Integer
+- 140.   castInt         : (Integer -> Integer)
+- 140.   <=              : ((<a>, <a>) -> Boolean) where(<a:AnyNum>)
+- 140.   -               : (([Integer], [Integer]) -> <a:AnyNum>)
+- 140.   a               : [Integer]
+- 140.   b               : [Integer]
+- 140.   castInt         : (Integer -> <a:AnyNum>)
+- 141.   Displayln       : (String -> ())
+- 141.   ++              : ((String, String) -> String)
+- 141.   ++              : ((String, String) -> String)
+- 141.   toString        : (Integer -> String)
+- 141.   x               : Integer
+- 141.   ++              : ((String, String) -> String)
+- 141.   ++              : ((String, String) -> String)
+- 141.   toString        : (Integer -> String)
+- 141.   y               : Integer
+- 144.   ==              : ((Integer, Integer) -> Boolean)
+- 144.   z               : Integer
+- 144.   -               : ((Integer, Integer) -> Integer)
+- 144.   x               : Integer
+- 144.   y               : Integer
+- 145.   Displayln       : (String -> ())
+- 145.   ++              : ((String, String) -> String)
+- 145.   ++              : ((String, String) -> String)
+- 145.   toString        : (Integer -> String)
+- 145.   x               : Integer
+- 145.   ++              : ((String, String) -> String)
+- 145.   ++              : ((String, String) -> String)
+- 145.   toString        : (Integer -> String)
+- 145.   y               : Integer
+- 147.   Displayln       : (String -> ())
+- 147.   ++              : ((String, String) -> String)
+- 147.   ++              : ((String, String) -> String)
+- 147.   toString        : ([Integer] -> String)
+- 147.   a               : [Integer]
+- 147.   ++              : ((String, String) -> String)
+- 147.   ++              : ((String, String) -> String)
+- 147.   toString        : ([Integer] -> String)
+- 147.   b               : [Integer]
+- 147.   ++              : ((String, String) -> String)
+- 147.   ++              : ((String, String) -> String)
+- 147.   toString        : (Integer -> String)
+- 147.   z               : Integer
+
+
+
+---------------------------------------------------
+--- Summary of inference steps leading to error ---
+
+---------------------------------------------------
+
+  Line 140. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 140.  a
+
+         : [Integer]
+
+  B =
+  - 140.  b
+
+         : [Integer]
+
+  Expr =
+  - 140.  (a, b)
+
+         : <b>
+
+
+  Line 140. After unification:
+
+  A =
+  - 140.  a
+
+         : [Integer]
+
+  B =
+  - 140.  b
+
+         : [Integer]
+
+  Expr =
+  - 140.  (a, b)
+
+         : ([Integer], [Integer])
+
+---------------------------------------------------
+
+  Line 140. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 140.  (-)
+
+         : (<c> -> <d>)
+           where(<d:AnyNum>)
+
+    Argument:
+  - 140.  (a, b)
+
+         : ([Integer], [Integer])
+
+---------------------------------------------------
+
+  Line 140. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 140.  (-)
+
+         : (([Integer], [Integer]) -> <d>)
+           where(<d:AnyNum>)
+
+  Argument A =
+  - 140.  (a, b)
+
+
+  Type of f(A): <e>
+---------------------------------------------------
+
+  Line 140. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 140.  castInt
+
+         : (Integer -> <a>)
+           where(<a:AnyNum>)
+
+  Argument A =
+  - 140.  0
+
+
+  Type of f(A): <f>
+---------------------------------------------------
+
+  Line 140. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 140.  (a - b)
+
+         : <d>
+           where(<d:AnyNum>)
+
+  B =
+  - 140.  0
+
+         : <a>
+           where(<a:AnyNum>)
+
+  Expr =
+  - 140.  ((a - b), 0)
+
+         : <g>
+
+
+  Line 140. After unification:
+
+  A =
+  - 140.  (a - b)
+
+         : <d>
+           where(<d:AnyNum>)
+
+  B =
+  - 140.  0
+
+         : <a>
+           where(<a:AnyNum>)
+
+  Expr =
+  - 140.  ((a - b), 0)
+
+         : (<d>, <a>)
+           where(<d:AnyNum>, <a:AnyNum>)
+
+---------------------------------------------------
+
+  Line 140. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 140.  (<=)
+
+         : ((<h>, <h>) -> Boolean)
+           where(<h:AnyPartialOrder>)
+
+    Argument:
+  - 140.  ((a - b), 0)
+
+         : (<d>, <a>)
+           where(<d:AnyNum>, <a:AnyNum>)
+
+---------------------------------------------------
+
+  Line 140. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 140.  (<=)
+
+         : ((<a>, <a>) -> Boolean)
+           where(<a:AnyNum>)
+
+  Argument A =
+  - 140.  ((a - b), 0)
+
+
+  Type of f(A): <i>
+---------------------------------------------------
+
+  Line 140. The type of identifier "-" does not match any available types.
+  This program requires
+
+  - 140.  (-)
+
+         : (([Integer], [Integer]) -> <a>)
+           where(<a:AnyNum>)
+   
+     Available types for "-":
+     ((<za>, <za>) -> <za>)
+          where(<za:AnyNum>)
+     (<za> -> <za>)
+          where(<za:AnyNum>)
+
+
+---------------------------------------------------
+
+

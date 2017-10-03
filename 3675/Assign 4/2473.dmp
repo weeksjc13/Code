@@ -1,0 +1,119 @@
+Sat Oct 15 18:13:46 2016
+File /home/INTRA/weeksj13/3675/Assign 4/testderiv
+
+
+Uncaught exception derivativeX((1^x))
+
+--Unable to take the derivative of an expression
+
+
+Instruction that caused the trap: FAIL
+Instruction argument(s) [Internal form]:
+{{({  1.0000000000000000e+00:0},1):5}:40}
+
+
+  ------------------------------------------------------
+ |Note: the computation has used optimizations that     |
+ |might result in losses of stack frames and losses of  |
+ |identifier bindings in what follows.  To avoid losing |
+ |information, rerun with option -t on the command line.|
+  ------------------------------------------------------
+
+
+======================================================
+              Configuration
+======================================================
+
+ For each thread the run-time stack is shown deepest level first.
+ Each frame shows the function, the package where the function
+ is defined, and the line number in that package.  The values of
+ bound names are shown in each frame.
+
+======================================================
+          Active Thread 181  (group 181)
+======================================================
+  thread name = "Execute-testderiv-2"
+  group name  = "Execute-testderiv-2"
+  Running Execute
+  Running
+======================================================
+
+    Function             Package               Line
+    --------             -------               ----
+  4.rawDeriv             deriv                  483
+    Param type:  Expression
+    Result type: Expression
+
+    param-1: Expression
+      = (1^x)
+    e: Expression
+      = (1^x)
+    -----------------------------------------------
+  3.deriv                deriv                  495
+    Param type:  Expression
+    Result type: Expression
+
+    -----------------------------------------------
+  2.ShowDeriv            testderiv               68
+    Param type:  Expression
+    Result type: ()
+
+    -----------------------------------------------
+  1.Execute-testderiv-2  testderiv               98
+    Result type: ()
+
+    -----------------------------------------------
+
+======================================================
+Nonshared box contents for preceding activation (Unlisted are empty):
+======================================================
+
+  (cmg.precisionBx)
+       1 : Integer
+          = 15
+  (cmg.stdoutBx)
+       2 : Outfile of (Char)
+          = (stdout)
+  (cmg.stderrBx)
+       3 : Outfile of (Char)
+          = (stderr)
+  (cmg.cwdBx)
+       5 : String
+          = "/home/INTRA/weeksj13/3675/Assign 4"
+
+       6 : Boolean
+          = false
+
+======================================================
+                  Shared box contents
+======================================================
+
+       8 : Boolean
+          = true
+      10 : String
+          = (stdin)
+      12 : [(String -> (Any, String))]
+          = [(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: (String -> (Cmg.Any, String))),(function wrapGetter: ...
+
+======================================================
+            Non-function Globals
+======================================================
+
+cmg.commandLine
+  : [String]
+  = []
+cmg.getWrappedBox
+  : [:[(String -> (Any, String))]:]
+  = (shared box 12)
+cmg.showCharsQuotedBx
+  : [:Boolean:]
+  = (shared box 8)
+cmg.showIntrinsicBx
+  : [:Boolean:]
+  = (nonshared box 6)
+cmg.smallDigits
+  : Integer
+  = 12
+deriv.xx
+  : Expression
+  = x

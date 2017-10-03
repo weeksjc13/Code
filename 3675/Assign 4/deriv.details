@@ -1,0 +1,696 @@
+
+
+Converted form of expression/paragraph:
+
+- 372.   Define simplifyExpo =
+- 372.     (param-1 |->
+- 372.        Scope*
+- 372.          Define \target50 =
+- 372.            param-1
+- 372.          %Define
+- 372.          Yield
+- 372.            Try* {--normal--}
+- 372.              Match (a ^ (constant((= 1)))) =~ \target50 %Match
+- 372.            then
+- 372.              a
+- 378.            else
+- 378.              Try* {--normal--}
+- 378.                Match ((constant((= 1))) ^ ?) =~ \target50 %Match
+- 378.              then
+- 378.                constant(1)
+- 384.              else
+- 384.                Try* {--normal--}
+- 384.                  Match (? ^ (constant((= 0)))) =~ \target50 %Match
+- 384.                then
+- 384.                  1
+- 390.                else
+- 390.                  Try* {--normal--}
+- 390.                    Match ((constant((= 0))) ^ ?) =~ \target50 %Match
+- 390.                  then
+- 390.                    0
+- 396.                  else
+- 396.                    Match a =~ \target50 %Match
+- 396.                    Yield a %Yield
+- 390.                  %Try*
+- 384.                %Try*
+- 378.              %Try*
+- 372.            %Try*
+- 372.          %Yield
+- 372.        %Scope*)
+- 372.   %Define
+
+(\x is an internally generated name.
+Some expressions have been converted to an internal form,
+and what is shown might not be allowed in source.)
+
+
+-----Types:
+
+- 372.   simplifyExpo    : <>
+- 372.   param-1         : <a:AnyNum>
+- 360.   \target50       : <a:AnyNum>
+- 372.   ^               : ((<b:AnyEq>, Expression) -> <a:AnyNum>)
+- 372.   a               : <b:AnyEq>
+- 372.   constant        : (Real -> Expression)
+- 372.   castInt         : (Integer -> Real)
+- 372.   \target50       : <a:AnyNum>
+- 378.   ^               : ((Expression, <c:1AnyEq>) -> <a:AnyNum>)
+- 378.   constant        : (Real -> Expression)
+- 378.   castInt         : (Integer -> Real)
+- 378.   ?               : <c:1AnyEq>
+- 378.   \target50       : <a:AnyNum>
+- 378.   constant        : (Real -> Expression)
+- 378.   castInt         : (Integer -> Real)
+- 384.   ^               : ((<d:AnyEq>, Expression) -> <a:AnyNum>)
+- 384.   ?               : <d:AnyEq>
+- 384.   constant        : (Real -> Expression)
+- 384.   castInt         : (Integer -> Real)
+- 384.   \target50       : <a:AnyNum>
+- 384.   castInt         : (Integer -> <a:AnyNum>)
+- 390.   ^               : ((Expression, <e:1AnyEq>) -> <a:AnyNum>)
+- 390.   constant        : (Real -> Expression)
+- 390.   castInt         : (Integer -> Real)
+- 390.   ?               : <e:1AnyEq>
+- 390.   \target50       : <a:AnyNum>
+- 390.   castInt         : (Integer -> <a:AnyNum>)
+- 396.   a               : <a:AnyNum>
+- 396.   \target50       : <a:AnyNum>
+
+
+
+---------------------------------------------------
+--- Summary of inference steps leading to error ---
+
+---------------------------------------------------
+
+  Line 378. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 378.  castInt
+
+         : (Integer -> <b>)
+           where(<b:AnyNum>)
+
+  Argument A =
+  - 378.  1
+
+
+  Type of f(A): <c>
+---------------------------------------------------
+
+  Line 378. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 378.  constant
+
+         : (Real -> Expression)
+
+    Argument:
+  - 378.  1
+
+         : <b>
+           where(<b:AnyNum>)
+
+---------------------------------------------------
+
+  Line 378. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 378.  constant
+
+         : (Real -> Expression)
+
+  Argument A =
+  - 378.  1
+
+
+  Type of f(A): <d>
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 384.  castInt
+
+         : (Integer -> <e>)
+           where(<e:AnyNum>)
+
+  Argument A =
+  - 384.  0
+
+
+  Type of f(A): <f>
+---------------------------------------------------
+
+  Line 384. The expression must have the same type as its body A.
+
+  Expr =
+  - 384.  (= 0)
+
+         : <g>
+
+  A (inference core) =
+  - 384.  0
+
+         : <e>
+           where(<e:AnyNum>)
+
+
+  Line 384. After unification:
+
+  Expr =
+  - 384.  (= 0)
+
+         : <e>
+           where(<e:AnyNum>)
+
+  A (inference core) =
+  - 384.  0
+
+         : <e>
+           where(<e:AnyNum>)
+
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 384.  ~constant
+
+         : (Real -> Expression)
+
+    Argument:
+  - 384.  (= 0)
+
+         : <e>
+           where(<e:AnyNum>)
+
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 384.  ~constant
+
+         : (Real -> Expression)
+
+  Argument A =
+  - 384.  (= 0)
+
+
+  Type of f(A): <h>
+---------------------------------------------------
+
+  Line 384. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 384.  ?
+
+
+  B =
+  - 384.  (constant((= 0)))
+
+         : Expression
+
+  Expr =
+  - 384.  (?, constant((= 0)))
+
+         : <i>
+
+
+  Line 384. After unification:
+
+  A =
+  - 384.  ?
+
+
+  B =
+  - 384.  (constant((= 0)))
+
+         : Expression
+
+  Expr =
+  - 384.  (?, constant((= 0)))
+
+         : (<j>, Expression)
+
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 384.  (^)
+
+         : ((<k>, <l>) -> <m>)
+           where(<k:AnyEq>, <l:1AnyEq>, <m:AnyEq>)
+
+    Argument:
+  - 384.  (?, constant((= 0)))
+
+         : (<j>, Expression)
+
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 384.  (^)
+
+         : ((<k>, Expression) -> <m>)
+           where(<k:AnyEq>, <m:AnyEq>)
+
+  Argument A =
+  - 384.  (?, constant((= 0)))
+
+
+  Type of f(A): <n>
+---------------------------------------------------
+
+  Line 384. The type of a definition must be ().
+  - 384.  Match (? ^ (constant((= 0)))) =~ \target50 %Match
+
+         : <o>
+
+---------------------------------------------------
+
+  Line 384. In 'Define A = B %Define', A and B must have the same type.
+
+  A =
+  - 384.  (? ^ (constant((= 0))))
+
+         : <m>
+           where(<m:AnyEq>)
+
+  B =
+  - 384.  \target50
+
+         : <p>
+           where(<p:AnyEq>)
+
+
+  Line 384. After unification:
+
+  A =
+  - 384.  (? ^ (constant((= 0))))
+
+         : <m>
+           where(<m:AnyEq>)
+
+  B =
+  - 384.  \target50
+
+         : <m>
+           where(<m:AnyEq>)
+
+---------------------------------------------------
+
+  Line 384. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 384.  castInt
+
+         : (Integer -> <a>)
+           where(<a:AnyNum>)
+
+  Argument A =
+  - 384.  1
+
+
+  Type of f(A): <q>
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 390.  castInt
+
+         : (Integer -> <r>)
+           where(<r:AnyNum>)
+
+  Argument A =
+  - 390.  0
+
+
+  Type of f(A): <s>
+---------------------------------------------------
+
+  Line 390. The expression must have the same type as its body A.
+
+  Expr =
+  - 390.  (= 0)
+
+         : <t>
+
+  A (inference core) =
+  - 390.  0
+
+         : <r>
+           where(<r:AnyNum>)
+
+
+  Line 390. After unification:
+
+  Expr =
+  - 390.  (= 0)
+
+         : <r>
+           where(<r:AnyNum>)
+
+  A (inference core) =
+  - 390.  0
+
+         : <r>
+           where(<r:AnyNum>)
+
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 390.  ~constant
+
+         : (Real -> Expression)
+
+    Argument:
+  - 390.  (= 0)
+
+         : <r>
+           where(<r:AnyNum>)
+
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 390.  ~constant
+
+         : (Real -> Expression)
+
+  Argument A =
+  - 390.  (= 0)
+
+
+  Type of f(A): <u>
+---------------------------------------------------
+
+  Line 390. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 390.  (constant((= 0)))
+
+         : Expression
+
+  B =
+  - 390.  ?
+
+
+  Expr =
+  - 390.  (constant((= 0)), ?)
+
+         : <v>
+
+
+  Line 390. After unification:
+
+  A =
+  - 390.  (constant((= 0)))
+
+         : Expression
+
+  B =
+  - 390.  ?
+
+
+  Expr =
+  - 390.  (constant((= 0)), ?)
+
+         : (Expression, <w>)
+
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 390.  (^)
+
+         : ((<x>, <y>) -> <ab>)
+           where(<x:AnyEq>, <y:1AnyEq>, <ab:AnyEq>)
+
+    Argument:
+  - 390.  (constant((= 0)), ?)
+
+         : (Expression, <w>)
+
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 390.  (^)
+
+         : ((Expression, <y>) -> <ab>)
+           where(<y:1AnyEq>, <ab:AnyEq>)
+
+  Argument A =
+  - 390.  (constant((= 0)), ?)
+
+
+  Type of f(A): <bb>
+---------------------------------------------------
+
+  Line 390. The type of a definition must be ().
+  - 390.  Match ((constant((= 0))) ^ ?) =~ \target50 %Match
+
+         : <cb>
+
+---------------------------------------------------
+
+  Line 390. In 'Define A = B %Define', A and B must have the same type.
+
+  A =
+  - 390.  ((constant((= 0))) ^ ?)
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+  B =
+  - 390.  \target50
+
+         : <m>
+           where(<m:AnyEq>)
+
+
+  Line 390. After unification:
+
+  A =
+  - 390.  ((constant((= 0))) ^ ?)
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+  B =
+  - 390.  \target50
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+---------------------------------------------------
+
+  Line 390. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 390.  castInt
+
+         : (Integer -> <db>)
+           where(<db:AnyNum>)
+
+  Argument A =
+  - 390.  0
+
+
+  Type of f(A): <eb>
+---------------------------------------------------
+
+  Line 396. If S is an statement and E is an expression, then 'E | S' has the same type as E.
+
+  E =
+  - 396.  a
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+  (S E) =
+  - 396.  Match a =~ \target50 %Match
+  - 396.  Yield a %Yield
+
+         : <fb>
+
+
+  Line 396. After unification:
+
+  E =
+  - 396.  a
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+  (S E) =
+  - 396.  Match a =~ \target50 %Match
+  - 396.  Yield a %Yield
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+---------------------------------------------------
+
+  Line 390. In 'Try* A then B else C %Try*', B and C must have the same type.
+
+  B (inference core) =
+  - 390.  0
+
+         : <db>
+           where(<db:AnyNum>)
+
+  C (inference core) =
+  - 396.  a
+
+         : <ab>
+           where(<ab:AnyEq>)
+
+
+  Line 390. After unification:
+
+  B (inference core) =
+  - 390.  0
+
+         : <db>
+           where(<db:AnyNum>)
+
+  C (inference core) =
+  - 396.  a
+
+         : <db>
+           where(<db:AnyNum>)
+
+---------------------------------------------------
+
+  Line 390. In 'Try* A then B else C %Try*', B and C must have the same type.
+
+  Expr =
+  - 390.  Try* {--normal--}
+  - 390.    Match ((constant((= 0))) ^ ?) =~ \target50 %Match
+  - 390.  then
+  - 390.    0
+  - 396.  else
+  - 396.    Match a =~ \target50 %Match
+  - 396.    Yield a %Yield
+  - 390.  %Try*
+
+         : <gb>
+
+  Type of B: <db>
+             where(<db:AnyNum>)
+
+  Line 390. After unification:
+
+  Expr =
+  - 390.  Try* {--normal--}
+  - 390.    Match ((constant((= 0))) ^ ?) =~ \target50 %Match
+  - 390.  then
+  - 390.    0
+  - 396.  else
+  - 396.    Match a =~ \target50 %Match
+  - 396.    Yield a %Yield
+  - 390.  %Try*
+
+         : <db>
+           where(<db:AnyNum>)
+
+  Type of B: <db>
+             where(<db:AnyNum>)
+---------------------------------------------------
+
+  Line 384. In 'Try* A then B else C %Try*', B and C must have the same type.
+
+  B (inference core) =
+  - 384.  1
+
+         : <a>
+           where(<a:AnyNum>)
+
+  C (inference core) =
+  - 390.  0
+
+         : <db>
+           where(<db:AnyNum>)
+
+
+  Line 384. After unification:
+
+  B (inference core) =
+  - 384.  1
+
+         : <a>
+           where(<a:AnyNum>)
+
+  C (inference core) =
+  - 390.  0
+
+         : <a>
+           where(<a:AnyNum>)
+
+---------------------------------------------------
+
+  Line 384. In 'Try* A then B else C %Try*', B and C must have the same type.
+
+  Expr =
+  - 384.  Try* {--normal--}
+  - 384.    Match (? ^ (constant((= 0)))) =~ \target50 %Match
+  - 384.  then
+  - 384.    1
+  - 390.  ...
+  - 396.     else
+  - 396.      Match a =~ \target50 %Match
+  - 396.      Yield a %Yield
+  - 390.    
+  - 390.    ...
+  - 384.   %Try*
+
+         : <hb>
+
+  Type of B: <a>
+             where(<a:AnyNum>)
+
+  Line 384. After unification:
+
+  Expr =
+  - 384.  Try* {--normal--}
+  - 384.    Match (? ^ (constant((= 0)))) =~ \target50 %Match
+  - 384.  then
+  - 384.    1
+  - 390.  ...
+  - 396.     else
+  - 396.      Match a =~ \target50 %Match
+  - 396.      Yield a %Yield
+  - 390.    
+  - 390.    ...
+  - 384.   %Try*
+
+         : <a>
+           where(<a:AnyNum>)
+
+  Type of B: <a>
+             where(<a:AnyNum>)
+---------------------------------------------------
+
+  Line 378. In 'Try* A then B else C %Try*', B and C must have the same type.
+
+  B (inference core) =
+  - 378.  (constant(1))
+
+         : Expression
+
+  C (inference core) =
+  - 384.  1
+
+         : <a>
+           where(<a:AnyNum>)
+
+---------------------------------------------------
+
+

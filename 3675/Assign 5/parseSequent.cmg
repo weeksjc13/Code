@@ -1,0 +1,224 @@
+%% Name: Josh Weeks
+%% Date: 11/1/16
+%% Tabs: none
+
+Package parseSequent
+
+==============================================================
+                   export
+==============================================================
+
+Import "sequent".
+
+Expect 
+  cmg.get : String -> (Formula, String)
+
+    %: cmg.get of type String -> (Formula, String)
+    %: is the same as getFormula.  It allows you
+    %: to extract a formula from a string using
+    %: a pattern match.  For example,
+    %:   Extract $(f).
+    %: reads a formula f from the standard input.
+    ;
+
+  getFormula : String -> (Formula, String)
+
+    %: getFormula(s) breaks s into a prefix A that
+    %: describes a formula and a suffix B after that.
+    %: It converts prefix A into a formula F and yields
+    %: result (F,B).
+    %:
+    %: The following grammar describes a formula.
+    %: vblname is any string of letters.
+    %:
+    %:   formula   -> sum ==> formula
+    %:             |  sum
+    %:
+    %:   sum       -> term \/ sum
+    %:             |  term
+    %:
+    %:   term      -> component /\ term
+    %:             |  component
+    %:
+    %:   component -> - component
+    %:             |  ( formula )
+    %:             |  vblname
+    ;
+
+  getFormulas: String -> ([Formula], String)
+
+    %: getFormulas(s) breaks string s into a prefix A
+    %: that is a comma-separated list of formulas
+    %: and a suffix B after that.  It converts L
+    %: into a list L of formulas and yields (L,B).
+    %:
+    %: If there are no formulas to get at the
+    %: beginning of s, the result is [].
+    ;
+
+  cmg.get : String -> (Sequent, String)
+
+    %: cmg.get of type String -> (Sequent, String)
+    %: is the same as getSequent.  It allows you
+    %: to extract a sequent from a string using
+    %: a pattern match.  For example,
+    %:   Extract $(s).
+    %: reads a sequent s from the standard input.
+    ;
+
+  getSequent : String -> (Sequent, String)
+
+    %: getSequent(s) breaks string s into a prefix A
+    %: that is a comma-separated list of formulas
+    %: and a suffix B after that.  It converts L
+    %: into a list L of formulas and yields (L,B).
+    %:
+    %: The following grammar describes a sequent.
+    %:
+    %:   sequent   -> formulas |- formulas
+    %:
+    %:   formulas  -> formula , formulas
+    %:             |  formula
+%Expect
+
+==================================================
+Expect{--missing--} formula: Formula -> String.
+
+Pattern formula(x) ++ rest =>
+  Match (x,r) =~ getFormula(target).
+  Match rest  =~ r.
+%Pattern
+
+Pattern formula(x) =>
+  Match (x, ~whiteSpace) =~ getFormula(target).
+%Pattern
+==================================================
+Expect{--missing--} formulas: [Formula] -> String.
+
+Pattern formulas(x) ++ rest =>
+  Match (x,r) =~ getFormulas(target).
+  Match rest  =~ r.
+%Pattern
+
+Pattern formulas(x) =>
+  Match (x, ~whiteSpace) =~ getFormulas(target).
+%Pattern
+==================================================  
+Expect{--missing--} sequent: Sequent -> String.
+
+Pattern sequent(x) ++ rest =>
+  Match (x,r) =~ getSequent(target).
+  Match rest  =~ r.
+%Pattern
+
+Pattern sequent(x) =>
+  Match (x, ~whiteSpace) =~ getSequent(target).
+%Pattern
+==================================================
+  
+==============================================================
+                   implementation
+==============================================================
+
+Import "collect/search".
+
+==============================================================
+%%                     get
+==============================================================
+
+Define 
+  cmg.get = getFormula;
+  cmg.get = getSequent
+%Define
+
+==============================================================
+%%                     parse
+==============================================================
+
+Expect parse: (String -> (<a>, String), 
+       	       String, 
+	       (<a>, <b>) -> <b>,
+	       <a> -> <b>,
+	       <b>) 
+              -> String -> (<b>, String)
+
+  %: (parse(getter, opname, op, sgl, nullval) str) breaks
+  %: str into a prefix A and suffix B.  The prefix
+  %: A is a sequence of things extracted by getter,
+  %: separated by occurrence of opname.
+  %:
+  %: If there is only an item from getter (so no occurrence
+  %: of opname is seen) then the item is converted to a
+  %: result A' as sgl(item).
+  %:
+  %: If there is an occurrence of opname, then we see
+  %:   item opname items
+  %: That is converted into a result as op(item, items).
+  %:
+  %: If getter cannot get even one value, yield result
+  %: (nullval, str).
+%Expect
+
+Define parse (getter, opname, op, sgl, nullval) = parser |
+  Define parser str =
+    Try*
+      Match (x, ~whiteSpace ++ r1) =~ getter(skipWS(str)).
+    then
+      open If* opname `prefix?` r1 then
+        (x `op` y, r2) |
+          !(y, r2) =~ parser(r1 `lminus` opname).
+      else 
+        (sgl x, r1)
+      %If*
+    else
+      (nullval, str)
+    %Try*
+  %Define
+%Define
+
+==============================================================
+%%                     getFormulas
+%%                     getFormula
+%%                     getSum
+%%                     getTerm
+==============================================================
+
+Expect getTerm, getSum: String -> (Formula, String).
+
+Define 
+  getFormulas = parse(getFormula, ",", ::,  singletonList, []);
+
+  getFormula  = parse(getSum,   "==>", ==>, idf, (:fail testX:));
+
+  getSum      = parse(getTerm,  "\\/",  \/,  idf, (:fail testX:));
+
+  getTerm     = parse(getComponent, "/\\",  /\,  idf, (:fail testX:))
+%Define 
+
+==============================================================
+%%                     getComponent
+==============================================================
+
+Expect getComponent: String -> (Formula, String).
+
+Define 
+  case getComponent('-' :: r) = (neg a, r2) |
+    !(a,r2) =~ getComponent(r).
+
+  case getComponent('(' :: r) = (a, r2) |
+    Match formula(a) ++ ~whiteSpace ++ ")" ++ r2 =~ r.
+    
+  case getComponent(span (=letters) name ++ rest) = (vbl name, rest)
+
+  case getComponent(?) = fail testX
+%Define
+
+==============================================================
+%%                     getSequent
+==============================================================
+
+Define getSequent(str) = (lhs |- rhs, rest) |
+  Match formulas(lhs) ++ ~whiteSpace ++ "|-" ++ formulas(rhs) ++ rest = str.
+%Define
+
+%Package

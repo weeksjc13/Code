@@ -1,0 +1,435 @@
+
+
+Converted form of expression/paragraph:
+
+- 272.   Execute
+- 272.     If* getOption("example") then
+- 272.       TestExample* ((("@arithmetic", 272), "", (:(diff([1, 0, 1], [])):)), "") %TestExample*
+- 272.     %If*
+- 272.   %Execute
+
+-----Types:
+
+- 272.   getOption       : (String -> Boolean)
+- 272.   TestExample     : ((((String, Integer), String, <>), String) -> ())
+- 272.   diff            : (([Integer], [Integer]) -> [Integer])
+- 272.   ::              : ((Integer, [Integer]) -> [Integer])
+- 272.   castInt         : (Integer -> Integer)
+- 272.   ::              : ((Integer, [Integer]) -> [Integer])
+- 272.   castInt         : (Integer -> Integer)
+- 272.   ::              : ((Integer, [Integer]) -> [Integer])
+- 272.   castInt         : (Integer -> Integer)
+
+
+
+---------------------------------------------------
+--- Summary of inference steps leading to error ---
+
+---------------------------------------------------
+
+  Line 272. An expectation (package standard, line 0) shows that cmg.:: has type 
+  ((<a>, [<a>]) -> [<a>])
+---------------------------------------------------
+
+  Line 272. An expectation shows that cmg.:: has type 
+  <>
+  Current type:
+  - 272.  (::)
+
+         : ((<a>, [<a>]) -> [<a>])
+
+---------------------------------------------------
+
+  Line 272. An expectation (package standard, line 0) shows that cmg.:: has type 
+  ((<b>, [<b>]) -> [<b>])
+---------------------------------------------------
+
+  Line 272. An expectation shows that cmg.:: has type 
+  <>
+  Current type:
+  - 272.  (::)
+
+         : ((<b>, [<b>]) -> [<b>])
+
+---------------------------------------------------
+
+  Line 272. An expectation (package standard, line 0) shows that cmg.:: has type 
+  ((<c>, [<c>]) -> [<c>])
+---------------------------------------------------
+
+  Line 272. An expectation shows that cmg.:: has type 
+  <>
+  Current type:
+  - 272.  (::)
+
+         : ((<c>, [<c>]) -> [<c>])
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  castInt
+
+         : (Integer -> <d>)
+           where(<d:AnyNum>)
+
+  Argument A =
+  - 272.  1
+
+
+  Type of f(A): <e>
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  castInt
+
+         : (Integer -> <f>)
+           where(<f:AnyNum>)
+
+  Argument A =
+  - 272.  0
+
+
+  Type of f(A): <g>
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  castInt
+
+         : (Integer -> <h>)
+           where(<h:AnyNum>)
+
+  Argument A =
+  - 272.  1
+
+
+  Type of f(A): <i>
+---------------------------------------------------
+
+  Line 272. If the members of list [a,b,c,...] have type T then the list has type [T].
+
+  E =
+  - 272.  []
+
+         : [<j>]
+
+  Member type: [<k>]
+
+  Line 272. After unification:
+
+  E =
+  - 272.  []
+
+         : [<j>]
+
+  Member type: [<j>]
+---------------------------------------------------
+
+  Line 272. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 272.  1
+
+         : <h>
+           where(<h:AnyNum>)
+
+  B =
+  - 272.  []
+
+         : [<j>]
+
+  Expr =
+  - 272.  (1, [])
+
+         : <l>
+
+
+  Line 272. After unification:
+
+  A =
+  - 272.  1
+
+         : <h>
+           where(<h:AnyNum>)
+
+  B =
+  - 272.  []
+
+         : [<j>]
+
+  Expr =
+  - 272.  (1, [])
+
+         : (<h>, [<j>])
+           where(<h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 272.  (::)
+
+         : ((<a>, [<a>]) -> [<a>])
+
+    Argument:
+  - 272.  (1, [])
+
+         : (<h>, [<j>])
+           where(<h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  (::)
+
+         : ((<h>, [<h>]) -> [<h>])
+           where(<h:AnyNum>)
+
+  Argument A =
+  - 272.  (1, [])
+
+
+  Type of f(A): <m>
+---------------------------------------------------
+
+  Line 272. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 272.  0
+
+         : <f>
+           where(<f:AnyNum>)
+
+  B =
+  - 272.  ([1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  Expr =
+  - 272.  (0, [1])
+
+         : <n>
+
+
+  Line 272. After unification:
+
+  A =
+  - 272.  0
+
+         : <f>
+           where(<f:AnyNum>)
+
+  B =
+  - 272.  ([1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  Expr =
+  - 272.  (0, [1])
+
+         : (<f>, [<h>])
+           where(<f:AnyNum>, <h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 272.  (::)
+
+         : ((<b>, [<b>]) -> [<b>])
+
+    Argument:
+  - 272.  (0, [1])
+
+         : (<f>, [<h>])
+           where(<f:AnyNum>, <h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  (::)
+
+         : ((<h>, [<h>]) -> [<h>])
+           where(<h:AnyNum>)
+
+  Argument A =
+  - 272.  (0, [1])
+
+
+  Type of f(A): <o>
+---------------------------------------------------
+
+  Line 272. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 272.  1
+
+         : <d>
+           where(<d:AnyNum>)
+
+  B =
+  - 272.  ([0, 1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  Expr =
+  - 272.  (1, [0, 1])
+
+         : <p>
+
+
+  Line 272. After unification:
+
+  A =
+  - 272.  1
+
+         : <d>
+           where(<d:AnyNum>)
+
+  B =
+  - 272.  ([0, 1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  Expr =
+  - 272.  (1, [0, 1])
+
+         : (<d>, [<h>])
+           where(<d:AnyNum>, <h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 272.  (::)
+
+         : ((<c>, [<c>]) -> [<c>])
+
+    Argument:
+  - 272.  (1, [0, 1])
+
+         : (<d>, [<h>])
+           where(<d:AnyNum>, <h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  (::)
+
+         : ((<h>, [<h>]) -> [<h>])
+           where(<h:AnyNum>)
+
+  Argument A =
+  - 272.  (1, [0, 1])
+
+
+  Type of f(A): <q>
+---------------------------------------------------
+
+  Line 272. If the members of list [a,b,c,...] have type T then the list has type [T].
+
+  E =
+  - 272.  []
+
+         : [<r>]
+
+  Member type: [<s>]
+
+  Line 272. After unification:
+
+  E =
+  - 272.  []
+
+         : [<r>]
+
+  Member type: [<r>]
+---------------------------------------------------
+
+  Line 272. Expression (A,B) has type (S,T) when A has type S and B has type T.
+
+  A =
+  - 272.  ([1, 0, 1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  B =
+  - 272.  []
+
+         : [<r>]
+
+  Expr =
+  - 272.  ([1, 0, 1], [])
+
+         : <t>
+
+
+  Line 272. After unification:
+
+  A =
+  - 272.  ([1, 0, 1])
+
+         : [<h>]
+           where(<h:AnyNum>)
+
+  B =
+  - 272.  []
+
+         : [<r>]
+
+  Expr =
+  - 272.  ([1, 0, 1], [])
+
+         : ([<h>], [<r>])
+           where(<h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then its argument must have type S.
+  Function:
+  - 272.  diff
+
+         : (([Integer], [Integer]) -> [Integer])
+
+    Argument:
+  - 272.  ([1, 0, 1], [])
+
+         : ([<h>], [<r>])
+           where(<h:AnyNum>)
+
+---------------------------------------------------
+
+  Line 272. If function f has type S -> T then expression f(A) must have type T.
+
+  Function f =
+  - 272.  diff
+
+         : (([Integer], [Integer]) -> [Integer])
+
+  Argument A =
+  - 272.  ([1, 0, 1], [])
+
+
+  Type of f(A): <u>
+---------------------------------------------------
+
+  Line 272. The body of an example must have type Boolean.
+
+---------------------------------------------------
+
+

@@ -1,0 +1,294 @@
+Wed Sep 21 17:30:17 2016
+ECU Cinnameg, version 9.0.5 (byte code version 73)
+File /home/INTRA/weeksj13/3675/Assign 2/arithtest.cmg
+
+
+   1 %% Name: Josh Weeks
+   2 %% Date: 9/21/16
+   3 %% Tabs: none
+   4 
+   5 Package arithtest
+   6 
+   7 Import "arithmetic".
+
+--> Import "/home/INTRA/weeksj13/3675/Assign 2/arithmetic.cmg"
+
+   8 
+   9 Expect 
+  10   intToBinary: Integer -> [Integer]
+  11      %: intToBinary(n) is the binary equivalent of
+  12      %: nonnegative integer n.
+
+--> private.intToBinary
+              : (Integer -> [Integer])
+              Expect {--private--}
+
+  13      ;
+  14 
+  15   binaryToInt: [Integer] -> Integer
+  16      %: binaryToInt(x) is the integer that binary
+  17      %: list x stands for.
+
+--> private.binaryToInt
+              : ([Integer] -> Integer)
+              Expect {--private--}
+
+  18 %Expect
+  19 
+  20 ===============================================================
+  21 %%                    intToBinary
+  22 ===============================================================
+  23 
+  24 Define 
+  25   case intToBinary (0)     = []
+  26   case intToBinary (2*n)   = 0 :: intToBinary(n)
+  27   case intToBinary (2*n+1) = 1 :: intToBinary(n)
+  28 %Define
+
+--> private.intToBinary
+              : (Integer -> [Integer])
+              Define {--private--}
+
+  29 
+  30 Example
+  31   intToBinary(12) = [0,0,1,1]
+  32 %Example
+  33 
+  34 ===============================================================
+  35 %%                    binaryToInt
+  36 ===============================================================
+  37 
+  38 Define 
+  39   case binaryToInt([])   = 0
+  40   case binaryToInt(0::x) = 2*binaryToInt(x)
+  41   case binaryToInt(1::x) = 2*binaryToInt(x) + 1
+  42 %Define
+
+--> private.binaryToInt
+              : ([Integer] -> Integer)
+              Define {--private--}
+
+  43 
+  44 Example
+  45   binaryToInt([0,0,1,1]) = 12
+  46 %Example
+  47 
+  48 
+  49 %% Note: $(x) is x converted to a string.  It is similar
+  50 %% to x.tostring() in Java.
+  51 
+  52 ===============================================================
+  53 %%                    TestInc
+  54 ===============================================================
+  55 
+  56 Define TestInc(n: Integer). =
+  57   !x = intToBinary(n).
+  58   !y = inc(x).
+  59   !z = binaryToInt(y).
+  60 
+  61   If z == n + 1 then
+  62     Displayln "inc works for %(n)".
+  63   else
+  64     Displayln "***inc(%(n)) = %(z)".
+  65     Displayln "---inc(%(x)) = %(y)".
+  66   %If
+  67 %Define
+
+--> Private.TestInc
+              : (Integer -> ())
+              Define {--private--}
+
+  68 
+  69 Execute
+  70   TestInc(0).
+  71   TestInc(1).
+  72   TestInc(2).
+  73   TestInc(31).
+  74   TestInc(64).  
+  75 
+  76 %Execute
+  77 
+  78 ===============================================================
+  79 %%                    TestDec
+  80 ===============================================================
+  81 
+  82 Define TestDec(n: Integer). =
+  83   !x = intToBinary(n).
+  84   !y = dec(x).
+  85   !z = binaryToInt(y).
+  86 
+  87   If z == n - 1 then
+  88     Displayln "dec works for %(n)".
+  89   %If
+  90   If n == 0 then If z == 0 then
+  91     Displayln "dec works for %(n)".
+  92   %If
+  93   %If
+  94 %Define
+
+--> Private.TestDec
+              : (Integer -> ())
+              Define {--private--}
+
+  95 
+  96 Execute
+  97   TestDec(0).
+  98   TestDec(1).
+  99   TestDec(2).
+ 100   TestDec(31).
+ 101   TestDec(64).  
+ 102 
+ 103 %Execute
+ 104 
+ 105 ===============================================================
+ 106 %%                    TestSum
+ 107 ===============================================================
+ 108 
+ 109 Define TestSum(x: Integer, y: Integer). =
+ 110   !a = intToBinary(x).
+ 111   !b = intToBinary(y).
+ 112   !c = sum(a, b).
+ 113   !z = binaryToInt(c).
+ 114 
+ 115   If z == x + y then
+ 116     Displayln "sum works for %(x) + %(y)".
+ 117   else
+ 118     Displayln "***sum(%(a), %(b)) = %(z)".
+ 119   %If
+ 120 %Define
+
+--> Private.TestSum
+              : ((Integer, Integer) -> ())
+              Define {--private--}
+
+ 121 
+ 122 Execute
+ 123   TestSum(0, 0).
+ 124   TestSum(0, 1).
+ 125   TestSum(2, 5).
+ 126   TestSum(3, 9).
+ 127   TestSum(10, 10).
+ 128   TestSum(5, 0).
+ 129   TestSum(1, 0).
+ 130   TestSum(1, 2).
+ 131   TestSum(2, 1).
+ 132 
+ 133 %Execute
+ 134 
+ 135 ===============================================================
+ 136 %%                    TestDiff
+ 137 ===============================================================
+ 138 
+ 139 Define TestDiff(x: Integer, y: Integer). =
+ 140   !a = intToBinary(x).
+ 141   !b = intToBinary(y).
+ 142   !c = diff(a, b).
+ 143   !z = binaryToInt(c).
+ 144   
+ 145   If z == 0 then If (x - y) <= 0 then
+ 146     Displayln "diff works for %(x) - %(y)".
+ 147   %If
+ 148   %If
+ 149   If z == x - y then If (x - y) > 0 then
+ 150     Displayln "diff works for %(x) - %(y)".
+ 151   %If
+ 152   %If
+ 153 %Define
+
+--> Private.TestDiff
+              : ((Integer, Integer) -> ())
+              Define {--private--}
+
+ 154 
+ 155 Execute
+ 156   TestDiff(0, 0).
+ 157   TestDiff(0, 1).
+ 158   TestDiff(2, 5).
+ 159   TestDiff(3, 9).
+ 160   TestDiff(10, 10).
+ 161   TestDiff(5, 0).
+ 162   TestDiff(1, 0).
+ 163   TestDiff(1, 2).
+ 164   TestDiff(2, 1).
+ 165 
+ 166 %Execute
+ 167 
+ 168 ===============================================================
+ 169 %%                    TestProduct
+ 170 ===============================================================
+ 171 
+ 172 Define TestProduct(x: Integer, y: Integer). =
+ 173   !a = intToBinary(x).
+ 174   !b = intToBinary(y).
+ 175   !c = product(a, b).
+ 176   !z = binaryToInt(c).
+ 177 
+ 178   If z == x * y then
+ 179     Displayln "product works for %(x) * %(y)".
+ 180   else
+ 181     Displayln "***product(%(a), %(b)) = %(z)".
+ 182   %If
+ 183 %Define
+
+--> Private.TestProduct
+              : ((Integer, Integer) -> ())
+              Define {--private--}
+
+ 184 
+ 185 Execute
+ 186   TestProduct(0, 0).
+ 187   TestProduct(0, 1).
+ 188   TestProduct(2, 5).
+ 189   TestProduct(3, 9).
+ 190   TestProduct(10, 10).
+ 191   TestProduct(5, 0).
+ 192   TestProduct(1, 0).
+ 193   TestProduct(1, 2).
+ 194   TestProduct(2, 1).
+ 195 
+ 196 %Execute
+ 197 
+ 198 ===============================================================
+ 199 %%                    TestCompareInts
+ 200 ===============================================================
+ 201 
+ 202 Define TestCompareInts(x: Integer, y: Integer). =
+ 203   !a = intToBinary(x).
+ 204   !b = intToBinary(y).
+ 205   !c = compareInts(a, b).
+ 206 
+ 207   If c == '=' then If x == y then
+ 208     Displayln "compareInts works for %(x) and %(y)".
+ 209   %If
+ 210   %If
+ 211   If c == '<' then If x < y then
+ 212     Displayln "compareInts works for %(x) and %(y)".
+ 213   %If
+ 214   %If
+ 215   If c == '>' then If x > y then
+ 216     Displayln "compareInts works for %(x) and %(y)".
+ 217   %If
+ 218   %If
+ 219 
+ 220 %Define
+
+--> Private.TestCompareInts
+              : ((Integer, Integer) -> ())
+              Define {--private--}
+
+ 221 
+ 222 Execute
+ 223   TestCompareInts(0, 0).
+ 224   TestCompareInts(0, 1).
+ 225   TestCompareInts(5, 2).
+ 226   TestCompareInts(3, 9).
+ 227   TestCompareInts(10, 10).
+ 228   TestCompareInts(5, 0).
+ 229   TestCompareInts(1, 0).
+ 230   TestCompareInts(1, 2).
+ 231   TestCompareInts(2, 1).
+ 232 
+ 233 %Execute
+ 234 
+ 235 %Package
+

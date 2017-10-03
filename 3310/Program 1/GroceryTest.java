@@ -1,0 +1,173 @@
+// CSCI 3310
+// Program:    1
+// Class:      CSCI 3310
+// Author:     Josh Weeks
+// Date:       9/16/15
+// File:       GroceryTest.java
+
+//==============================================================
+//    GroceryTest
+//==============================================================
+//    GroceryTest's purpose is to test the GroceryItem class's different methods.
+//    The test is taking customers orders and giving the customer a total in cost,
+//    total in tax, and a grand total. There can be any number of customers. 
+//    If there is a duplicate item the item will be ignored and also if there is a 
+//    product trying to be purchased that does not exist it will be ignored.
+//    GroceryTest assumes that food tax is .02 and a non food tax is .08.
+//    When a customer purchases an item it is deducted from the total inventory
+//    for that GroceryItem.
+//==============================================================
+
+import java.io.*;
+import java.util.*;
+
+public class GroceryTest
+{
+
+// declare constants for tax rates and maximum array size here
+   
+    public static final double FOODTAX = .02;		//represents the tax on food items
+    public static final double NONFOODTAX = .08;	//represents the tax on non-food items
+    public static final int MAXARRAYSIZE = 100;
+   
+    //==============================================================
+    //    helper
+    //==============================================================
+    //    helper uses two parameter
+    //    1. numItems that represents how much of the inventory array is used
+    //    2. inventory which is an array of GroceryItems
+    //    helper takes customer's order and prints out a total cost, total tax,
+    //    and a grand total. If the item being purchased does not exist,
+    //    it will be ignored.
+    //==============================================================
+    public static void helper(int numItems, GroceryItem inventory[])
+    {
+        Scanner keyboard = new Scanner(System.in);
+       
+        double totalCost = 0.00;			//will keep track of the total cost of all the customers items
+        double totalTax = 0.00;				//will keep up with the tax of all of the items
+       
+        int numCustomer = 1;				//keeps up with the amount of customers that are being simulated
+        System.out.printf("Customer %d", numCustomer);
+       
+        while (keyboard.hasNext())
+        {
+            int customerItemNum = keyboard.nextInt();	//customer item's number being purchased
+            int customerQuantity = keyboard.nextInt();	//customer item's quantity being purchased
+           
+            boolean productExists = false;    		//true when product exists, false when it does not exist in the inventory
+           
+            //at the end of a customer's order this will print the total cost, total tax, and the grand total
+            //also resets the totals for a new customer
+            if (customerItemNum == 0 && customerQuantity == 0)
+            {
+                System.out.printf("\n\nTotal Cost  = $ %7.2f\n", totalCost);
+                System.out.printf("Total Tax   = $ %7.2f\n", totalTax);
+                System.out.printf("Grand Total = $ %7.2f\n\n", totalCost + totalTax);
+               
+                totalCost = 0.00;
+                totalTax = 0.00;
+                numCustomer = numCustomer + 1;
+               
+                //if there is another customer this prints the number of the customer
+                //if there is no other input from the keyboard this will leave the loop
+                if (!keyboard.hasNext())
+                {
+                    keyboard.close();
+                    break;
+                }
+                else
+                {
+                    System.out.printf("Customer %d", numCustomer);
+                }
+            }
+           
+            //this finds out if the product exists
+            if (GroceryItem.itemSearch(inventory, numItems, customerItemNum) != -1)
+            {
+                productExists = true;
+            }
+           
+            int index = GroceryItem.itemSearch(inventory, numItems, customerItemNum);		//index holds the index at which the product exist, if it does not exist it will be -1
+           
+            //when the product exists the description, quantity, price, and the total for that individual product without tax
+            if (productExists)
+            {
+                System.out.printf("\n%12s", inventory[index].getDescription());
+                System.out.printf("%2d@%3.2f, ", customerQuantity, inventory[index].getPrice());
+                System.out.printf("Cost = %7.2f", customerQuantity * inventory[index].getPrice());
+               
+                inventory[index].setQuantity(inventory[index].getQuantity() - customerQuantity);
+               
+                //handles the tax for a product at the quantity the customer wants and stores the total tax
+                if(inventory[index].getTax().equals("F"))
+                {
+                    totalTax = totalTax + ((inventory[index].getPrice() * customerQuantity) * FOODTAX);
+                }
+                else
+                {
+                    totalTax = totalTax + ((inventory[index].getPrice() * customerQuantity) * NONFOODTAX);
+                }
+               
+                totalCost = totalCost + (inventory[index].getPrice() * customerQuantity);
+            }
+           
+            //if the customers item is not in the inventory this prints.
+            if (customerItemNum != 0 && !productExists)
+            {
+                System.out.printf("\n*** item %d not in inventory ***", customerItemNum);
+            }
+        }
+    }
+   
+
+    public static void main(String[] args)
+    {
+        GroceryItem[] inventory = new GroceryItem[MAXARRAYSIZE];	//array that will hold GroceryItems
+       
+        Scanner fileInput;
+        File inFile = new File("inventory.dat");			//input file
+       
+        int numItems = 0;						//the amount of items in the array
+        boolean duplicate = false;					//if the item being read is a duplicate it is true
+       
+        try
+        {
+            fileInput = new Scanner(inFile);
+           
+            while (fileInput.hasNext())
+            {
+                //fills array with GroceryItems
+                inventory[numItems] = new GroceryItem();
+                inventory[numItems].readItem(fileInput);
+                //if a item being read in is a duplicate then the error message will occur and duplicate becomes true
+                if (GroceryItem.itemSearch(inventory, numItems, inventory[numItems].getProductNum()) != -1)
+                {
+                    System.out.printf("** ERROR: duplicate item %d %s ignored. \n\n", inventory[numItems].getProductNum(), inventory[numItems].getDescription());
+                    duplicate = true;
+                }
+                //if the item is a duplicate then duplicate becomes false for the next item to be read in and if not size of the array being used will increase by 1
+                if (duplicate)
+                {
+                    duplicate = false;
+                }
+                else
+                {
+                    numItems++;
+                }
+            }
+        }
+        catch(FileNotFoundException e){System.out.println(e); }
+       
+        System.out.println("INITIAL INVENTORY\n");
+        GroceryItem.printInventory(inventory, numItems);
+       
+        System.out.println("\nPURCHASE SIMULATION\n");
+        //this simulates customers purchasing items
+        helper(numItems, inventory);
+       
+        System.out.println("FINAL INVENTORY\n");
+        GroceryItem.printInventory(inventory, numItems);
+  }
+
+}

@@ -1,0 +1,654 @@
+// CSCI 3300
+// Assignment: 3i
+// Author:     Josh Weeks
+// File:       sudoku.cpp
+// Tab stops:  none
+
+// **Say what this program does here.  (replace this)**
+
+
+#include <cstdio>
+#include "intset.h"
+#include <string>
+
+using namespace std;
+
+typedef SetOfSmallInts** Puzzle;
+typedef SetOfSmallInts** PuzzleSection;
+
+int trace1 = 1;
+int trace2 = 0;
+
+enum SolutionStatus {solved, unsolvable, working};
+
+bool allSingleton(PuzzleSection);
+void speculate(Puzzle, int, int);
+SolutionStatus solver(Puzzle);
+
+//==============================================================
+//                      newPuzzle
+//==============================================================
+// newPuzzle() returns a newly allocated puzzle.
+//==============================================================
+
+Puzzle newPuzzle()
+{
+  Puzzle p = new SetOfSmallInts*[9];
+
+  for(int i = 0; i < 9; i++)
+  {
+    p[i] = new SetOfSmallInts[9];
+  }
+  return p;
+}
+
+//==============================================================
+//                      deletePuzzle
+//==============================================================
+// deletePuzzle(p) deallocates puzzle p that was allocated
+// using newPuzzle.
+//==============================================================
+
+void deletePuzzle(Puzzle p)
+{
+  for(int i = 0; i < 9; i++)
+  {
+    delete[] p[i];
+  }
+  delete[] p;
+}
+
+//==============================================================
+//                      newPuzzleSection
+//==============================================================
+// newPuzzleSection() returns a newly allocates PuzzleSection.
+//==============================================================
+
+PuzzleSection newPuzzleSection()
+{
+  return new SetOfSmallInts*[9];
+}
+
+//==============================================================
+//                      deletePuzzleSection
+//==============================================================
+// deletePuzzleSection(s) deallocates puzzle section s that
+// was allocated by newPuzzleSection.
+//==============================================================
+
+void deletePuzzleSection(PuzzleSection s)
+{
+  delete[] s;
+}
+
+//==============================================================
+//                      copySetArray
+//==============================================================
+// Parameters p and q are arrays of 9 sets.  Copy array p into
+// array q.
+//==============================================================
+
+void copySetArray(SetOfSmallInts* q, SetOfSmallInts* p)
+{
+  for(int i = 0; i < 9; i++)
+  {
+    q[i] = p[i];
+  }
+}
+
+//==============================================================
+//                      copyPuzzle
+//==============================================================
+// Copy puzzle p into q.  For example, if p is a puzzle, then
+//    Puzzle q = newPuzzle();
+//    copyPuzzle(q, p);
+// stores a copy of puzzle p into q.  (Only allocate q if it
+// was not already allocated.)
+//==============================================================
+
+void copyPuzzle(Puzzle q, Puzzle p)
+{
+  for(int i = 0; i < 9; i++) 
+  {
+    copySetArray(q[i], p[i]);
+  }
+}
+
+//==============================================================
+//                      getRow
+//==============================================================
+// Store the i-th row of puzzle p into puzzle section S.
+// The rows are numbered from 0 to 8.
+// 
+// After doing this, the k-th set in row i is *(S[k]).
+// The cells in the row are numbered 0,1,...,8.
+//==============================================================
+
+void getRow(PuzzleSection S, Puzzle p, int i)
+{
+  for(int j = 0; j < 9; j++) 
+  {
+    S[j] = &(p[i][j]);
+  }
+}
+
+
+//==============================================================
+//                      getColumn
+//==============================================================
+// Store the j-th column of puzzle p into puzzle section S.
+// The columns are numbered from 0 to 8.
+// 
+// After doing this, the k-th set in column j is
+// *(S[i]).  The cells in the column are numbered 0,1,...,8.
+//==============================================================
+
+void getColumn(PuzzleSection S, Puzzle p, int j)
+{
+  for(int i = 0; i < 9; i++) 
+  {
+    S[i] = &(p[i][j]);
+  }
+}
+
+//==============================================================
+//                      getSquare
+//==============================================================
+// Store the k-th square of puzzle p into puzzle section S.
+// The squares are numbered as follows.
+//           0 1 2
+//           3 4 5
+//           6 7 8
+// For example, square 4 is the middle square in the puzzle.
+// 
+// After doing getSquare, the i-th set in the square is *(S[i]).
+// The cells in the square are numbered 0,1,...,8, in the same
+// pattern shown above for the squares themselves.
+// For example *(R[3]) is the first position in the second row
+// of the square.
+//==============================================================
+
+void getSquare(PuzzleSection S, Puzzle p, int k)
+{
+  for(int i = 0; i < 9; i++) 
+  {
+    S[i] = &(p[k - k%3 + i/3][3*(k%3) + i%3]);
+  }
+}
+
+//==============================================================
+//                      readPuzzle
+//==============================================================
+// Reads a puzzle from the standard output.
+//==============================================================
+
+Puzzle readPuzzle()
+{
+  Puzzle p = newPuzzle();
+  int x = 0, y = 0;
+  char character;
+  
+  while(y <= 8)
+  {
+    scanf("%c", &character);
+    if(character >= '1' && character <= '9')
+    {
+      p[x][y] = singletonSet(character - '0');
+      x++;
+    }
+    else if(character == '-')
+    {
+      p[x][y] = rangeSet(1,9);
+      x++;
+    }
+    if(x > 8)
+    {
+      x = 0;
+      y++;
+    }
+  }
+  return p;
+}
+
+//==============================================================
+//                      printPuzzle
+//==============================================================
+// Prints the puzzle p to the screen as the user entered it
+// but in a easier to read format.
+//==============================================================
+
+void printPuzzle(Puzzle p)
+{
+  int x = 0, y = 0;
+  
+  while(y <= 8)
+  {
+    if(isSingleton(p[x][y]))
+    {
+      printf("%i ", smallest(p[x][y]));
+    }
+    else
+    {
+      if(isEmpty(p[x][y]))
+      {
+        printf("* ");
+      }
+      else
+      {
+        printf("- ");
+      }
+    }
+    if((x + 1) % 3 == 0)
+    {
+      printf(" ");
+    }
+    if(x == 8)
+    {
+      printf("\n");
+
+      if((y + 1) % 3 == 0)
+      {
+        printf("\n");
+      }
+    }
+    
+    x++;
+    
+    if(x > 8)
+    {
+      x = 0;
+      y++;
+    }
+  }
+}
+
+//==============================================================
+//                      printSpaces
+//==============================================================
+// printSpaces prints n spaces.
+//==============================================================
+
+void printSpaces(int n)
+{
+  for(int x = 0; n >= x; x++)
+  {
+    printf(" ");
+  }
+}
+
+//==============================================================
+//                      printNumbers
+//==============================================================
+// Prints numbers in SetOfSmallInts s from least to greatest.
+//==============================================================
+
+void printNumbers(SetOfSmallInts s)
+{
+  while(!isEmpty(s))
+  {
+    printf("%i", smallest(s));
+    s = remove(smallest(s), s);
+  }
+}
+
+//==============================================================
+//                      showPuzzle
+//==============================================================
+// showPuzzle is used to print puzzle p at its current state
+// with all the empty sets filled with 1-9.
+//==============================================================
+
+void showPuzzle(Puzzle p)
+{
+  int x = 0, y = 0;
+  
+  while(y <= 8)
+  {
+    if(isSingleton(p[x][y]))
+    {
+      printf("%i         ", smallest(p[x][y]));
+    }
+    else
+    {
+      if(isEmpty(p[x][y]))
+      {
+        printf("*        ");
+      }
+      else
+      {
+        printNumbers(p[x][y]);
+        printSpaces(9 - size(p[x][y]));
+      }
+    }
+    
+    x++;
+    
+    if(x > 8)
+    {
+      printf("\n");
+      x = 0;
+      y++;
+    }
+  }
+}
+
+
+
+
+
+//==============================================================
+//                      allSinglton
+//==============================================================
+// allSingleton returns true if every set in the puzzle is 
+// singleton
+//==============================================================
+
+bool allSingleton(Puzzle p)
+{
+  PuzzleSection r = newPuzzleSection();
+  PuzzleSection c = newPuzzleSection();
+  PuzzleSection s = newPuzzleSection();
+  
+  bool notSingle = true;
+  
+  for(int i = 0; i <= 8; i++)
+  {
+    getRow(r, p, i);
+    if(!isSingleton(*(r[i])))
+    {
+      notSingle = false;
+    }
+    getColumn(c, p, i);
+    if(!isSingleton(*(c[i])))
+    {
+      notSingle = false;
+    }
+    getSquare(s, p, i);
+    if(!isSingleton(*(s[i])))
+    {
+      notSingle = false;
+    }
+  }
+  
+  return notSingle;
+}
+
+//==============================================================
+//                      anyEmpty
+//==============================================================
+// returns true is any empty in puzzle
+//==============================================================
+
+bool anyEmpty(Puzzle p)
+{
+  PuzzleSection r = newPuzzleSection();
+  PuzzleSection c = newPuzzleSection();
+  PuzzleSection s = newPuzzleSection();
+  
+  bool empty = false;
+  
+  for(int i = 0; i <= 8; i++)
+  {
+    getRow(r, p, i);
+    if(isEmpty(*(r[i])))
+    {
+      empty = true;
+    }
+    getColumn(c, p, i);
+    if(isEmpty(*(c[i])))
+    {
+      empty = true;
+    }
+    getSquare(s, p, i);
+    if(isEmpty(*(s[i])))
+    {
+      empty = true;
+    }
+  }
+  
+  return empty;
+}
+
+//==============================================================
+//                      eliminate
+//==============================================================
+// eliminate recieves a type PuzzleSection and an int.  The
+// PuzzleSection that consists pointers to 9 sets. int single
+// represents a singleton set that is removed from any non
+// singleton set.
+//
+// Singleton set - a set that holds only 1 value. Ex: {1}
+//
+// eliminate returns a bool true if any change was made to the
+// puzzle.
+//==============================================================
+
+bool eliminate(PuzzleSection sec, int single)
+{
+  bool flag = false;
+  
+  for(int x = 0; x <= 8; x++)
+  {
+    if(!isSingleton(*(sec[x])))
+    {
+      *(sec[x]) = remove(single, *(sec[x]));
+      flag = true;
+    }
+  }
+  
+  return flag;
+}
+
+//==============================================================
+//                      helper
+//==============================================================
+// helper takes a parameter of type PuzzleSection that consists
+// pointers to 9 sets. Each set can hold mutilple numbers that
+// rang 1-9.  It find the singleton sets of the PuzzleSection.
+//
+// helper returns a bool true if any change was made to the
+// puzzle.
+//==============================================================
+
+bool helper(PuzzleSection sec)
+{
+  int single = 0;
+  bool flag = false;
+  
+  for(int x = 0; x <= 8; x++)
+  {
+    if(isSingleton(*(sec[x])))
+    {
+      single = smallest(*(sec[x]));
+      flag |= eliminate(sec, single);
+    }
+  }
+  
+  return flag;
+}
+
+//==============================================================
+//                      tacticOne
+//==============================================================
+// tacticOne allocates PuzzleSections and eliminates singleton
+// sets from non singleton sets.  Returns true is changes were
+// made to the puzzle.
+//==============================================================
+
+bool tacticOne(Puzzle p)
+{
+  PuzzleSection r = newPuzzleSection();
+  PuzzleSection c = newPuzzleSection();
+  PuzzleSection s = newPuzzleSection();
+  
+  bool changesMade = false;
+  
+  //TRACE: before scan over puzzle
+  if(trace1 > 0)
+  {
+    printf("\nBefore tacticOne scans\n\n");
+    showPuzzle(p);
+  }
+  //END TRACE
+  
+  //place if(solver = solved)
+  //around for loop
+  for(int i = 0; i <= 8; i++)
+  {
+    getRow(r, p, i);
+    changesMade |= helper(r);
+    
+    getColumn(c, p, i);
+    changesMade |= helper(c);
+    
+    getSquare(s, p, i);
+    changesMade |= helper(s);
+  }
+  
+  //TRACE: after one full scan over the puzzle
+  if(trace1 > 0)
+  {
+    printf("\nAfter tacticOne scan\n\n");
+    showPuzzle(p);
+  }
+  //END TRACE
+  
+  return changesMade;
+}
+
+//==============================================================
+//                      tacticTwoHelper
+//==============================================================
+// 
+//==============================================================
+
+void tacticTwoHelper(Puzzle p, int i)
+{
+  for(int j = 0; j <= 8; j++)
+  {
+    if(!isSingleton(p[i][j]))
+    {
+      speculate(p, i, j);
+    }
+  }
+}
+
+//==============================================================
+//                      tacticTwo
+//==============================================================
+// tacticTwo finds a non singleton set and makes a copy of the
+// with only one of the numbers in the set. The it completes the
+// puzzle if possible.
+//==============================================================
+
+void tacticTwo(Puzzle p)
+{
+  for(int i = 0; i <= 8; i++)
+  {
+    tacticTwoHelper(p, i);
+  }
+}
+
+//==============================================================
+//                      speculate
+//==============================================================
+// makes a cpy of puzzle p, tests non singleton set from t2
+//==============================================================
+
+void speculate(Puzzle p, int i, int j)
+{
+  SetOfSmallInts answer;
+  SetOfSmallInts test;
+  
+  Puzzle c = newPuzzle();
+  copyPuzzle(c, p);
+  
+  test = p[i][j];
+  
+  while(!isEmpty(test))
+  {
+    copyPuzzle(c, p);
+    c[i][j] = singletonSet(smallest(test));
+    
+    tacticOne(c);
+    
+    if(anyEmpty(c))
+    {
+      test = remove(smallest(test), test);
+    }
+    else
+    {
+      answer = insert(smallest(c[i][j]), answer);
+      test = remove(smallest(test), test);
+    }
+    
+  }
+  
+  p[i][j] = answer;
+}
+
+
+//==============================================================
+//                      solver
+//==============================================================
+// Returns solved, working, unsolvable
+//==============================================================
+
+SolutionStatus solver(Puzzle p)
+{
+  while(tacticOne(p))
+  {
+  }
+  
+  if(!allSingleton(p))
+  {
+    tacticTwo(p);
+  }
+  
+  if(allSingleton(p))
+  {
+    return solved;
+  }
+  else
+  {
+    return unsolvable;
+  }
+}
+
+
+
+//==============================================================
+//                   main
+//==============================================================
+
+int main(int argc, char** argv)
+{
+  //TRACE
+  
+  //END TRACE
+  
+  Puzzle p = readPuzzle();
+  printf("\n\n\n");
+  printPuzzle(p);
+  printf("\n\n\n");
+  showPuzzle(p);
+  printf("\n\n\n");
+  
+  solver(p);
+  
+  if(trace1 > 0)
+  {
+    printf("\n\nAfter program: \n\n");
+    showPuzzle(p);
+    printf("\n\n\n");
+    printPuzzle(p);
+    printf("\n\nEnd trace. \n\n");
+  }
+  
+  delete p;
+  
+  return 0;
+}
+
+
+

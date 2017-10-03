@@ -1,0 +1,370 @@
+Thu Nov 10 13:09:18 2016
+ECU Cinnameg, version 9.0.5 (byte code version 73)
+File /home/INTRA/weeksj13/3675/Assign 5/parseSequent.cmg
+
+
+   1 %% Name: Josh Weeks
+   2 %% Date: 11/1/16
+   3 %% Tabs: none
+   4 
+   5 Package parseSequent
+   6 
+   7 ==============================================================
+   8                    export
+   9 ==============================================================
+  10 
+  11 Import "sequent".
+
+--> Import "/home/INTRA/weeksj13/3675/Assign 5/sequent.cmg"
+
+  12 
+  13 Expect 
+  14   cmg.get : String -> (Formula, String)
+  15 
+  16     %: cmg.get of type String -> (Formula, String)
+  17     %: is the same as getFormula.  It allows you
+  18     %: to extract a formula from a string using
+  19     %: a pattern match.  For example,
+  20     %:   Extract $(f).
+  21     %: reads a formula f from the standard input.
+
+--> cmg.get
+              : (String -> (Formula, String))
+              Expect {--public--}
+
+  22     ;
+  23 
+  24   getFormula : String -> (Formula, String)
+  25 
+  26     %: getFormula(s) breaks s into a prefix A that
+  27     %: describes a formula and a suffix B after that.
+  28     %: It converts prefix A into a formula F and yields
+  29     %: result (F,B).
+  30     %:
+  31     %: The following grammar describes a formula.
+  32     %: vblname is any string of letters.
+  33     %:
+  34     %:   formula   -> sum ==> formula
+  35     %:             |  sum
+  36     %:
+  37     %:   sum       -> term \/ sum
+  38     %:             |  term
+  39     %:
+  40     %:   term      -> component /\ term
+  41     %:             |  component
+  42     %:
+  43     %:   component -> - component
+  44     %:             |  ( formula )
+  45     %:             |  vblname
+
+--> parseSequent.getFormula
+              : (String -> (Formula, String))
+              Expect {--public--}
+
+  46     ;
+  47 
+  48   getFormulas: String -> ([Formula], String)
+  49 
+  50     %: getFormulas(s) breaks string s into a prefix A
+  51     %: that is a comma-separated list of formulas
+  52     %: and a suffix B after that.  It converts L
+  53     %: into a list L of formulas and yields (L,B).
+  54     %:
+  55     %: If there are no formulas to get at the
+  56     %: beginning of s, the result is [].
+
+--> parseSequent.getFormulas
+              : (String -> ([Formula], String))
+              Expect {--public--}
+
+  57     ;
+  58 
+  59   cmg.get : String -> (Sequent, String)
+  60 
+  61     %: cmg.get of type String -> (Sequent, String)
+  62     %: is the same as getSequent.  It allows you
+  63     %: to extract a sequent from a string using
+  64     %: a pattern match.  For example,
+  65     %:   Extract $(s).
+  66     %: reads a sequent s from the standard input.
+
+--> cmg.get
+              : (String -> (Sequent, String))
+              Expect {--public--}
+
+  67     ;
+  68 
+  69   getSequent : String -> (Sequent, String)
+  70 
+  71     %: getSequent(s) breaks string s into a prefix A
+  72     %: that is a comma-separated list of formulas
+  73     %: and a suffix B after that.  It converts L
+  74     %: into a list L of formulas and yields (L,B).
+  75     %:
+  76     %: The following grammar describes a sequent.
+  77     %:
+  78     %:   sequent   -> formulas |- formulas
+  79     %:
+  80     %:   formulas  -> formula , formulas
+  81     %:             |  formula
+
+--> parseSequent.getSequent
+              : (String -> (Sequent, String))
+              Expect {--public--}
+
+  82 %Expect
+  83 
+  84 ==================================================
+  85 Expect{--missing--} formula: Formula -> String.
+
+--> parseSequent.formula
+              : (Formula -> String)
+              Expect {--public--}
+
+  86 
+  87 Pattern formula(x) ++ rest =>
+  88   Match (x,r) =~ getFormula(target).
+  89   Match rest  =~ r.
+  90 %Pattern
+
+--> cmg.++
+              : ((String, String) -> String)
+              Pattern {--public--}
+
+  91 
+  92 Pattern formula(x) =>
+  93   Match (x, ~whiteSpace) =~ getFormula(target).
+  94 %Pattern
+
+--> parseSequent.formula
+              : (Formula -> String)
+              Pattern {--public--}
+
+  95 ==================================================
+  96 Expect{--missing--} formulas: [Formula] -> String.
+
+--> parseSequent.formulas
+              : ([Formula] -> String)
+              Expect {--public--}
+
+  97 
+  98 Pattern formulas(x) ++ rest =>
+  99   Match (x,r) =~ getFormulas(target).
+ 100   Match rest  =~ r.
+ 101 %Pattern
+
+--> cmg.++
+              : ((String, String) -> String)
+              Pattern {--public--}
+
+ 102 
+ 103 Pattern formulas(x) =>
+ 104   Match (x, ~whiteSpace) =~ getFormulas(target).
+ 105 %Pattern
+
+--> parseSequent.formulas
+              : ([Formula] -> String)
+              Pattern {--public--}
+
+ 106 ==================================================  
+ 107 Expect{--missing--} sequent: Sequent -> String.
+
+--> parseSequent.sequent
+              : (Sequent -> String)
+              Expect {--public--}
+
+ 108 
+ 109 Pattern sequent(x) ++ rest =>
+ 110   Match (x,r) =~ getSequent(target).
+ 111   Match rest  =~ r.
+ 112 %Pattern
+
+--> cmg.++
+              : ((String, String) -> String)
+              Pattern {--public--}
+
+ 113 
+ 114 Pattern sequent(x) =>
+ 115   Match (x, ~whiteSpace) =~ getSequent(target).
+ 116 %Pattern
+
+--> parseSequent.sequent
+              : (Sequent -> String)
+              Pattern {--public--}
+
+ 117 ==================================================
+ 118   
+ 119 ==============================================================
+ 120                    implementation
+ 121 ==============================================================
+ 122 
+ 123 Import "collect/search".
+
+--> Import "/usr/local/lib/cinnameg/9-0-5/lib/collect/search.cmg"
+
+ 124 
+ 125 ==============================================================
+ 126 %%                     get
+ 127 ==============================================================
+ 128 
+ 129 Define 
+ 130   cmg.get = getFormula;
+
+--> cmg.get
+              : (String -> (Formula, String))
+              Define {--public--}
+
+ 131   cmg.get = getSequent
+ 132 %Define
+
+--> cmg.get
+              : (String -> (Sequent, String))
+              Define {--public--}
+
+ 133 
+ 134 ==============================================================
+ 135 %%                     parse
+ 136 ==============================================================
+ 137 
+ 138 Expect parse: (String -> (<a>, String), 
+ 139                String, 
+ 140                (<a>, <b>) -> <b>,
+ 141                <a> -> <b>,
+ 142                <b>) 
+ 143               -> String -> (<b>, String)
+ 144 
+ 145   %: (parse(getter, opname, op, sgl, nullval) str) breaks
+ 146   %: str into a prefix A and suffix B.  The prefix
+ 147   %: A is a sequence of things extracted by getter,
+ 148   %: separated by occurrence of opname.
+ 149   %:
+ 150   %: If there is only an item from getter (so no occurrence
+ 151   %: of opname is seen) then the item is converted to a
+ 152   %: result A' as sgl(item).
+ 153   %:
+ 154   %: If there is an occurrence of opname, then we see
+ 155   %:   item opname items
+ 156   %: That is converted into a result as op(item, items).
+ 157   %:
+ 158   %: If getter cannot get even one value, yield result
+ 159   %: (nullval, str).
+
+--> private.parse
+              : (((String -> (<a>, String)), String, ((<a>, <b>) -> <b>), (<a> -> <b>), <b>) -> (String -> (<b>, String)))
+              Expect {--private--}
+
+ 160 %Expect
+ 161 
+ 162 Define parse (getter, opname, op, sgl, nullval) = parser |
+ 163   Define parser str =
+ 164     Try*
+ 165       Match (x, ~whiteSpace ++ r1) =~ getter(skipWS(str)).
+ 166     then
+ 167       open If* opname `prefix?` r1 then
+ 168         (x `op` y, r2) |
+ 169           !(y, r2) =~ parser(r1 `lminus` opname).
+ 170       else 
+ 171         (sgl x, r1)
+ 172       %If*
+ 173     else
+ 174       (nullval, str)
+ 175     %Try*
+ 176   %Define
+ 177 %Define
+
+--> private.parse
+              : (((String -> (<a>, String)), String, ((<a>, <b>) -> <b>), (<a> -> <b>), <b>) -> (String -> (<b>, String)))
+              Define {--private--}
+
+ 178 
+ 179 ==============================================================
+ 180 %%                     getFormulas
+ 181 %%                     getFormula
+ 182 %%                     getSum
+ 183 %%                     getTerm
+ 184 ==============================================================
+ 185 
+ 186 Expect getTerm, getSum: String -> (Formula, String).
+
+--> private.getSum
+              : (String -> (Formula, String))
+              Expect {--private--}
+
+--> private.getTerm
+              : (String -> (Formula, String))
+              Expect {--private--}
+
+ 187 
+ 188 Define 
+ 189   getFormulas = parse(getFormula, ",", ::,  singletonList, []);
+
+--> parseSequent.getFormulas
+              : (String -> ([Formula], String))
+              Define {--public--}
+
+ 190 
+ 191   getFormula  = parse(getSum,   "==>", ==>, idf, (:fail testX:));
+
+--> parseSequent.getFormula
+              : (String -> (Formula, String))
+              Define {--public--}
+
+ 192 
+ 193   getSum      = parse(getTerm,  "\\/",  \/,  idf, (:fail testX:));
+
+--> private.getSum
+              : (String -> (Formula, String))
+              Define {--private--}
+
+ 194 
+ 195   getTerm     = parse(getComponent, "/\\",  /\,  idf, (:fail testX:))
+ 196 %Define 
+
+--> private.getTerm
+              : (String -> (Formula, String))
+              Define {--private--}
+
+ 197 
+ 198 ==============================================================
+ 199 %%                     getComponent
+ 200 ==============================================================
+ 201 
+ 202 Expect getComponent: String -> (Formula, String).
+
+--> private.getComponent
+              : (String -> (Formula, String))
+              Expect {--private--}
+
+ 203 
+ 204 Define 
+ 205   case getComponent('-' :: r) = (neg a, r2) |
+ 206     !(a,r2) =~ getComponent(r).
+ 207 
+ 208   case getComponent('(' :: r) = (a, r2) |
+ 209     Match formula(a) ++ ~whiteSpace ++ ")" ++ r2 =~ r.
+ 210     
+ 211   case getComponent(span (=letters) name ++ rest) = (vbl name, rest)
+ 212 
+ 213   case getComponent(?) = fail testX
+ 214 %Define
+
+--> private.getComponent
+              : (String -> (Formula, String))
+              Define {--private--}
+
+ 215 
+ 216 ==============================================================
+ 217 %%                     getSequent
+ 218 ==============================================================
+ 219 
+ 220 Define getSequent(str) = (lhs |- rhs, rest) |
+ 221   Match formulas(lhs) ++ ~whiteSpace ++ "|-" ++ formulas(rhs) ++ rest = str.
+ 222 %Define
+
+--> parseSequent.getSequent
+              : (String -> (Sequent, String))
+              Define {--public--}
+
+ 223 
+ 224 %Package
+

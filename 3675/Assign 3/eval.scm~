@@ -1,0 +1,14 @@
+(define (eval-expr E)
+  (cond
+    ((number? E) E)
+    ((eqv? (car E) 'plus)  (apply + (eval-params (cdr E))))
+    ((eqv? (car E) 'times) (apply * (eval-params (cdr E))))
+    (else '())             ; confused - return ()
+  )
+)
+
+(define (eval-params E)
+  (if (null? E) '()
+  (cons (eval-expr (car E)) (eval-params (cdr E)))
+  )
+)

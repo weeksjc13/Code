@@ -1,0 +1,327 @@
+%% Name: Josh Weeks
+%% Date: 9/21/16
+%% Tabs: none
+
+Package arithmetic
+
+%% This package provides functions for working with integers,
+%% represented as binary lists.
+%% Lists begin with the low order end of the number.
+%% For example, list [1,1,0,0,1] stands for the binary number
+%% 10011, or 19 in decimal.
+%%
+%% A list is *normalized if it does not end on 0.  All of the
+%% following functions produce normalized results, even if the
+%% parameter(s) are not normalized.
+
+================================================================
+                        export
+================================================================
+
+Abbrev Bit = Integer.
+
+Expect
+  inc           : [Bit] -> [Bit]
+
+                %: inc(x) is x+1, where both x and the result are
+                %: binary numbers represented as lists.
+                %: For example inc([1,0,1,1]) = [0,1,1,1]
+                ;
+
+  dec           : [Bit] -> [Bit]
+
+                %: dec(x) = max(0, x-1), where x and the result are
+                %: binary numbers represented as lists.
+                ;
+
+  sum           :  ([Bit], [Bit]) -> [Bit]
+
+                %: sum(x,y) = x + y, where x, y and the result are
+                %: binary numbers represented as lists.  For example,
+                %: sum([0,1,1], [1,1,1]) = [1,0,1,1].  (6 + 7 = 13)
+                ;
+
+ diff          :  ([Bit], [Bit]) -> [Bit]
+
+                %: diff(x,y) = max(0, x - y), where x, y and the result are
+                %: binary numbers represented as lists.  For example,
+                %: diff([1,1,1], [0,1,1]) = [1]  (7 - 6 = 1) and
+                %: diff([0,1,1], [1,1,1]) = []  (6 - 7 = 0).
+                ;
+
+  product       : ([Bit], [Bit]) -> [Bit]
+
+                %: product(x,y) = x * y, where x, y and the result are
+                %: binary numbers represented as lists.  For example,
+                %: product([1,1], [1,1]) = [1,0,0,1].  (3*3 = 9)
+                ;
+
+  compareInts   : ([Bit], [Bit]) -> Char
+
+                %: compareInts(x,y) yields
+                %:    '<'  if x < y
+                %:    '='  if x = y
+                %:    '>'  if x > y
+                %: where x and y are binary numbers represented as
+                %: lists.  For example, compareInts([0,0,1,1], [0,1,0,1])
+                %: yields '>', since 12 > 10.
+  
+%Expect
+
+================================================================
+                        implementation
+================================================================
+
+Import removeTrailing from "collect/list".
+Define normalize = removeTrailing 0.
+
+===============================================================
+%%                    inc(x)
+%% adds 1 to a binary number x
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+%% incn is similar to inc, but does not normalize its result.
+%% (n stands for non-normalizing)
+
+Define 
+  ----------------------------------------------
+  %% 0 + 1 = 1
+  case incn []       = [1]
+  ----------------------------------------------
+  %% (2t) + 1 = 2t + 1
+  case incn (0 :: t) = 1 :: t
+  ----------------------------------------------
+  %% (2t+1) + 1 = 2(t+1)
+  case incn (1 :: t) = 0 :: incn t
+  ----------------------------------------------
+%Define
+
+Define inc x = normalize(incn x).
+
+Example inc [1,1,0,1,1,0,0] = [0,0,1,1,1].
+Example inc [1] = [0,1].
+Example inc [1,0,0] = [0,1].
+
+===============================================================
+%%                    dec(x)
+%% subtracts 1 from a binary number x
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+%% decn is similar to inc, but does not normalize its result.
+%% (n stands for non-normalizing)
+
+Define 
+  ----------------------------------------------
+  %% 0 - 1 = 0
+  case decn []       = []
+  ----------------------------------------------
+  %% 1 - 1 = 0 concatinated with the tail
+  case decn (1 :: t) = 0 :: t
+  ----------------------------------------------
+  %% 0 - 1 = 1
+  case decn (0 :: t) = 1 :: decn t
+  ----------------------------------------------
+%Define
+
+Define dec x = normalize(decn x).
+
+Example dec [1,1,0,1,1,0,0] = [0,1,0,1,1].
+Example dec [0,0,0,1] = [1,1,1].
+Example dec [1] = [].
+Example dec [1,0,0] = [].
+
+===============================================================
+%%                    sum(x,y)
+%% addition of binary numbers x and y
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+
+Define 
+  ----------------------------------------------
+  %% an empty list added to an empty list will result in an empty list
+  case sumn ([], [])     = []
+  ----------------------------------------------
+  %% an empty list added to a list y will result in the list y
+  case sumn ([], y)     = y
+  ----------------------------------------------
+  %% a list x added to an empty list will result in the list x
+  case sumn (x, [])     = x
+  ----------------------------------------------
+  %% 0 + 0 = 0
+  case sumn (0 :: x, 0 :: y) = 0 :: sumn (x, y)
+  ----------------------------------------------
+  %% 1 + 1 = 0 carry is handled by incrementing x
+  case sumn (1 :: x, 1 :: y) = 0 :: sumn (inc(x), y)
+  ----------------------------------------------
+  %% 1 + 0 = 1
+  case sumn (1 :: x, 0 :: y) = 1 :: sumn (x, y)
+  ----------------------------------------------
+  %% 0 + 1 = 1
+  case sumn (0 :: x, 1 :: y) = 1 :: sumn (x, y)
+  ----------------------------------------------
+%Define
+
+Define sum (x, y) = normalize(sumn(x, y)).
+
+Example sum ([0,1,0,1,1,0,0], [1]) = [1,1,0,1,1].
+Example sum ([1], [0,1]) = [1,1].
+Example sum ([0,0,1], [1]) = [1,0,1].
+
+===============================================================
+%%                    compareInts(x, y)
+%% x and y are binary numbers
+%% if x > y returns '>'
+%% if x < y returns '<'
+%% if x = y returns '='
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+Define
+  ----------------------------------------------
+  %% empty set is equal to empty set
+  case compareInts ([], [])     = '='
+  ----------------------------------------------
+  %% head of 0 is equal to the head of 0, it will be equal if the rest of the list is also equal
+  case compareInts (0 :: x, 0 :: y)     = '=' when compareInts(x, y) == '='
+  ----------------------------------------------
+  %% head of 1 is equal to head of 1, it will be equal if the rest of the list is also equal
+  case compareInts (1 :: x, 1 :: y)     = '=' when compareInts(x, y) == '='
+  ----------------------------------------------
+  %% if there are all zeroes on a list it is possible the lists are equivelent (account for non normalized list)
+  case compareInts (0 :: x, [])     = '=' when compareInts(x, []) == '='
+  ----------------------------------------------
+  %% a list can be greater than the empty list when reading a zero if the rest of the list is greater than the empty list
+  case compareInts (0 :: x, [])     = '>' when compareInts(x, []) == '>'
+  ----------------------------------------------
+  %% if there are all zeroes on a list it is possible the lists are equivelent (account for non normalized list)
+  case compareInts ([], 0 :: y)     = '=' when compareInts([], y) == '='
+  ----------------------------------------------
+  %% a list can be greater than the empty list when reading a zero if the rest of the list is greater than the empty list
+  case compareInts ([], 0 :: y)     = '<' when compareInts([], y) == '<'
+  ----------------------------------------------
+  %% if a list has a 1 at the head and the other list is empty, the list with the 1 will always be greater
+  case compareInts ([], 1 :: ?)     = '<' 
+  ----------------------------------------------
+  %% if a list has a 1 at the head and the other list is empty, the list with the 1 will always be greater
+  case compareInts (1 :: ?, [])     = '>'
+  ----------------------------------------------
+  %% the head of the lists are 0 and x does not equal y therefore '<' if x <= y
+  case compareInts (0 :: x, 0 :: y)     = '<' when compareInts(x, y) == '<'
+  ----------------------------------------------
+  %% the head of the lists are 0 and x does not equal y therefore '>' if x >= y
+  case compareInts (0 :: x, 0 :: y)     = '>' when compareInts(x, y) == '>'
+  ----------------------------------------------
+  %% the head of the lists are 1 and x does not equal y therefore '<' if x < y
+  case compareInts (1 :: x, 1 :: y)     = '<' when compareInts(x, y) == '<' 
+  ---------------------------------------------
+  %% the head of the lists are 0 and x does not equal y therefore '>' if x > y
+  case compareInts (1 :: x, 1 :: y)     = '>' when compareInts(x, y) == '>'
+  ----------------------------------------------
+  %% the head of the first list is 0 and the second is 1 therefore '<' if x <= y
+  case compareInts (0 :: x, 1 :: y)     = '<' when compareInts(x, y) =/= '>'
+  ----------------------------------------------
+  %% the head of the first list is 0 and the second is 1 therefore '>' if x <= y
+  case compareInts (0 :: x, 1 :: y)     = '>' when compareInts(x, y) =/= '<'
+  ----------------------------------------------
+  %% the head of the first list is 1 and the second is 0 therefore '>' if x >= y
+  case compareInts (1 :: x, 0 :: y)     = '>' when compareInts(x, y) =/= '<'
+  ----------------------------------------------
+  %% the head of the first list is 1 and the second is 0 therefore '<' if x >= y
+  case compareInts (1 :: x, 0 :: y)     = '<' when compareInts(x, y) =/= '>'
+  ----------------------------------------------
+%Define
+
+Example compareInts ([0,1,0,1,1,0,0], [1]) = '>'.
+Example compareInts ([1], [0, 1]) = '<'.
+Example compareInts ([1,0,1], [1,1,1]) = '<'.
+Example compareInts ([1,0,1], [1,1]) = '>'.
+Example compareInts ([], []) = '='.
+Example compareInts ([1], []) = '>'.
+Example compareInts ([], [1]) = '<'.
+Example compareInts ([0,0,0], [0]) = '='.
+Example compareInts ([0,0,0,0,0,0], []) = '='.
+
+===============================================================
+%%                    diff(x,y)
+%% the difference of binary numbers x and y (x subtract y)
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+Define
+  ----------------------------------------------
+  %% when x <= y the difference will always be 0 ([])
+  case diffn (x, y)     = [] when compareInts(x, y) =/= '>'
+  ----------------------------------------------
+  %% when a list (x) subtracts an empty list it will always be the list (x)
+  case diffn (x, [])     = x
+  ----------------------------------------------
+  %% 0 - 0 = 0 concatinated to the difference of tails x and y
+  case diffn (0 :: x, 0 :: y) = 0 :: diffn (x, y)
+  ----------------------------------------------
+  %% 1 - 0 = 1 concatinated to the difference of tails x and y
+  case diffn (1 :: x, 0 :: y) = 1 :: diffn (x, y)
+  ----------------------------------------------
+  %% 1 - 1 = 0 concatinated to the difference of tails x and y if x >= y
+  case diffn (1 :: x, 1 :: y) = 0 :: diffn (x, y) when compareInts(x, y) =/= '<'
+  ----------------------------------------------
+  %% 0 - 1 = 0 concatinated to the difference of tails x and y if x < y
+  case diffn (0 :: x, 1 :: y) = 0 :: diffn (x, y) when compareInts(x, y) == '<'
+  ----------------------------------------------
+  %% %% 0 - 1 = 0 concatinated to the difference of tails x and y if x >= y (case accounts for the borrow)
+  case diffn (0 :: x, 1 :: y) = 1 :: diffn (dec(x), y) when compareInts(x, y) =/= '<'
+  ----------------------------------------------
+%Define
+
+Define diff (x, y) = normalize(diffn(x, y)).
+
+Example diff ([0], [1]) = [].
+Example diff ([], [1,1,1]) = [].
+Example diff ([1,1,1], []) = [1,1,1].
+Example diff ([1,0,1], [1, 1]) = [0, 1].
+Example diff ([0,0,0,0,1], [1,0,1]) = [1,1,0,1].
+Example diff ([1,0,1],  []) = [1,0,1].
+
+===============================================================
+%%                    product(x,y)
+%% the product of two binary numbers x and y
+%% binary number represented in reverse order 100 = 001
+%% normalized result
+===============================================================
+
+Define
+  ----------------------------------------------
+  %% 0 * 0 = 0
+  case productn ([], [])     = []
+  ----------------------------------------------
+  %% 0 * anything = 0
+  case productn ([], ?)     = []
+  ----------------------------------------------
+  %% anything * 0 = 0
+  case productn (?, [])     = []
+  ----------------------------------------------
+  %% 0 at the beginning of the first list adds a zero to the list and does the product of the tail of the first list and the entire list y
+  case productn (0 :: x, y) = 0 :: productn (x, y)
+  ----------------------------------------------
+  %% 1 at the beginning of the first list does the sum of a zero concatinated to the product of list x and y PLUS the list y
+  case productn (1 :: x, y) = sum(0 :: productn (x, y), y)
+  ----------------------------------------------
+%Define
+
+Define product (x, y) = normalize(productn(x, y)).
+
+Example product ([0,1,1], [1,0,0,0,1]) = [0,1,1,0,0,1,1].
+Example product ([0], [1,0,1]) = [].
+Example product ([], []) = [].
+Example product ([1,0,1], [0]) = [].
+Example product ([0,0,0,1], [1,1,1,1]) = [0,0,0,1,1,1,1].
+
+%Package
+

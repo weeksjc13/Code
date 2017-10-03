@@ -1,0 +1,129 @@
+Sat Oct 15 18:37:23 2016
+ECU Cinnameg, version 9.0.5 (byte code version 73)
+File /home/INTRA/weeksj13/3675/Assign 4/testderiv.cmg
+
+
+   1 %% Name: Josh Weeks
+   2 %% Date: 10/15/16
+   3 %% Tabs: no tabs
+   4 
+   5 Package testderiv
+   6 
+   7 %% Test the derivative program.
+   8 
+   9 Import "deriv".
+
+--> Import "/home/INTRA/weeksj13/3675/Assign 4/deriv.cmg"
+
+  10 
+  11 ====================================================
+  12 %% Simplify tests
+  13 ====================================================
+  14 
+  15 Define ShowSimplify(e). =
+  16   Writeln[$(e), " = ", $(simplify e)].
+  17 %Define
+
+--> Private.ShowSimplify
+              : (Expression -> ())
+              Define {--private--}
+
+  18 
+  19 Execute
+  20   
+  21   Writeln.
+  22 
+  23   Writeln["Simplify tests ... Sum\n--------------"].
+  24 
+  25   ShowSimplify constant(2) + constant(5).
+  26   ShowSimplify constant(2) + constant(5) + constant(6).
+  27   ShowSimplify xx + constant(0).
+  28   ShowSimplify constant(0) + xx.
+  29 
+  30   Writeln.
+  31 
+  32   Writeln["Simplify tests ... Difference\n--------------"].
+  33 
+  34   ShowSimplify constant(5) - constant(2).
+  35   ShowSimplify constant(10) - constant(5) - constant(6).
+  36   ShowSimplify xx - constant(0).
+  37   ShowSimplify constant(0) - xx.
+  38 
+  39   Writeln.
+  40   
+  41   Writeln["Simplify tests ... Product\n--------------"].
+  42 
+  43   ShowSimplify constant(5) * constant(2).
+  44   ShowSimplify constant(10) * constant(5) * constant(1).
+  45   ShowSimplify xx * constant(0).
+  46   ShowSimplify constant(0) * xx.
+  47   ShowSimplify xx * constant(1).
+  48   ShowSimplify constant(1) * xx.
+  49   
+  50   Writeln.
+  51   
+  52   Writeln["Simplify tests ... Exponentiation\n--------------"].
+  53 
+  54   ShowSimplify constant(0) ^ constant(0).
+  55   ShowSimplify constant(3) ^ constant(4).
+  56   ShowSimplify xx ^ constant(0).
+  57   ShowSimplify xx ^ constant(1).
+  58   ShowSimplify xx ^ constant(2).
+  59 
+  60   Writeln.
+  61   Writeln.
+  62 
+  63 %Execute
+  64 
+  65 ====================================================
+  66 %% Deriv tests
+  67 ====================================================
+  68 
+  69 Define ShowDeriv(e). =
+  70   Writeln["(", $(e), ")' = ",   $ deriv(e)].
+  71 %Define
+
+--> Private.ShowDeriv
+              : (Expression -> ())
+              Define {--private--}
+
+  72 
+  73 Execute
+  74 
+  75   Writeln["Deriv tests ... Sum\n----------"].
+  76 
+  77   ShowDeriv constant(4) + xx.
+  78   ShowDeriv xx + xx.  
+  79 
+  80   Writeln.
+  81   
+  82   Writeln["Deriv tests ... Difference\n----------"].
+  83   
+  84   ShowDeriv constant(4) - xx.
+  85   ShowDeriv xx - xx.  
+  86 
+  87   Writeln.
+  88 
+  89   Writeln["Deriv tests ... Product\n----------"].
+  90   
+  91   ShowDeriv constant(4) * xx.
+  92   ShowDeriv (constant(5) * xx) * (constant(2) * xx).  
+  93   ShowDeriv xx * xx.  
+  94 
+  95   Writeln.
+  96 
+  97   Writeln["Deriv tests ... Exponentiation\n----------"].
+  98 
+  99   ShowDeriv xx ^ constant(1).
+ 100   ShowDeriv xx ^ constant(3).
+ 101   ShowDeriv constant(5) * xx ^ constant(2).  
+ 102   ShowDeriv constant(5) * xx ^ constant(3) + constant(2) * xx ^ constant(5).
+ 103   ShowDeriv (constant(5) * xx - constant(2)) ^ constant(3).
+ 104   
+ 105   Writeln.
+ 106 
+ 107 %Execute
+ 108 
+ 109 %Package
+ 110 
+

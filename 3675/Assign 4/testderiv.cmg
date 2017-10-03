@@ -1,0 +1,110 @@
+%% Name: Josh Weeks
+%% Date: 10/15/16
+%% Tabs: no tabs
+
+Package testderiv
+
+%% Test the derivative program.
+
+Import "deriv".
+
+====================================================
+%% Simplify tests
+====================================================
+
+Define ShowSimplify(e). =
+  Writeln[$(e), " = ", $(simplify e)].
+%Define
+
+Execute
+  
+  Writeln.
+
+  Writeln["Simplify tests ... Sum\n--------------"].
+
+  ShowSimplify constant(2) + constant(5).
+  ShowSimplify constant(2) + constant(5) + constant(6).
+  ShowSimplify xx + constant(0).
+  ShowSimplify constant(0) + xx.
+
+  Writeln.
+
+  Writeln["Simplify tests ... Difference\n--------------"].
+
+  ShowSimplify constant(5) - constant(2).
+  ShowSimplify constant(10) - constant(5) - constant(6).
+  ShowSimplify xx - constant(0).
+  ShowSimplify constant(0) - xx.
+
+  Writeln.
+  
+  Writeln["Simplify tests ... Product\n--------------"].
+
+  ShowSimplify constant(5) * constant(2).
+  ShowSimplify constant(10) * constant(5) * constant(1).
+  ShowSimplify xx * constant(0).
+  ShowSimplify constant(0) * xx.
+  ShowSimplify xx * constant(1).
+  ShowSimplify constant(1) * xx.
+  
+  Writeln.
+  
+  Writeln["Simplify tests ... Exponentiation\n--------------"].
+
+  ShowSimplify constant(0) ^ constant(0).
+  ShowSimplify constant(3) ^ constant(4).
+  ShowSimplify xx ^ constant(0).
+  ShowSimplify xx ^ constant(1).
+  ShowSimplify xx ^ constant(2).
+
+  Writeln.
+  Writeln.
+
+%Execute
+
+====================================================
+%% Deriv tests
+====================================================
+
+Define ShowDeriv(e). =
+  Writeln["(", $(e), ")' = ",   $ deriv(e)].
+%Define
+
+Execute
+
+  Writeln["Deriv tests ... Sum\n----------"].
+
+  ShowDeriv constant(4) + xx.
+  ShowDeriv xx + xx.  
+
+  Writeln.
+  
+  Writeln["Deriv tests ... Difference\n----------"].
+  
+  ShowDeriv constant(4) - xx.
+  ShowDeriv xx - xx.  
+
+  Writeln.
+
+  Writeln["Deriv tests ... Product\n----------"].
+  
+  ShowDeriv constant(4) * xx.
+  ShowDeriv (constant(5) * xx) * (constant(2) * xx).  
+  ShowDeriv xx * xx.  
+
+  Writeln.
+
+  Writeln["Deriv tests ... Exponentiation\n----------"].
+
+  ShowDeriv xx ^ constant(1).
+  ShowDeriv xx ^ constant(3).
+  ShowDeriv constant(5) * xx ^ constant(2).  
+  ShowDeriv constant(5) * xx ^ constant(3) + constant(2) * xx ^ constant(5).
+  ShowDeriv (constant(5) * xx - constant(2)) ^ constant(3).
+  
+  Writeln.
+
+%Execute
+
+%Package
+

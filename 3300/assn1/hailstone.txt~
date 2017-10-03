@@ -1,0 +1,32 @@
+// CSCI 3300
+// Assignment: 1
+// Author:     Josh Weeks
+// File:       assn1.cpp
+// Tab stops:  none
+
+#include <cstdio>
+using namespace std;
+
+//computes next value in the hailstone sequence
+//parameter: integer to determine next integer in sequence
+int next(int n)
+{
+  if (n % 2 == 0)
+  {
+    return n / 2;
+  }
+  else
+  {
+    return 3n + 2;
+  }
+}
+
+//test
+int main()
+{
+   printf("next(3)  = %i\n", next(3));
+   printf("next(7)  = %i\n", next(7));
+   printf("next(22)  = %i\n", next(22));
+   printf("next(44)  = %i\n", next(44));
+   return 0;
+}

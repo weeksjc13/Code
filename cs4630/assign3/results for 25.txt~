@@ -1,0 +1,50 @@
+Produced: buffer[0]: 62
+Produced: buffer[1]: 98
+Produced: buffer[2]: 63
+Produced: buffer[3]: 57
+Produced: buffer[4]: 87
+Produced: buffer[5]: 21
+Produced: buffer[6]: 1
+Produced: buffer[7]: 71
+Produced: buffer[8]: 6
+Produced: buffer[9]: 7
+Consumed: buffer[0]: 62   Squared: 3844
+Consumed: buffer[1]: 98   Squared: 9604
+Consumed: buffer[2]: 63   Squared: 3969
+Consumed: buffer[3]: 57   Squared: 3249
+Consumed: buffer[4]: 87   Squared: 7569
+Consumed: buffer[5]: 21   Squared: 441
+Consumed: buffer[6]: 1   Squared: 1
+Consumed: buffer[7]: 71   Squared: 5041
+Consumed: buffer[8]: 6   Squared: 36
+Consumed: buffer[9]: 7   Squared: 49
+Produced: buffer[0]: 16
+Produced: buffer[1]: 19
+Produced: buffer[2]: 45
+Produced: buffer[3]: 66
+Produced: buffer[4]: 38
+Produced: buffer[5]: 98
+Produced: buffer[6]: 83
+Consumed: buffer[0]: 16   Squared: 256
+Consumed: buffer[1]: 19   Squared: 361
+Consumed: buffer[2]: 45   Squared: 2025
+Consumed: buffer[3]: 66   Squared: 4356
+Consumed: buffer[4]: 38   Squared: 1444
+Consumed: buffer[5]: 98   Squared: 9604
+Consumed: buffer[6]: 83   Squared: 6889
+Produced: buffer[7]: 71
+Produced: buffer[8]: 46
+Produced: buffer[9]: 87
+Produced: buffer[0]: 91
+Produced: buffer[1]: 91
+Produced: buffer[2]: 88
+Produced: buffer[3]: 74
+Produced: buffer[4]: 77
+Consumed: buffer[7]: 71   Squared: 5041
+Consumed: buffer[8]: 46   Squared: 2116
+Consumed: buffer[9]: 87   Squared: 7569
+Consumed: buffer[0]: 91   Squared: 8281
+Consumed: buffer[1]: 91   Squared: 8281
+Consumed: buffer[2]: 88   Squared: 7744
+Consumed: buffer[3]: 74   Squared: 5476
+Consumed: buffer[4]: 77   Squared: 5929

@@ -1,0 +1,19 @@
+CFLAGS = -g -Wall -Wshadow -O
+CC     = g++
+LINK   = g++
+
+testpq: testpq.o pqueue.o
+	$(LINK) -o testpq  testpq.o pqueue.o 
+
+testpq.o: testpq.cpp pqueue.h
+	$(CC) $(CFLAGS) -c testpq.cpp
+
+pqueue.o: pqueue.cpp pqueue.h
+	$(CC) $(CFLAGS) -c pqueue.cpp
+
+clean: 
+	rm testpq testpq.o pqueue.o
+
+run:
+	./testpq
+d
