@@ -1,0 +1,157 @@
+<html>
+<head>
+  <title> Programming assignment 5, Computer Science 3675 </title>
+  <link rel="stylesheet" href="../assignment.css" type="text/css">
+</head>
+<body>
+<h2>
+   Computer Science 3675<br>
+   Fall 2017<br>
+   Section 001<br>
+   Programming Assignment 5
+</h2>
+
+<div align="center">
+<table> 
+  <tr> 
+    <td><b>Assigned:</b></td>
+    <td>Wednesday, October 16</td>
+  </tr>
+  <tr>
+    <td><b>Due:</b></td>
+    <td>Monday, October 23, 11:59pm</td>
+  </tr>
+</table>
+</div>
+
+<h3>
+  Purpose of this assignment
+  <hr class="heading">
+</h3>
+
+<p>This assignment exposes you to backtracking as a 
+control structure.
+</p>
+
+<h3>
+  The assignment
+  <hr class="heading">
+</h3>
+
+<p>Write a Cinnameg program to solve the <i>n</i>-queens problem using backtracking.  
+</p>
+
+<p>The problem is to place <i>n</i> queens on an 
+<i>n</i>&times;<i>n</i> 
+chess board in 
+such a way that no two queens are attacking one another.  
+A queen attacks another queen that is in the same row or same column or
+same diagonal.  So, to solve the problem,
+there must be exactly one queen in each row and
+one queen in each column.  Also, there cannot be two queens
+on the same diagonal.
+</p>
+
+<p>This program asks the user for <i>n</i>, and shows <i>all</i> possible
+solutions.  For example, if <i>n</i> is 5, one of the solutions that
+is printed is
+<pre>
+       Q . . . .
+       . . Q . .
+       . . . . Q
+       . Q . . .
+       . . . Q .
+</pre>
+where a dot represents an empty square and a Q represents a queen.
+At the end, the program should tell how many solutions it found.
+</p>
+
+<h3>
+  How to do it
+  <hr class="heading">
+</h3>
+
+<p>Package 
+<a href="nqueens-tools.cmg">nqueens-tools.cmg</a> contains tools for 
+you to use.  Import it in your program.  Just write
+<pre>
+  Import &quot;nqueens-tools&quot;.
+</pre>
+Look at the file to see what it provides.
+</p>
+
+<p>Now write the program so that it places a queen in every row.  
+Use standard function 'each' to select a column for the queen.
+<pre>
+   !x = each [1,2,3,4].
+</pre>
+causes the current thread to fork into four branches, one where <i>x</i> is 1,
+another where <i>x</i> is 2, another where <i>x</i> is 3 and a last one where <i>x</i> is 4.
+<i>Before adding the queen to the board</i>, make sure that the chosen
+position is not under attack by a queen that is already on the board.
+</p>
+
+<p>Remember that you need to put one queen in <i>every</i> row, but in a given
+row, you only want to put a queen in <i>one</i> column.  So you need to
+treat the rows differently from the columns.
+</p>
+
+<p>After successfully placing all of the queens on the board, print the board.
+There will generally be several boards printed, so do not run them together.
+Print a line between them.
+</p>
+
+<p>After printing a board, you will need to get the next solution.
+Make the program fail.  That will cause it to backtrack and to look
+for another solution.
+You can cause a failure using
+<pre>
+  Ensure false.
+</pre>
+Wrap the entire body of your Execute block by Try ... %Try to catch
+the final failure.  You do not need to say what to do to handle
+the failure.  The default is to do nothing.
+</p>
+
+<h3>
+  Nonshared boxes
+  <hr class="heading">
+</h3>
+
+<p>This program represents an <i>n</i>&times;<i>n</i> chess board as a matrix (a
+two-dimensional array).  Each member of the matrix is a box, or variable,
+that holds a boolean value, with value <b>true</b> indicating the 
+presence of a queen, and <b>false</b> indicating the absence of a queen.
+</p>
+
+<p>The boxes in the array are <i>nonshared</i>.  This means that,
+when an assignment to one of these boxes is backtracked over, the
+assignment is undone, and the box is restored to its previous value.
+So different branches of the backtracking computation
+will not interfere with one another.
+</p>
+
+<p>You will want to count the number of solutions.  For that, use
+a shared box, so that changes that you make to it will not be
+undone.  You can create a shared box, initialized to 0, using
+<pre>
+  Var{--shared--} count = 0.
+</pre>
+</p>
+
+<h3>
+  Submitting the program
+  <hr class="heading">
+</h3>
+
+<p>Submit your program
+in the usual way, using the submit program.  Be sure to indicate that
+the assignment number is 5.
+</p>
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

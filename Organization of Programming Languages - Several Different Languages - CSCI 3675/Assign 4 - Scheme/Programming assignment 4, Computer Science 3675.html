@@ -1,0 +1,260 @@
+<html>
+<head>
+  <title> Programming assignment 4, Computer Science 3675 </title>
+  <link rel="stylesheet" href="../assignment.css" type="text/css">
+</head>
+<body>
+<h2>
+   Computer Science 3675<br>
+   Section 001<br>
+   Fall 2017<br>
+   Programming Assignment 4
+</h2>
+
+<div align="center">
+<table> 
+  <tr> 
+    <td><b>Assigned:</b></td>
+    <td>Wednesday, October 4</td>
+  </tr>
+  <tr>
+    <td><b>Due: </b></td>
+    <td>Monday, October 16, 11:59pm</td>
+  </tr>
+</table>
+</div>
+
+<h3>
+  Purpose of this assignment
+  <hr class="heading">
+</h3>
+
+<p>This assignment gives you experience using Lisp syntax
+and writing in a typeless language.  You will need to be
+cautious since the compiler does not perform any type checking.
+</p>
+
+<p>You will use Scheme, a language in the Lisp family.
+You can read in the book about Scheme, or see the
+<a href="http://www-swiss.ai.mit.edu/~jaffer/r5rs_toc.html">Scheme Report</a>
+for a more definitive and complete source.
+</p>
+
+<p>To use Scheme, you will find Racket convenient.  You can get it
+from  
+<a href="http://racket-lang.org/">racket-lang.org</a>.
+When you run it, set the language to R5RS Scheme
+(under legacy languages).
+</p>
+
+<p>A Scheme comment begins with a semicolon and ends at
+the end of the line.
+</p>
+
+<h3>
+  Expressions
+  <hr class="heading">
+</h3>
+
+<p>We will use expressions that allow numeric constants, symbol x and
+operators +, -, * and ^.  For example,
+'(- x (* x 3)) is expression x - 3x in Scheme.  (^ <i>A</i> <i>B</i>) stands
+for <i>A</i><sup><i>B</i></sup>
+</p>
+
+<h3>
+  Derivatives 
+  <hr class="heading">
+</h3>
+
+<p>The <span class="term">derivative</span> of an expression is a concept from calculus.
+You take the derivative of a function of <i>x</i> (given as an expression
+involving <i>x</i>), and the answer is another function
+of <i>x</i> (also given as an expression involving <i>x</i>.
+</p>
+
+<p>The derivative of <i>x</i> (with respect to <i>x</i>) is 1, and
+the derivative of expression <i>x</i><sup>2</sup> is 2<i>x</i>.  
+If you are unfamiliar with derivatives, the general rules 
+that are needed here are given below.
+</p>
+
+<p>Symbolic mathematics packages such as Mathematica, Maple and Derive
+will take derivatives for you.  They do so symbolically, in the
+same way as you do when you are doing it by hand.
+</p>
+
+<h3>
+  Rules for derivatives
+  <hr class="heading">
+</h3>
+
+<p>The rules for taking the derivative <i>a</i>&prime; of an expression <i>a</i>
+(with respect to <i>x</i>) are as follows.  
+Here, <i>c</i> is a constant and <i>x</i> is the independent
+variable.
+</p>
+
+<div align="center">
+<table>
+  <tr> <td align=right><i>c</i>&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left> 0</td>
+  </tr>
+  <tr> <td align=right><i>x</i>&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left> 1</td>
+  </tr>
+  <tr> <td align=right>(<i>a</i>+<i>b</i>)&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left> <i>a</i>&prime; + <i>b</i>&prime;</td>
+  </tr>
+  <tr> <td align=right>(<i>a</i> &minus; <i>b</i>)&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left> <i>a</i>&prime; &minus; <i>b</i>&prime;</td>
+  </tr>
+  <tr> <td align=right>(<i>ab</i>)&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left> <i>a</i>(<i>b</i>&prime;) + (<i>a</i>&prime;)<i>b</i></td>
+  </tr>
+  <tr> <td align=right>(<i>a</i><sup><i>c</i></sup>)&prime;</td>    
+       <td align=center>&nbsp;=&nbsp;</td> 
+       <td align=left><i>ca</i><sup><i>c</i>-1</sup><i>a</i>&prime; </td>
+  </tr>
+</table>
+</div>
+
+<p>Note that there is no rule here for computing (<i>a</i><sup><i>b</i></sup>)&prime;
+for an arbitrary expression <i>b</i>.  The rule given only works when the exponent
+is a constant.
+</p>
+
+
+<h3>
+  Simplification
+  <hr class="heading">
+</h3>
+
+<p>The derivative rules can lead to some rather silly looking
+expressions.  If you apply them exactly as stated, you find
+that the derivative of 2+3*<i>x</i> is 0 + 3*1 + 0*<i>x</i>.  It is
+nice to do some simplifications.
+Do <i>at least</i> the following simplifications.
+</p>
+
+<div align="center">
+<table>
+  <tr>
+     <td align=right><i>y</i> + 0</td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right>0 + <i>y</i></td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right><i>y</i> &minus; 0</td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right>0 * <i>y</i></td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left>0</td>
+  </tr>
+  <tr>
+     <td align=right><i>y</i> * 0</td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left>0</td>
+  </tr>
+  <tr>
+     <td align=right>1 * <i>y</i></td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right><i>y</i> * 1</td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right><i>y</i> ^ 1</td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left><i>y</i></td>
+  </tr>
+  <tr>
+     <td align=right><i>1</i> ^ <i>y</i></td>
+     <td align=center>&nbsp;=&nbsp;</td> 
+     <td align=left>1</td>
+  </tr>
+</table>
+</div>
+
+<p>Also perform constant arithmetic.  For example,
+expression 3*4 should be simplified to 12.
+Expression 3^4 should be simpified to 81.
+</p>
+
+<h3>
+  The assignment
+  <hr class="heading">
+</h3>
+
+<p>For this assignment, you will write a Scheme program to compute
+the derivative of an expression.  Write the following functions,
+as well as any helper functions that are useful in keeping
+function definitions short.  Avoid long function definitions.
+</p>
+
+<ol>
+  <li>
+    <p>(deriv <i>E</i>) returns the derivative of <i>E</i> as
+    obtained directly from the rules, without any simplification.
+    If <i>E</i> is a power expression that deriv cannot handle,
+    it should return (deriv <i>E</i>), as a list whose head is
+    the symbol deriv.
+    </p>
+  </li>
+
+  <li>
+    <p>(simplify <i>E</i>) returns a (possibly) simplified version of <i>E</i>.
+    Use at least the simplifications shown above.
+    </p>
+
+    <p><b><i>Do not try to write an industrial grade simplifier.</i></b>
+    The results that you get will not satisfy a calculus teacher, but
+    that is okay.
+    </p>
+  </li>
+
+  <li>
+    <p>(derivative <i>E</i>) returns the result of simplifying (deriv <i>E</i>).
+    </p>
+  </li>
+</ol>
+
+
+<h3>
+  Submitting the program
+  <hr class="heading">
+</h3>
+
+<p>Please call your program deriv.scm.  Submit this assignment using command
+<pre>
+  ~abrahamsonk/3675/bin/submit 4 deriv.scm
+</pre>
+Command
+<pre>
+   ~abrahamsonk/3675/bin/submit 4
+</pre>
+will tell you what you have submitted.
+</p>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>
+

@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title> Programming assignment 7, Computer Science 3675 </title>
+  <link rel="stylesheet" href="../assignment.css" type="text/css">
+</head>
+
+<body>
+<h2>
+  Computer Science 3675<br>
+  Section 001<br>
+  Fall 2017<br>
+  Programming Assignment 7
+</h2>
+
+<div align="center">
+<table> 
+  <tr> 
+    <td><b>Assigned:</b></td>
+    <td>Wednesday, November 1</td>
+  </tr>
+  <tr>
+    <td><b>Due:</b></td>
+    <td>Monday, November 13, 11:59pm</td>
+  </tr>
+</table>
+</div>
+
+
+<h3>Purpose of this assignment <hr class="heading"></h3>
+
+<p>This is an exercise in defining and using a type 
+with multiple constructors.  The language is Cinnameg.
+</p>
+
+<h3>
+  The assignment
+  <hr class="heading">
+</h3>
+
+<p>Assignment 4 discusses derivatives.  This assignment is to do
+the same thing using a type Expression to represent expressions.
+The language is Cinnameg.
+<p>
+
+<p>Start with <a href="deriv.cmg">deriv.cmg</a>.
+The expression type currently handles constants, xx (the
+independent variable), and addition.
+Extend type Expression and function $.
+Extend functions derivative and
+simplify that they handle subtraction,
+multiplication and power, as in assignment 4.
+</p>
+
+<p>So that everybody
+uses the same names (making programs easier for me to test) use
+operator &minus; for subtraction, operator * for multiplication and
+operator ^ for exponentation.  Design your program so that each of
+these operators takes two expressions as parameters.
+</p>
+
+<p>Be careful about types.  0 is a number, not an expression.
+The corresponding expression is constant(0).
+</p>
+
+
+<h3>Important notes <hr class="heading"></h3>
+
+<p><b>Note.</b> The program is broken into two parts.  deriv.cmg 
+implements expressions, derivatives and the simplifier.  File 
+<a href="testderiv.cmg">testderiv.cmg</a>
+contains a tester.  Extend it to do more tests.  
+<b>Be sure to test your new code!</b>
+</p>
+
+<p><b>Note.</b> You are only supposed to deal with
+<i>constant</i> powers.  
+If your deriv function is asked to produce the derivative of an
+expression where the exponent is not constant, it should fail.
+File deriv.cmg has an <i>exception</i> called derivativeX defined in it.
+You can indicate failure to compute the derivative of expression
+<i>e</i> using expression fail(derivativeX(e)), as in
+<pre>
+  &hellip;
+  else deriv(e) = fail(derivativeX(e))
+</pre>
+</p>
+
+<p><b>Note.</b> Internal documentation is important in any
+program, and it is important that it be correct.
+When you make modifications, keep the documentation
+up to date.  <b>Failure to do so will cause you to lose points.</b>
+</p>
+
+<p><b>Note.</b> Pay attention to what you are writing.  I have
+received submissions for this assignment containing &quot;facts&quot; such
+as 
+<ul>
+  <li> 0*<i>x</i> = <i>x</i></li>
+  <li> <i>x</i><sup>0</sup> = <i>x</i></li> 
+  <li> <i>x</i><sup>0</sup> = 0</li>
+  <li> 0<tt>-</tt><i>x</i> = <i>x</i></li>
+</ul>
+and assorted other goodies.  
+(By the way, 0<sup>0</sup> is undefined.  It is not terribly
+important how your program handles that problem.  If you
+treat <i>x</i><sup>0</sup> as 1, that is okay.  But in unusual cases,
+it can lead to some serious problems.)
+</p>
+
+<p><b>Note.</b> To compute a real number to a real power, use operator
+<tt>^*</tt>.  It computes powers using logarithms and exponentials.
+(<i>x</i>^*<i>y</i> = exp(<i>y</i> ln(<i>x</i>)).)  You can still call
+your expression exponentiation operator <tt>^</tt>.
+</p>
+
+
+<h3>Submitting the program <hr class="heading"></h3>
+
+<p>Submit both of your programs, the derivative finder and the tester,
+in the usual way, using the submit command.  Be sure to indicate that
+the assignment number is 7.  So use command
+<pre>
+  ~abrahamsonk/3675/bin/submit 7 deriv.cmg testderiv.cmg
+</pre>
+Command
+<pre>
+   ~abrahamsonk/3675/bin/submit 7
+</pre>
+will tell you what you have submitted.
+</p>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>
